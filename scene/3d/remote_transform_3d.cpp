@@ -60,7 +60,23 @@ void RemoteTransform3D::_update_remote() {
 		return;
 	}
 
-	Transform3D our_trans = use_global_coordinates ? get_global_transform() : get_transform();
+	//todo make faster
+	if (use_global_coordinates) {
+		if (update_remote_position && update_remote_rotation && update_remote_scale) {
+			n->set_global_transform(get_global_transform());
+		} else {
+			Transform3D our_trans = get_global_transform();
+
+			if (update_remote_rotation) {
+				n->set_global_rotation(our_trans.basis.get_euler_normalized(EulerOrder(n->get_rotation_order())));
+			}
+
+			if (update_remote_scale) {
+				n->set_scale(our_trans.basis.get_scale());
+			}
+
+			if (update_remote_position) {
+				Transform3D n_trans = n->get_global_transform();
 
 	if (update_remote_position && update_remote_rotation && update_remote_scale) {
 		if (use_global_coordinates) {
