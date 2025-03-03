@@ -4,12 +4,10 @@ on:
 
 # Global Settings
 env:
-  SCONS_FLAGS: >-
-    dev_mode=yes
-    tests=no
-    debug_symbols=no
-    use_closure_compiler=yes
-  EM_VERSION: 4.0.11
+  # Used for the cache key. Add version suffix to force clean build.
+  GODOT_BASE_BRANCH: 4.4
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no use_closure_compiler=yes strict_checks=yes
+  EM_VERSION: 3.1.64
 
 jobs:
   web-template:
