@@ -1656,7 +1656,10 @@ void RuntimeNodeSelect::_root_window_input(const Ref<InputEvent> &p_event) {
 	bool is_dragging_camera = false;
 	if (camera_override) {
 		if (node_select_type == NODE_TYPE_2D) {
-			is_dragging_camera = panner->gui_input(p_event, Rect2(Vector2(), root->get_visible_rect().get_size()));
+			if (panner->gui_input(p_event, Rect2(Vector2(), root->get_visible_rect().get_size()))) {
+				return;
+			}
+		} else if (node_select_type == NODE_TYPE_3D) {
 #ifndef _3D_DISABLED
 		} else if (node_select_type == NODE_TYPE_3D && selection_drag_state == SELECTION_DRAG_NONE) {
 			if (_handle_3d_input(p_event)) {
