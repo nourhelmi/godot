@@ -1,9 +1,6 @@
 name: Build godot-cpp
 description: Build godot-cpp with the provided options.
 
-env:
-  GODOT_CPP_BRANCH: 4.4
-
 inputs:
   bin:
     description: Path to the Godot binary.
