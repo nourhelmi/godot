@@ -7937,7 +7937,6 @@ AnimationTrackEditor::AnimationTrackEditor() {
 	fps_compat->connect(SceneStringName(toggled), callable_mp(this, &AnimationTrackEditor::_update_fps_compat_mode));
 
 	nearest_fps_label = memnew(Label);
-	nearest_fps_label->set_focus_mode(FOCUS_ACCESSIBILITY);
 	nearest_fps_label->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
 	bottom_hf->add_child(nearest_fps_label);
 
