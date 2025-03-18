@@ -71,3 +71,6 @@ public:
 
 	bool should_collide_with_back_faces() const { return back_face_collision; }
 };
+
+	bool should_collide_with_back_faces() const { return back_face_collision; }
+};
