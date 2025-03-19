@@ -4374,20 +4374,13 @@ bool Tree::edit_selected(bool p_force_edit) {
 		// `floor()` centers vertically.
 		Vector2 ofs(0, Math::floor((MAX(line_editor->get_minimum_size().height, rect.size.height - value_editor_height) - rect.size.height) / 2));
 
+		popup_rect.position = get_screen_position() + rect.position - ofs;
+		popup_rect.size = rect.size;
+
 		// Account for icon.
-		real_t icon_ofs = 0;
-		if (c.icon.is_valid()) {
-			icon_ofs = _get_cell_icon_size(c).x * popup_scale + theme_cache.h_separation;
-		}
-
-		popup_rect.size = rect.size + Vector2(-icon_ofs, value_editor_height);
-
-		popup_rect.position = rect.position - ofs;
-		popup_rect.position.x += icon_ofs;
-		if (cache.rtl) {
-			popup_rect.position.x = get_size().width - popup_rect.position.x - popup_rect.size.x;
-		}
-		popup_rect.position += get_screen_position();
+		Size2 icon_size = _get_cell_icon_size(c) * popup_scale;
+		popup_rect.position.x += icon_size.x;
+		popup_rect.size.x -= icon_size.x;
 
 		line_editor->clear();
 		line_editor->set_text(c.mode == TreeItem::CELL_MODE_STRING ? c.text : String::num(c.val, Math::range_step_decimals(c.step)));
