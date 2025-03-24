@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
-"PO-Revision-Date: 2025-06-15 23:06+0000\n"
+"PO-Revision-Date: 2025-03-24 15:28+0000\n"
 "Last-Translator: Bee Crankson <ProfB.crankson@gmail.com>\n"
 "Language-Team: Toki Pona <https://hosted.weblate.org/projects/godot-engine/"
 "godot/tok/>\n"
@@ -236,14 +236,26 @@ msgstr "tenpo:"
 msgid "Add Animation"
 msgstr "o pana e sitelen tawa"
 
-msgid "Load..."
-msgstr "o kama lon..."
+msgid "Animation length (frames)"
+msgstr "suli pi sitelen tawa (sitelen)"
+
+msgid "Animation length (seconds)"
+msgstr "suli pi sitelen tawa (tenpo)"
+
+msgid "Time (s):"
+msgstr "tenpo:"
+
+msgid "Start (s):"
+msgstr "open:"
 
 msgid "Create points."
 msgstr "o pali sin e lili."
 
-msgid "Erase points."
-msgstr "o weka e lili."
+msgid "Create"
+msgstr "o pali sin"
+
+msgid "node '%s'"
+msgstr "ijo pali '%s'"
 
 msgid "Point"
 msgstr "lili"
@@ -426,8 +438,12 @@ msgstr "pakala:"
 msgid "Create New Animation"
 msgstr "o pali sin e sitelen tawa"
 
-msgid "New Animation Name:"
-msgstr "nimi sin pi sitelen tawa:"
+msgid "Open Scene"
+msgid_plural "Open Scenes"
+msgstr[0] "o open e ma pali"
+
+msgid "Open"
+msgstr "o open"
 
 msgid "Rename Animation"
 msgstr "o nimi sin e sitelen tawa"
@@ -1103,8 +1119,26 @@ msgstr "laso"
 msgid "Blue"
 msgstr "laso telo"
 
-msgid "Purple"
-msgstr "laso loje"
+msgid "Forward+"
+msgstr "nasin Forward+"
+
+msgid "Mobile"
+msgstr "nasin Mobile"
+
+msgid "Compatibility"
+msgstr "nasin Compatibility"
+
+msgid "Group Selected Node(s)"
+msgstr "o kulupu e ijo pali ni"
+
+msgid "Ungroup Selected Node(s)"
+msgstr "o kulupu ala e ijo pali ni"
+
+msgid "Scene"
+msgstr "ma pali"
+
+msgid "Copy Text"
+msgstr "o jasima e toki"
 
 msgid "Pink"
 msgstr "loje walo"
@@ -1303,8 +1337,14 @@ msgstr "mi awen e ma pali la pakala li lon."
 msgid "Error duplicating scene to save it."
 msgstr "mi pali tu e ma pali tawa awen e ona la pakala li lon."
 
-msgid "<unknown>"
-msgstr "<mi sona ala e ni>"
+msgid "Offline mode, update checks disabled."
+msgstr "nasin pi linluwi ala, mi alasa ala e sin."
+
+msgid "Update checks disabled."
+msgstr "mi alasa ala e sin."
+
+msgid "An error has occurred. Click to try again."
+msgstr "pakala li lon. o pilin tawa pali sin."
 
 msgid "Open in Editor"
 msgstr "o open lon ilo ante"
@@ -1390,9 +1430,20 @@ msgstr "ken la ante li weka!"
 msgid "This object is read-only."
 msgstr "sina ken lukin taso e ijo ni."
 
-msgid "%d second ago"
-msgid_plural "%d seconds ago"
-msgstr[0] "lon tenpo lili %d tawa"
+msgid "Can't open file for writing at path \"%s\"."
+msgstr "mi ken ala open e lipu tawa sitelen lon nasin \"%s\"."
+
+msgid "Can't open file for reading-writing at path \"%s\"."
+msgstr "mi ken ala open e lipu tawa lukin-sitelen lon nasin \"%s\"."
+
+msgid "Can't open file to read from path \"%s\"."
+msgstr "mi ken ala open e lipu tawa lukin lon nasin \"%s\"."
+
+msgid "Save ZIP"
+msgstr "o kama awen e lipu ZIP"
+
+msgid "GDExtension"
+msgstr "GDExtension"
 
 msgid "%d minute ago"
 msgid_plural "%d minutes ago"
@@ -1795,8 +1846,8 @@ msgstr "pakala pi sona mi ala"
 msgid "Can't open file for writing at path \"%s\"."
 msgstr "mi ken ala open e lipu tawa sitelen lon nasin \"%s\"."
 
-msgid "Can't open file for reading-writing at path \"%s\"."
-msgstr "mi ken ala open e lipu tawa lukin-sitelen lon nasin \"%s\"."
+msgid "Ungroup Children"
+msgstr "o kulupu ala e kili"
 
 msgid "Save ZIP"
 msgstr "o awen e lipu ZIP"
@@ -1864,8 +1915,8 @@ msgid ""
 "Filters to include files/folders\n"
 "(comma-separated, e.g: *.tscn, *.tres, scenes/*)"
 msgstr ""
-"lawa len tawa jo e (poki) lipu\n"
-"(comma-separated, e.g: *.tscn, *.tres, scenes/*)"
+"sina ken ala pilin e kili.\n"
+"o pilin tawa ken pilin e ona."
 
 msgid ""
 "Filters to exclude files/folders\n"
@@ -2027,14 +2078,20 @@ msgstr "nimi pi poki lipu li ken."
 msgid "Godot Engine contributors"
 msgstr "jan pali pi ilo Koto"
 
-msgid "Double-click to open in browser."
-msgstr "o pilin tu tawa open lon linja."
+msgid "Insert Point"
+msgstr "o pana e lili"
+
+msgid "Edit Polygon (Remove Point)"
+msgstr "o ante e ijo pi linja mute (o weka e lili)"
 
 msgid "Thanks from the Godot community!"
 msgstr "kulupu pi ilo Koto li pana pona!"
 
-msgid "Authors"
-msgstr "jan pali"
+msgid "Add Animation"
+msgstr "o pana e sitelen tawa"
+
+msgid "Point"
+msgstr "lili"
 
 msgid "Donors"
 msgstr "jan pi pana mani"
@@ -2384,16 +2441,27 @@ msgstr "nimi pi ilo namako:"
 msgid "Required. This name will be displayed in the list of plugins."
 msgstr "wile mute. nimi ni li lon kulupu pi ilo namako."
 
+msgid "Remove item %d?"
+msgstr "sina wile ala wile weka e ijo nanpa %d?"
+
 msgid ""
-"Optional. The folder name should generally use `snake_case` naming (avoid "
-"spaces and special characters).\n"
-"If left empty, the folder will be named after the plugin name converted to "
-"`snake_case`."
+"Update from existing scene?:\n"
+"%s"
 msgstr ""
-"wile anu wile ala. meso la nimi pi poki lipu li wile kepeken nasin nimi "
-"`snake_case` (li wile ala e jo ala e sitelen wan).\n"
-"ni li jo ala la, nimi pi poki lipu li tan nimi pi ilo namako tawa nasin nimi "
-"`snake_case`."
+"sina wile ala wile sin tan ma pali lon?:\n"
+"%s"
+
+msgid "Add Item"
+msgstr "o pana e ijo"
+
+msgid "Remove Selected Item"
+msgstr "o weka e ijo ni"
+
+msgid "Update from Scene"
+msgstr "o sin tan ma pali"
+
+msgid "X: %s\n"
+msgstr "X: %s\n"
 
 msgid "Author:"
 msgstr "mama:"
@@ -2503,17 +2571,56 @@ msgstr ""
 msgid "Couldn't save project at '%s' (error %d)."
 msgstr "mi ken ala awen e pali lon '%s' (pakala nanpa %d)."
 
-msgid "Rename Project"
-msgstr "o nimi sin e pali"
+msgid "Remove Point from Curve"
+msgstr "o weka e lili tan linja"
 
-msgid "Create New Project"
-msgstr "o pali sin e pali sin"
+msgid "Move Point in Curve"
+msgstr "o tawa e lili lon linja"
 
-msgid "Project Name:"
-msgstr "nimi pali:"
+msgid "Add Point to Curve"
+msgstr "o pana e lili tawa linja"
 
-msgid "Project Path:"
-msgstr "nasin pali:"
+msgid "Split Curve"
+msgstr "o tu e linja"
+
+msgid "Close the Curve"
+msgstr "o pini e linja"
+
+msgid "Clear Curve Points"
+msgstr "o weka e lili linja"
+
+msgid "Create Curve in Path2D"
+msgstr "o pali sin e linja lon ijo pali Path2D"
+
+msgid "Select Points"
+msgstr "o anu e lili"
+
+msgid "Click: Add Point"
+msgstr "pilin: o pana e lili"
+
+msgid "Left Click: Split Segment (in curve)"
+msgstr "pilin soto: o tu e kipisi (lon linja)"
+
+msgid "Right Click: Delete Point"
+msgstr "pilin teje: o weka e lili"
+
+msgid "Add Point (in empty space)"
+msgstr "o pana e lili (lon ma pi jo ala)"
+
+msgid "Delete Point"
+msgstr "o weka e lili"
+
+msgid "Close Curve"
+msgstr "o pini e linja"
+
+msgid "Clear Points"
+msgstr "o weka e lili"
+
+msgid "Remove all curve points?"
+msgstr "sina wile ala wile weka e lili linja ale?"
+
+msgid "Create Curve"
+msgstr "o pali sin e linja"
 
 msgid "Edit Now"
 msgstr "o ante lon ni"
@@ -3662,8 +3769,11 @@ msgstr "mi pana e ijo pali %s..."
 msgid "Adding %s and %s..."
 msgstr "mi pana e ijo pali %s e ijo pali %s..."
 
-msgid "Connect to Node:"
-msgstr "o kulupu tawa ijo pali:"
+msgid "Animation Speed"
+msgstr "nanpa tawa pi sitelen tawa"
+
+msgid "Delete Animation"
+msgstr "o weka e sitelen tawa"
 
 msgid "Connect to Script:"
 msgstr "o kulupu tawa lipu ilo:"
@@ -4277,8 +4387,11 @@ msgstr "namako li ken ala."
 msgid "Error - Could not create script in filesystem."
 msgstr "pakala - mi ken ala pali sin e lipu ilo lon nasin lipu."
 
-msgid "Error loading script from %s"
-msgstr "pakala li lon kama lon e lipu ilo tan %s"
+msgid "Merge"
+msgstr "o wan"
+
+msgid "Alternative Tiles"
+msgstr "leko ante"
 
 msgid "Open Script / Choose Location"
 msgstr "o open e lipu ilo / o anu e ma"
@@ -4813,18 +4926,11 @@ msgstr "ni li pana e suli lon nanpa tu."
 msgid "Returns the lesser of two values."
 msgstr "ni li pana e lili lon nanpa tu."
 
-msgid ""
-"SmoothStep function( scalar(edge0), scalar(edge1), scalar(x) ).\n"
-"\n"
-"Returns 0.0 if 'x' is smaller than 'edge0' and 1.0 if x is larger than "
-"'edge1'. Otherwise the return value is interpolated between 0.0 and 1.0 using "
-"Hermite polynomials."
-msgstr ""
-"SmoothStep function( scalar(edge0), scalar(edge1), scalar(x) ).\n"
-"\n"
-"'x' li lili tawa 'edge0' la ni li pana e 0.0. 'x' li suli tawa 'edge1' la ni "
-"li pana e 1.0. ante la nanpa pana li tawa kepeken nasin pi Polynomial Hermite "
-"tan 0.0 tawa 1.0."
+msgid "Delete %d nodes and any children?"
+msgstr "sina wile ala wile weka e ijo pali %d e kili?"
+
+msgid "Delete %d nodes?"
+msgstr "sina wile ala wile weka e ijo pali %d?"
 
 msgid ""
 "Step function( scalar(edge), scalar(x) ).\n"
@@ -4835,8 +4941,8 @@ msgstr ""
 "\n"
 "'x' li lili tawa 'edge' la ni li pana e 0.0. ante la ni li pana e 1.0."
 
-msgid "Sums two transforms."
-msgstr "ni li wan e ante tu."
+msgid "Delete node \"%s\" and its children?"
+msgstr "sina wile ala wile weka e ijo pali \"%s\" e kili ona?"
 
 msgid "Divides two transforms."
 msgstr "ni li tu e ante tu."
@@ -4879,14 +4985,11 @@ msgstr ""
 "\n"
 "'x' li lili tawa 'edge' la ni li pana e 0.0. ante la ni li pana e 1.0."
 
-msgid ""
-"Step function( scalar(edge), vector(x) ).\n"
-"\n"
-"Returns 0.0 if 'x' is smaller than 'edge' and otherwise 1.0."
-msgstr ""
-"Step function( scalar(edge), vector(x) ).\n"
-"\n"
-"'x' li lili tawa 'edge' la ni li pana e 0.0. ante la ni li pana e 1.0."
+msgid "Toggle Editable Children"
+msgstr "o ante tu e kili pi ken ante"
+
+msgid "Remove Node(s)"
+msgstr "o weka e ijo pali"
 
 msgid "Edit Visual Property: %s"
 msgstr "o ante e nasin ijo lukin: %s"
@@ -4899,8 +5002,14 @@ msgctxt "Locale"
 msgid "Script"
 msgstr "sitelen"
 
-msgid "Country:"
-msgstr "ma:"
+msgid "Editable Children"
+msgstr "kili pi ken ante"
+
+msgid "Add Child Node..."
+msgstr "o pana e ijo pali kili..."
+
+msgid "Path is empty."
+msgstr "nasin li jo ala."
 
 msgid "Country"
 msgstr "ma"

@@ -187,22 +187,13 @@
 # xpeuvr327 <phucbaodomi@gmail.com>, 2025.
 # Alastair L <alockepublic+weblate@proton.me>, 2025.
 # Marc-Daniel DALEBA <marcodxv10@gmail.com>, 2025.
-# Azurian <clement.tomera.smb@gmail.com>, 2025.
-# Project 00 <flognintendo@gmail.com>, 2025.
-# Myeongjin <aranet100@gmail.com>, 2025.
-# Pierre K <pierrekouyoumdjian@hotmail.fr>, 2025.
-# mbenrubi <maxime.benrubi@gmail.com>, 2025.
-# MaxiMaxdu59 <max.miroux@gmail.com>, 2025.
-# Omgeta <anooptiger@hotmail.com>, 2025.
-# Dario Le Hy <dario.lehy@gmail.com>, 2025.
-# Cacathoes <etnatrabuc@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-09-21 23:03+0000\n"
-"Last-Translator: Cacathoes <etnatrabuc@gmail.com>\n"
+"PO-Revision-Date: 2025-03-23 23:01+0000\n"
+"Last-Translator: Marc-Daniel DALEBA <marcodxv10@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/godot-engine/godot/"
 "fr/>\n"
 "Language: fr\n"
@@ -210,7 +201,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
+
+msgid "Main Thread"
+msgstr "Fil principal"
 
 msgid "Unset"
 msgstr "Non défini"
@@ -1009,8 +1003,11 @@ msgstr ""
 msgid "Library with the same name already exists."
 msgstr "Une librairie du même nom existe déjà."
 
-msgid "Animation name is valid."
-msgstr "Le nom de l’animation est valide."
+msgid "Nearest FPS: %d"
+msgstr "FPS le plus proche : %d"
+
+msgid "Change Animation Step"
+msgstr "Modifier l’étape d’animation"
 
 msgid "Global library will be created."
 msgstr "Une bibliothèque globale va être créée."
@@ -1214,8 +1211,11 @@ msgstr "Charger une bibliothèque d’animation"
 msgid "Load animation library from disk."
 msgstr "Charger une bibliothèque d’animations à partir du disque."
 
-msgid "Resource"
-msgstr "Ressource"
+msgid "Apply snapping to the nearest integer FPS."
+msgstr "Appliquer la magnétisation au FPS entier le plus proche."
+
+msgid "Animation step value."
+msgstr "Valeur du pas d'animation."
 
 msgid "Storage"
 msgstr "Stockage"
@@ -1418,9 +1418,6 @@ msgstr "Aucune ressource de lecture définie au chemin : %s."
 msgid "Node Removed"
 msgstr "Nœud supprimé"
 
-msgid "Transition Removed"
-msgstr "Transition supprimée"
-
 msgid ""
 "Select and move nodes.\n"
 "RMB: Add node at position clicked.\n"
@@ -1432,8 +1429,8 @@ msgstr ""
 "Shift + Clic gauche + Glisser : Connecter le nœud sélectionné avec un autre "
 "nœud ou créer un nouveau nœud si la sélection n’en présente pas un."
 
-msgid "Select and move nodes."
-msgstr "Sélectionner et déplacer des nœuds."
+msgid "Rename Marker"
+msgstr "Renommer la clé"
 
 msgid "Create new nodes."
 msgstr "Créer de nouveaux nœuds."
@@ -3589,6 +3586,9 @@ msgstr ""
 msgid "Text File"
 msgstr "Fichier texte"
 
+msgid "TextFile"
+msgstr "Fichier texte"
+
 msgid "File"
 msgstr "Fichier"
 
@@ -3937,8 +3937,29 @@ msgstr "Déplacer/Dupliquer vers…"
 msgid "Add to Favorites"
 msgstr "Ajouter aux favoris"
 
-msgid "Remove from Favorites"
-msgstr "Supprimer des favoris"
+msgid ""
+"The Android build template is already installed in this project and it won't "
+"be overwritten.\n"
+"Remove the \"%s\" directory manually before attempting this operation again."
+msgstr ""
+"Le modèle de compilation Android est déjà installé dans ce projet et ne sera "
+"pas remplacé.\n"
+"Retirez le dossier \"%s\" manuellement avant de réessayer l'opération."
+
+msgid ""
+"This will set up your project for gradle Android builds by installing the "
+"source template to \"%s\".\n"
+"Note that in order to make gradle builds instead of using pre-built APKs, the "
+"\"Use Gradle Build\" option should be enabled in the Android export preset."
+msgstr ""
+"Ceci va configurer votre projet pour les compilation Android gradle en "
+"installant le modèle source dans \"%s\".\n"
+"Notez qu'afin de faire des compilations gradle au lieu des APKs précompilées, "
+"l'option \"Utiliser une compilation gradle\" doit être activé dans les "
+"préreglages d'export Android."
+
+msgid "Unnamed Project"
+msgstr "Projet sans titre"
 
 msgid "Convert to..."
 msgstr "Convertir en…"
@@ -4224,8 +4245,17 @@ msgstr "Impossible de charger la ressource."
 msgid "(Current)"
 msgstr "(actuel)"
 
-msgid "Expand Non-Default"
-msgstr "Dévoiler non-défaut"
+msgid ""
+"No main scene has ever been defined. Select one?\n"
+"You can change it later in \"Project Settings\" under the 'application' "
+"category."
+msgstr ""
+"Aucune scène principale n'a été définie, en sélectionner une ?\n"
+"Vous pouvez la modifier ultérieurement dans les 'Paramètres du projet' sous "
+"la catégorie 'application'."
+
+msgid "Save Layout..."
+msgstr "Enregistrer la disposition..."
 
 msgid "Property Name Style"
 msgstr "Style des noms de propriétés"
@@ -5280,11 +5310,11 @@ msgstr "Effacer la liste des scènes récentes"
 msgid "There is no defined scene to run."
 msgstr "Il n’y a pas de scène définie à exécuter."
 
-msgid "Loading editor"
-msgstr "Chargement de l’éditeur"
+msgid "Can't create encrypted file."
+msgstr "Impossible de créer le fichier chiffré."
 
-msgid "Loading editor layout..."
-msgstr "Chargement de la disposition de l’éditeur…"
+msgid "Can't open encrypted file to write."
+msgstr "Impossible d'ouvrir le fichier chiffré pour écriture."
 
 msgid "Loading docks..."
 msgstr "Chargement des docks…"
@@ -5714,8 +5744,8 @@ msgstr "Ouvrir le dock Nœud"
 msgid "History"
 msgstr "Historique"
 
-msgid "Open History Dock"
-msgstr "Ouvrir le dock de l'historique"
+msgid "Encrypt Exported PCK"
+msgstr "Chiffrer le PCK exporté"
 
 msgid "Output"
 msgstr "Sortie"
@@ -6281,8 +6311,17 @@ msgstr "Téléchargement"
 msgid "Connection Error"
 msgstr "Erreur de connexion"
 
-msgid "TLS Handshake Error"
-msgstr "Erreur TLS Handshake"
+msgid ""
+"Scroll Right\n"
+"Hold Ctrl to scroll to the end.\n"
+"Hold Shift to scroll one page."
+msgstr ""
+"Faire défiler vers la droite\n"
+"Maintenez Ctrl pour défiler jusqu'à la fin.\n"
+"Maintenez Shift pour défiler d'une page."
+
+msgid "Expand Bottom Panel"
+msgstr "Développer le panneau inférieur"
 
 msgid "Can't open the export templates file."
 msgstr "Impossible d’ouvrir le fichier contenant les modèles d’exportation."
@@ -6478,8 +6517,9 @@ msgstr "Exporter avec debug"
 msgid "Export As Patch"
 msgstr "Exporter en tant que patch"
 
-msgid "%s Export"
-msgstr "Export %s"
+msgid "Recovery Mode is enabled. Disable it to run the project."
+msgstr ""
+"Le mode de récupération est activé. Désactivez-le pour exécuter le projet."
 
 msgid "Release"
 msgstr "Publication"
@@ -6487,11 +6527,26 @@ msgstr "Publication"
 msgid "Exporting All"
 msgstr "Tout exporter"
 
-msgid "Presets"
-msgstr "Préréglages"
+msgid "Click to open the first profiler for which autostart is enabled."
+msgstr ""
+"Cliquez pour ouvrir le premier profileur pour lequel le démarrage automatique "
+"est activé."
 
-msgid "Add..."
-msgstr "Ajouter…"
+msgid ""
+"Godot opened the project in Recovery Mode, which is a special mode that can "
+"help recover projects that crash the engine upon initialization. The "
+"following features have been temporarily disabled:"
+msgstr ""
+"Godot a ouvert le projet en Mode Récupération, qui est un mode spécial qui "
+"peut aider à récupérer des projets qui plantent le moteur lors de "
+"l'initialisation. Les fonctionnalités suivantes ont été temporairements "
+"désactivées :"
+
+msgid "GDExtension addons"
+msgstr "Addons GDExtension"
+
+msgid "Automatic scene restoring"
+msgstr "Récupération de scène automatique"
 
 msgid ""
 "If checked, the preset will be available for use in one-click deploy.\n"
@@ -15231,8 +15286,11 @@ msgstr "JSON"
 msgid "Markdown"
 msgstr "Markdown"
 
-msgid "ConfigFile"
-msgstr "ConfigFile"
+msgid "Line Tool"
+msgstr "Outil Ligne"
+
+msgid "TileMap"
+msgstr "TileMap"
 
 msgid "Script"
 msgstr "Script"
@@ -15617,11 +15675,11 @@ msgstr "Affichage Wayland (Linux seulement)."
 msgid "X11 display (Linux only)."
 msgstr "Affichage X11 (Linux seulement)."
 
-msgid ""
-"RenderingDevice based rendering (if disabled, the OpenGL backend is required)."
-msgstr ""
-"Rendu basé sur RenderingDevice (si désactivé, le backend OpenGL est "
-"nécessaire)."
+msgid "Edit Preview Parameter: %s"
+msgstr "Modifier les paramètres de l'aperçu : %s"
+
+msgid "Duplicate VisualShader Node(s)"
+msgstr "Dupliquer le(s) nœud(s) VisualShader"
 
 msgid "Forward+ renderer for advanced 3D graphics."
 msgstr "Moteur de rendu Forward+ pour des graphiques 3D avancés."
@@ -19262,17 +19320,14 @@ msgstr ""
 msgid "AAB signing is not supported"
 msgstr "La signature AAB n'est pas prise en charge"
 
+msgid "AAB signing is not supported"
+msgstr "La signature AAB n'est pas prise en charge"
+
 msgid "Signing debug APK..."
 msgstr "Signature de l'APK debug..."
 
-msgid "Signing release APK..."
-msgstr "Signature de l'APK de déploiement..."
-
-msgid "Could not find debug keystore, unable to export."
-msgstr "Impossible de trouver le keystore de débogage, impossible d'exporter."
-
-msgid "Could not find release keystore, unable to export."
-msgstr "Impossible de trouver le keystore de release, impossible d'exporter."
+msgid "Could not find keystore, unable to export."
+msgstr "Impossible de trouver le keystore, impossible d'exporter."
 
 msgid "Unable to sign apk."
 msgstr "Impossible de signer l'apk."
