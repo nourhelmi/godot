@@ -274,15 +274,28 @@ uint64_t FileAccessCompressed::get_buffer(uint8_t *p_dst, uint64_t p_length) con
 			return p_length;
 		}
 
-		// We're not done yet; try reading the next block.
-		read_block++;
+			if (read_block < read_block_count) {
+				//read another block of compressed data
+				f->get_buffer(comp_buffer.ptrw(), read_blocks[read_block].csize);
+				int ret = Compression::decompress(buffer.ptrw(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.ptr(), read_blocks[read_block].csize, cmode);
+				ERR_FAIL_COND_V_MSG(ret == -1, -1, "Compressed file is corrupt.");
+				read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
+				read_pos = 0;
 
-		if (read_block >= read_block_count) {
-			// We're done! We read back the whole file.
-			read_block--;
-			at_end = true;
-			if (dst_idx + 1 < p_length) {
-				read_eof = true;
+				if (read_block_size == 0) {
+					at_end = true;
+					if (i + 1 < p_length) {
+						read_eof = true;
+					}
+					return i + 1;
+				}
+			} else {
+				read_block--;
+				at_end = true;
+				if (i + 1 < p_length) {
+					read_eof = true;
+				}
+				return i + 1;
 			}
 			return dst_idx;
 		}
