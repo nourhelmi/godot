@@ -379,16 +379,20 @@ Error CowData<T>::resize(Size p_size) {
 }
 
 template <typename T>
-Error CowData<T>::_alloc(USize p_alloc_size) {
-	uint8_t *mem_new = (uint8_t *)Memory::alloc_static(p_alloc_size + DATA_OFFSET, false);
-	ERR_FAIL_NULL_V(mem_new, ERR_OUT_OF_MEMORY);
+typename CowData<T>::Size CowData<T>::find(const T &p_val, Size p_from) const {
+	if (p_from < 0) {
+		return -1;
+	}
 
-	_ptr = _get_data_ptr(mem_new);
+	const Size s = size();
 
-	// If we alloc, we're guaranteed to be the only reference.
-	new (_get_refcount()) SafeNumeric<USize>(1);
+	for (Size i = p_from; i < s; i++) {
+		if (_ptr[i] == p_val) {
+			return i;
+		}
+	}
 
-	return OK;
+	return -1;
 }
 
 template <typename T>
@@ -398,11 +402,24 @@ Error CowData<T>::_realloc(USize p_alloc_size) {
 
 	_ptr = _get_data_ptr(mem_new);
 
-	// If we realloc, we're guaranteed to be the only reference.
-	// So the reference was 1 and was copied to be 1 again.
-	DEV_ASSERT(_get_refcount()->get() == 1);
+	for (Size i = p_from; i >= 0; i--) {
+		if (_ptr[i] == p_val) {
+			return i;
+		}
+	}
+	return -1;
+}
 
-	return OK;
+template <typename T>
+typename CowData<T>::Size CowData<T>::count(const T &p_val) const {
+	Size amount = 0;
+	const Size s = size();
+	for (Size i = 0; i < s; i++) {
+		if (_ptr[i] == p_val) {
+			amount++;
+		}
+	}
+	return amount;
 }
 
 template <typename T>
