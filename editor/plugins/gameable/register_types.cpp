@@ -19,6 +19,7 @@
 #include "scene/gui/line_edit.h"
 #include "scene/gui/button.h"
 #include "scene/gui/label.h"
+#include "scene/main/timer.h"
 #include "modules/websocket/websocket_peer.h"
 
 namespace {
@@ -77,9 +78,9 @@ public:
 		poll_timer = memnew(Timer);
 		poll_timer->set_wait_time(0.1);
 		poll_timer->set_one_shot(false);
+		poll_timer->set_autostart(true);
 		add_child(poll_timer);
 		poll_timer->connect("timeout", callable_mp(this, &GameableDock::_on_poll));
-		poll_timer->start();
 	}
 
 	void _on_send() { _append_and_clear(); }
