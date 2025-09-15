@@ -129,6 +129,7 @@
 #include "editor/plugins/tool_button_editor_plugin.h"
 #include "editor/plugins/voxel_gi_editor_plugin.h"
 #include "editor/register_exporters.h"
+#include "editor/plugins/gameable/register_types.h"
 
 void register_editor_types() {
 	OS::get_singleton()->benchmark_begin_measure("Editor", "Register Types");
@@ -299,6 +300,9 @@ void register_editor_types() {
 	// class is actually instantiated.
 	EditorHelp::init_gdext_pointers();
 
+	// Initialize Gameable editor shim to inject addon into any opened project.
+	initialize_gameable_editor_plugin();
+
 	OS::get_singleton()->benchmark_end_measure("Editor", "Register Types");
 }
 
@@ -312,6 +316,9 @@ void unregister_editor_types() {
 		EditorPaths::free();
 	}
 	EditorStringNames::free();
+
+	// Cleanup hook for Gameable editor shim (currently no-op).
+	uninitialize_gameable_editor_plugin();
 
 	OS::get_singleton()->benchmark_end_measure("Editor", "Unregister Types");
 }
