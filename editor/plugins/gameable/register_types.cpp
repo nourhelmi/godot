@@ -19,6 +19,8 @@
 #include "scene/gui/line_edit.h"
 #include "scene/gui/button.h"
 #include "scene/gui/label.h"
+#include "scene/gui/dialogs.h"
+#include "core/io/json.h"
 #include "scene/main/timer.h"
 #include "modules/websocket/websocket_peer.h"
 
@@ -38,6 +40,8 @@ class GameableDock final : public PanelContainer {
 	Timer *poll_timer = nullptr;
 	double retry_delay = 0.5;
 	uint64_t next_retry_msec = 0;
+	// No confirmation UI; agent-initiated applies are immediate.
+
 public:
 	GameableDock() {
 		set_name("Gameable");
@@ -92,13 +96,23 @@ public:
 			return;
 		}
 		log->append_text("[b]You:[/b] " + t + "\n");
+		// Wrap plain text as JSON-RPC chat request so agent can act.
+		Dictionary req;
+		req["jsonrpc"] = "2.0";
+		req["id"] = (int)OS::get_singleton()->get_ticks_msec();
+		req["method"] = "chat";
+		Dictionary params;
+		params["prompt"] = t;
+		req["params"] = params;
+		const String payload = JSON::stringify(req);
 		if (ws && ws->get_ready_state() == WebSocketPeer::STATE_OPEN) {
-			ws->send_text(t);
+			ws->send_text(payload);
 		} else if (ws) {
 			ws->poll();
 		}
 		input->clear();
 	}
+
 
 	void _set_status(const String &p_text) {
 		if (status) {
@@ -141,6 +155,18 @@ public:
 					int len = 0;
 					if (ws->get_packet(&buf, len) == OK && buf && len > 0) {
 						String text = ws->was_string_packet() ? String::utf8((const char *)buf, len) : "<binary:" + itos(len) + " bytes>";
+						Variant parsed = JSON::parse_string(text);
+						if (parsed.get_type() == Variant::DICTIONARY) {
+							Dictionary d = parsed;
+							if (d.has("result")) {
+								Dictionary result = d["result"];
+								if (result.has("applyResult")) {
+									Dictionary ar = result["applyResult"];
+									log->append_text("[b]Applied:[/b] " + String(JSON::stringify(ar)) + "\n");
+									continue;
+								}
+							}
+						}
 						log->append_text("[b]Agent:[/b] " + text + "\n");
 					}
 				}
