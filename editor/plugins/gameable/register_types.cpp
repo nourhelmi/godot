@@ -22,7 +22,11 @@
 #include "scene/gui/dialogs.h"
 #include "core/io/json.h"
 #include "scene/main/timer.h"
+#include "editor/editor_interface.h"
+#include "scene/main/node.h"
 #include "modules/websocket/websocket_peer.h"
+#include "core/templates/list.h"
+#include "core/variant/typed_array.h"
 
 namespace {
 
@@ -40,6 +44,9 @@ class GameableDock final : public PanelContainer {
 	Timer *poll_timer = nullptr;
 	double retry_delay = 0.5;
 	uint64_t next_retry_msec = 0;
+	bool sent_hello = false;
+	bool sent_context = false;
+	uint64_t last_context_sent_msec = 0;
 	// No confirmation UI; agent-initiated applies are immediate.
 
 public:
@@ -85,10 +92,67 @@ public:
 		poll_timer->set_autostart(true);
 		add_child(poll_timer);
 		poll_timer->connect("timeout", callable_mp(this, &GameableDock::_on_poll));
+
+		// Listen to editor selection changes to push context updates.
+		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
+			es->connect("selection_changed", callable_mp(this, &GameableDock::_on_selection_changed));
+		}
 	}
 
 	void _on_send() { _append_and_clear(); }
 	void _on_submit(const String &p_text) { _append_and_clear(); }
+
+	void _send_jsonrpc(const String &p_method, const Dictionary &p_params) {
+		if (!ws || ws->get_ready_state() != WebSocketPeer::STATE_OPEN) {
+			return;
+		}
+		Dictionary req;
+		req["jsonrpc"] = "2.0";
+		req["id"] = (int)OS::get_singleton()->get_ticks_msec();
+		req["method"] = p_method;
+		req["params"] = p_params;
+		ws->send_text(JSON::stringify(req));
+	}
+
+	void _send_context_snapshot() {
+		Dictionary params;
+		params["projectRoot"] = ProjectSettings::get_singleton()->get_resource_path();
+		if (Node *scene_root = EditorNode::get_singleton()->get_edited_scene()) {
+			String scene_path = scene_root->get_scene_file_path();
+			if (!scene_path.is_empty()) {
+				params["scenePath"] = scene_path;
+			}
+		}
+		// FileSystem dock current path.
+		String current_path = EditorInterface::get_singleton()->get_current_path();
+		if (!current_path.is_empty()) {
+			params["currentPath"] = current_path;
+		}
+		// Node selection paths.
+		PackedStringArray sel;
+		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
+			List<Node *> &nodes = es->get_selected_node_list();
+			for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
+				Node *n = E->get();
+				if (n) {
+					sel.push_back(String(n->get_path()));
+				}
+			}
+		}
+		if (sel.size() > 0) {
+			params["selection"] = sel;
+		}
+		_send_jsonrpc("context", params);
+		sent_context = true;
+		last_context_sent_msec = OS::get_singleton()->get_ticks_msec();
+	}
+
+	void _on_selection_changed() {
+		// Throttle minimal via poll-loop cadence; send immediately for now.
+		if (ws && ws->get_ready_state() == WebSocketPeer::STATE_OPEN) {
+			_send_context_snapshot();
+		}
+	}
 
 	void _append_and_clear() {
 		const String t = input->get_text().strip_edges();
@@ -150,6 +214,15 @@ public:
 		switch (ws->get_ready_state()) {
 			case WebSocketPeer::STATE_OPEN: {
 				_set_status("Connected");
+				if (!sent_hello) {
+					Dictionary hello;
+					hello["session"] = "dev";
+					_send_jsonrpc("hello", hello);
+					sent_hello = true;
+				}
+				if (!sent_context) {
+					_send_context_snapshot();
+				}
 				while (ws->get_available_packet_count() > 0) {
 					const uint8_t *buf = nullptr;
 					int len = 0;
@@ -188,7 +261,9 @@ class GameableEditorBuiltin final : public EditorPlugin {
 	GDCLASS(GameableEditorBuiltin, EditorPlugin);
 	static void _bind_methods() {}
 
-	Control *chat_dock = nullptr;
+    Control *chat_dock = nullptr;
+    Control *bottom_logs = nullptr;
+    Button *bottom_toggle_btn = nullptr;
 
 	void _ensure_dock_first() {
 		if (!chat_dock) {
@@ -223,13 +298,26 @@ public:
 				_ensure_dock_first();
 				// Make Gameable the active tab immediately.
 				EditorDockManager::get_singleton()->focus_dock(chat_dock);
+
+				// Bottom panel logs tab (placeholder; may mirror agent log events later).
+				RichTextLabel *logs = memnew(RichTextLabel);
+				logs->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
+				logs->set_v_size_flags(SIZE_EXPAND_FILL);
+				bottom_logs = logs;
+				bottom_toggle_btn = add_control_to_bottom_panel(bottom_logs, "Gameable");
 			} break;
 			case NOTIFICATION_EXIT_TREE: {
 				if (chat_dock) {
 					remove_control_from_docks(chat_dock);
 					chat_dock->queue_free();
 				}
+                if (bottom_logs) {
+                    remove_control_from_bottom_panel(bottom_logs);
+                    bottom_logs->queue_free();
+                }
 				chat_dock = nullptr;
+                bottom_logs = nullptr;
+                bottom_toggle_btn = nullptr;
 			} break;
 		}
 	}
