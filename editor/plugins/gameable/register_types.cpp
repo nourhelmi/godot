@@ -57,7 +57,7 @@ public:
 
 		log = memnew(RichTextLabel);
 		log->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
-		log->set_v_size_flags(SIZE_EXPAND_FILL);
+		log->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 		root->add_child(log);
 
 		HBoxContainer *status_row = memnew(HBoxContainer);
@@ -73,7 +73,7 @@ public:
 		root->add_child(row);
 
 		input = memnew(LineEdit);
-		input->set_h_size_flags(SIZE_EXPAND_FILL);
+		input->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 		row->add_child(input);
 
 		send = memnew(Button);
@@ -302,7 +302,7 @@ public:
 				// Bottom panel logs tab (placeholder; may mirror agent log events later).
 				RichTextLabel *logs = memnew(RichTextLabel);
 				logs->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
-				logs->set_v_size_flags(SIZE_EXPAND_FILL);
+				logs->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 				bottom_logs = logs;
 				bottom_toggle_btn = add_control_to_bottom_panel(bottom_logs, "Gameable");
 			} break;
