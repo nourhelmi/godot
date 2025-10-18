@@ -4,29 +4,26 @@
 #ifdef TOOLS_ENABLED
 
 #include "core/config/project_settings.h"
-#include "core/io/dir_access.h"
-#include "core/io/file_access.h"
+#include "core/io/json.h"
 #include "core/os/os.h"
+#include "core/templates/list.h"
+#include "editor/editor_dock_manager.h"
+#include "editor/editor_interface.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
-#include "editor/editor_dock_manager.h"
 #include "editor/plugins/editor_plugin.h"
-#include "scene/gui/control.h"
-#include "scene/gui/tab_container.h"
-#include "scene/gui/panel_container.h"
-#include "scene/gui/box_container.h"
-#include "scene/gui/rich_text_label.h"
-#include "scene/gui/line_edit.h"
-#include "scene/gui/button.h"
-#include "scene/gui/label.h"
-#include "scene/gui/dialogs.h"
-#include "core/io/json.h"
-#include "scene/main/timer.h"
-#include "editor/editor_interface.h"
-#include "scene/main/node.h"
 #include "modules/websocket/websocket_peer.h"
-#include "core/templates/list.h"
-#include "core/variant/typed_array.h"
+#include "scene/gui/box_container.h"
+#include "scene/gui/button.h"
+#include "scene/gui/control.h"
+#include "scene/gui/dialogs.h"
+#include "scene/gui/label.h"
+#include "scene/gui/line_edit.h"
+#include "scene/gui/panel_container.h"
+#include "scene/gui/rich_text_label.h"
+#include "scene/gui/tab_container.h"
+#include "scene/main/node.h"
+#include "scene/main/timer.h"
 
 namespace {
 
@@ -48,6 +45,7 @@ class GameableDock final : public PanelContainer {
 	bool sent_context = false;
 	uint64_t last_context_sent_msec = 0;
 	// No confirmation UI; agent-initiated applies are immediate.
+	RichTextLabel *bottom_logs = nullptr;
 
 public:
 	GameableDock() {
@@ -99,6 +97,8 @@ public:
 		}
 	}
 
+	void set_bottom_logs(RichTextLabel *p_logs) { bottom_logs = p_logs; }
+
 	void _on_send() { _append_and_clear(); }
 	void _on_submit(const String &p_text) { _append_and_clear(); }
 
@@ -123,12 +123,10 @@ public:
 				params["scenePath"] = scene_path;
 			}
 		}
-		// FileSystem dock current path.
 		String current_path = EditorInterface::get_singleton()->get_current_path();
 		if (!current_path.is_empty()) {
 			params["currentPath"] = current_path;
 		}
-		// Node selection paths.
 		PackedStringArray sel;
 		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
 			List<Node *> &nodes = es->get_selected_node_list();
@@ -148,7 +146,6 @@ public:
 	}
 
 	void _on_selection_changed() {
-		// Throttle minimal via poll-loop cadence; send immediately for now.
 		if (ws && ws->get_ready_state() == WebSocketPeer::STATE_OPEN) {
 			_send_context_snapshot();
 		}
@@ -160,7 +157,6 @@ public:
 			return;
 		}
 		log->append_text("[b]You:[/b] " + t + "\n");
-		// Wrap plain text as JSON-RPC chat request so agent can act.
 		Dictionary req;
 		req["jsonrpc"] = "2.0";
 		req["id"] = (int)OS::get_singleton()->get_ticks_msec();
@@ -176,7 +172,6 @@ public:
 		}
 		input->clear();
 	}
-
 
 	void _set_status(const String &p_text) {
 		if (status) {
@@ -231,11 +226,24 @@ public:
 						Variant parsed = JSON::parse_string(text);
 						if (parsed.get_type() == Variant::DICTIONARY) {
 							Dictionary d = parsed;
-							if (d.has("result")) {
-								Dictionary result = d["result"];
-								if (result.has("applyResult")) {
-									Dictionary ar = result["applyResult"];
-									log->append_text("[b]Applied:[/b] " + String(JSON::stringify(ar)) + "\n");
+							if (d.has("method") && !d.has("id") && d.has("params")) {
+								String method = d["method"];
+								Dictionary params = d["params"];
+								if (method == "status") {
+									String level = params.has("level") ? String(params["level"]) : String("info");
+									String msg = params.has("message") ? String(params["message"]) : String();
+									if (bottom_logs) {
+										bottom_logs->append_text("[" + level + "] " + msg + "\n");
+									}
+									continue;
+								}
+								if (method == "thinking") {
+									String t = params.has("text") ? String(params["text"]) : String();
+									log->append_text(t);
+									continue;
+								}
+								if (method == "tool-call" || method == "tool-result" || method == "diff-preview") {
+									log->append_text("[b]" + method + ":[/b] " + String(JSON::stringify(params)) + "\n");
 									continue;
 								}
 							}
@@ -261,9 +269,9 @@ class GameableEditorBuiltin final : public EditorPlugin {
 	GDCLASS(GameableEditorBuiltin, EditorPlugin);
 	static void _bind_methods() {}
 
-    Control *chat_dock = nullptr;
-    Control *bottom_logs = nullptr;
-    Button *bottom_toggle_btn = nullptr;
+	Control *chat_dock = nullptr;
+	Control *bottom_logs = nullptr;
+	Button *bottom_toggle_btn = nullptr;
 
 	void _ensure_dock_first() {
 		if (!chat_dock) {
@@ -296,28 +304,30 @@ public:
 				chat_dock = memnew(GameableDock);
 				add_control_to_dock(DOCK_SLOT_RIGHT_UL, chat_dock);
 				_ensure_dock_first();
-				// Make Gameable the active tab immediately.
 				EditorDockManager::get_singleton()->focus_dock(chat_dock);
 
-				// Bottom panel logs tab (placeholder; may mirror agent log events later).
+				// Bottom panel logs tab
 				RichTextLabel *logs = memnew(RichTextLabel);
 				logs->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
 				logs->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 				bottom_logs = logs;
 				bottom_toggle_btn = add_control_to_bottom_panel(bottom_logs, "Gameable");
+				if (GameableDock *dock = Object::cast_to<GameableDock>(chat_dock)) {
+					dock->set_bottom_logs(Object::cast_to<RichTextLabel>(bottom_logs));
+				}
 			} break;
 			case NOTIFICATION_EXIT_TREE: {
 				if (chat_dock) {
 					remove_control_from_docks(chat_dock);
 					chat_dock->queue_free();
 				}
-                if (bottom_logs) {
-                    remove_control_from_bottom_panel(bottom_logs);
-                    bottom_logs->queue_free();
-                }
+				if (bottom_logs) {
+					remove_control_from_bottom_panel(bottom_logs);
+					bottom_logs->queue_free();
+				}
 				chat_dock = nullptr;
-                bottom_logs = nullptr;
-                bottom_toggle_btn = nullptr;
+				bottom_logs = nullptr;
+				bottom_toggle_btn = nullptr;
 			} break;
 		}
 	}
@@ -339,5 +349,3 @@ void initialize_gameable_editor_plugin() {
 }
 
 void uninitialize_gameable_editor_plugin() {}
-
-
