@@ -5,6 +5,5 @@ Import("env")
 
 env.add_source_files(env.editor_sources, "*.cpp")
 
-SConscript("gizmos/SCsub")
-SConscript("tiles/SCsub")
+# Only include our Gameable plugin subtree explicitly; upstream gizmos/tiles are elsewhere in 4.5.
 SConscript("gameable/SCsub")

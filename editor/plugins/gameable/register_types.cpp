@@ -9,11 +9,11 @@
 #include "core/os/os.h"
 #include "core/string/print_string.h"
 #include "core/templates/list.h"
-#include "editor/editor_dock_manager.h"
+#include "editor/docks/editor_dock_manager.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
-#include "editor/editor_settings.h"
 #include "editor/plugins/editor_plugin.h"
+#include "editor/settings/editor_settings.h"
 #include "modules/websocket/websocket_peer.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
@@ -176,7 +176,7 @@ public:
 		}
 		PackedStringArray sel;
 		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
-			List<Node *> &nodes = es->get_selected_node_list();
+			List<Node *> nodes = es->get_full_selected_node_list();
 			for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
 				Node *n = E->get();
 				if (n) {
