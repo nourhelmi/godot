@@ -180,35 +180,13 @@
 # Igor Shapilov <shatiger@yandex.ru>, 2025.
 # Aleksandr <sasha7onoff@gmail.com>, 2025.
 # Deniil <danpko@ya.ru>, 2025.
-# Ma Ver <naksmmaks3@gmail.com>, 2025.
-# Нурлан <pro100ychelovechek335@gmail.com>, 2025.
-# VluDs404 <tokinvladi@mail.ru>, 2025.
-# JekSun97 <jeksun2022@gmail.com>, 2025.
-# xsSplater <xssplater@gmail.com>, 2025.
-# ScoLite albertovich <kirilllevchik@yandex.ru>, 2025.
-# PROGRAMMER12 <vladislavkalinkin@icloud.com>, 2025.
-# Огненный рыцарь <demon776854@gmail.com>, 2025.
-# EasyBoy <astahove97@gmail.com>, 2025.
-# kentaurus <grrr7230@gmail.com>, 2025.
-# SpectreMP <mikhail.poboinya@yandex.ru>, 2025.
-# Arthur <notcoder12@gmail.com>, 2025.
-# Eugene Gataulin <tek942@gmail.com>, 2025.
-# Rutex Great <rutexgreat@gmail.com>, 2025.
-# caendeith <caendeith@internet.ru>, 2025.
-# Andrey Razin <AndreyRazinWork@yandex.ru>, 2025.
-# Nikita <userdelete@yandex.ru>, 2025.
-# Deniil <bug@users.noreply.hosted.weblate.org>, 2025.
-# Сергей Казорин <kazorin@basealt.ru>, 2025.
-# Георгий <vidyakin_2007@mail.ru>, 2025.
-# sletego <sletego@users.noreply.hosted.weblate.org>, 2025.
-# DrSa1fer <thekucherenko@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine properties\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-09-11 09:52+0000\n"
-"Last-Translator: DrSa1fer <thekucherenko@gmail.com>\n"
+"PO-Revision-Date: 2025-03-24 03:29+0000\n"
+"Last-Translator: Deniil <danpko@ya.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/godot-engine/"
 "godot-properties/ru/>\n"
 "Language: ru\n"
@@ -217,7 +195,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 msgid "Application"
 msgstr "Приложение"
@@ -1140,8 +1118,11 @@ msgstr "Экспортировать только проект"
 msgid "Delete Old Export Files Unconditionally"
 msgstr "Удалять старые файлы экспорта в безусловном порядке"
 
-msgid "Plugins"
-msgstr "Модули"
+msgid "Dock Tab Style"
+msgstr "Стиль вкладки док-станции"
+
+msgid "UI Layout Direction"
+msgstr "Направление макета интерфейса"
 
 msgid "Entitlements"
 msgstr "Права"
@@ -1221,8 +1202,11 @@ msgstr "Значок 1024 X 1024"
 msgid "Icon 1024 X 1024 Dark"
 msgstr "Значок 1024 x 1024 (Тёмный)"
 
-msgid "Icon 1024 X 1024 Tinted"
-msgstr "Значок 1024 x 1024 (С затемнением)"
+msgid "Import Resources When Unfocused"
+msgstr "Импорт ресурсов, когда они не в фокусе"
+
+msgid "V-Sync Mode"
+msgstr "Режим V-Sync"
 
 msgid "Export Console Wrapper"
 msgstr "Экспортировать оболочку консоли"
@@ -1542,8 +1526,11 @@ msgstr "Размер страницы"
 msgid "Import Tracks"
 msgstr "Импортировать дорожки"
 
-msgid "Rest Pose"
-msgstr "Поза покоя"
+msgid "Max Array Dictionary Items per Page"
+msgstr "Максимальное количество элементов словаря массива на страницу"
+
+msgid "Show Low Level OpenType Features"
+msgstr "Показать низкоуровневые возможности OpenType"
 
 msgid "Load Pose"
 msgstr "Поза нагрузки"
@@ -1869,9 +1856,11 @@ msgstr "Обрезка до области"
 msgid "Trim Alpha Border From Region"
 msgstr "Обрезать альфа-границу из области"
 
-msgctxt "Enforce"
-msgid "Force"
-msgstr "Принудительно"
+msgid "Word Wrap"
+msgstr "Перенос слов"
+
+msgid "Autowrap Mode"
+msgstr "Режим автопереноса"
 
 msgid "8 Bit"
 msgstr "8-битное квантование"
@@ -2157,10 +2146,11 @@ msgstr "Показывать индикатор обновлений"
 msgid "Low Processor Mode Sleep (µsec)"
 msgstr "Задержка в режиме низкой нагрузки процессора (мкс)"
 
-msgid "Unfocused Low Processor Mode Sleep (µsec)"
-msgstr ""
-"Задержка в режиме низкой нагрузки процессора без фокуса на окне редактора "
-"(мкс)"
+msgid "Primary Grid Steps"
+msgstr "Первичные шаги сетки"
+
+msgid "Grid Division Level Max"
+msgstr "Максимальный уровень деления сетки"
 
 msgid "Import Resources When Unfocused"
 msgstr "Импорт ресурсов, когда они не в фокусе"
@@ -2225,8 +2215,11 @@ msgstr "Редактирование горизонтального вектор
 msgid "Horizontal Vector Types Editing"
 msgstr "Редактирование типов горизонтального вектора"
 
-msgid "Open Resources in Current Inspector"
-msgstr "Открывать ресурсы в текущем экземпляре инспектора"
+msgid "Freelook Activation Modifier"
+msgstr "Активация Freelook Редактировать"
+
+msgid "Freelook Speed Zoom Link"
+msgstr "Связь скорости свободного обзора со значением масштабирования"
 
 msgid "Resources to Open in New Inspector"
 msgstr "Ресурсы для открытия в новом экземпляре инспектора"
@@ -2424,8 +2417,14 @@ msgstr "Время работы RPC-сервера"
 msgid "FBX"
 msgstr "FBX"
 
-msgid "FBX2glTF Path"
-msgstr "Путь к FBX2glTF"
+msgid "Auto Switch to Remote Scene Tree"
+msgstr "Автоматическое переключение на удаленное дерево сцен"
+
+msgid "Auto Switch to Stack Trace"
+msgstr "Автоматическое переключение на трассировку стека"
+
+msgid "Profiler Frame History Size"
+msgstr "Размер истории кадров профайлера"
 
 msgid "Tools"
 msgstr "Инструменты"
@@ -2466,8 +2465,11 @@ msgstr "Другие расширения файлов"
 msgid "Property Editor"
 msgstr "Редактор свойств"
 
-msgid "Auto Refresh Interval"
-msgstr "Интервал автообновления"
+msgid "Directory Naming Convention"
+msgstr "Соглашение об именовании каталогов"
+
+msgid "Highlighting"
+msgstr "Подсветка"
 
 msgid "Subresource Hue Tint"
 msgstr "Интенсивность оттенка для фона подресурсов"
@@ -4425,47 +4427,11 @@ msgstr "Запросы"
 msgid "Enable Ray Cast Face Index"
 msgstr "Включить индекс лица Ray Cast"
 
-msgid "Motion Queries"
-msgstr "Запросы движения"
-
-msgid "Recovery Iterations"
-msgstr "Итерации восстановления"
-
-msgid "Recovery Amount"
-msgstr "Объём восстановления"
-
-msgid "Collisions"
-msgstr "Столкновения"
-
-msgid "Collision Margin Fraction"
-msgstr "Доля отступа при столкновении"
-
-msgid "Active Edge Threshold"
-msgstr "Порог активного края"
-
-msgid "World Node"
-msgstr "Основной узел физической среды"
-
-msgid "Temporary Memory Buffer Size"
-msgstr "Размер буфера памяти"
-
 msgid "World Boundary Shape Size"
 msgstr "Размер формы границы мира"
 
-msgid "Max Linear Velocity"
-msgstr "Максимальная линейная скорость"
-
-msgid "Max Angular Velocity"
-msgstr "Максимальная угловая скорость"
-
-msgid "Max Bodies"
-msgstr "Макс. количество тел"
-
 msgid "Max Body Pairs"
 msgstr "Макс. количество пар тел"
-
-msgid "Max Contact Constraints"
-msgstr "Ограничение макс. количества контактов"
 
 msgid "Lightmapping"
 msgstr "Карты освещения"
@@ -4731,6 +4697,15 @@ msgstr "Порог включения"
 msgid "Off Threshold"
 msgstr "Порог отключения"
 
+msgid "Is Sticky"
+msgstr "Липкий"
+
+msgid "On Haptic"
+msgstr "О тактильном ощущении"
+
+msgid "Off Haptic"
+msgstr "Выкл. Тактильный"
+
 msgid "Display Refresh Rate"
 msgstr "Частота обновления дисплея"
 
@@ -4915,23 +4890,11 @@ msgstr "Включённые возможности"
 msgid "Visibility State"
 msgstr "Состояние видимости"
 
-msgid "Debug Keystore"
-msgstr "Отладочное хранилище ключей"
-
-msgid "Debug Keystore User"
-msgstr "Пользователь отладочного хранилища ключей"
-
-msgid "Debug Keystore Pass"
-msgstr "Пароль отладочного хранилища ключей"
-
 msgid "Install Exported APK"
 msgstr "Установить экспортированный APK"
 
 msgid "Java SDK Path"
 msgstr "Путь к Java SDK"
-
-msgid "Android SDK Path"
-msgstr "Путь к Android SDK"
 
 msgid "Force System User"
 msgstr "Принудительное использование пользователя системы"
@@ -5047,9 +5010,6 @@ msgstr "Возможности XR"
 msgid "XR Mode"
 msgstr "Режим XR"
 
-msgid "Gesture"
-msgstr "Жест"
-
 msgid "Swipe to Dismiss"
 msgstr "Проведите пальцем, чтобы закрыть"
 
@@ -5164,8 +5124,98 @@ msgstr "iPad 167 X 167"
 msgid "iPad 152 X 152"
 msgstr "iPad 152 X 152"
 
-msgid "iOS 128 X 128"
-msgstr "iOS 128 X 128"
+msgid "App Store 1024 X 1024"
+msgstr "App Store 1024 X 1024"
+
+msgid "App Store Team ID"
+msgstr "App Store Team ID"
+
+msgid "Export Method Debug"
+msgstr "Метод экспорта для отладки"
+
+msgid "Code Sign Identity Debug"
+msgstr "Профиль подписания кода для отладки"
+
+msgid "Code Sign Identity Release"
+msgstr "Профиль подписания кода для релиза"
+
+msgid "Provisioning Profile UUID Debug"
+msgstr "UUID профиля предоставления для отладки"
+
+msgid "Provisioning Profile UUID Release"
+msgstr "UUID профиля предоставления для релиза"
+
+msgid "Export Method Release"
+msgstr "Метод экспорта для релиза"
+
+msgid "Targeted Device Family"
+msgstr "Целевое семейство устройств"
+
+msgid "Bundle Identifier"
+msgstr "Идентификатор комплекта"
+
+msgid "Signature"
+msgstr "Подпись"
+
+msgid "Short Version"
+msgstr "Краткая версия"
+
+msgid "Min iOS Version"
+msgstr "Мин. версия iOS"
+
+msgid "Additional Plist Content"
+msgstr "Дополнительное содержимое plist"
+
+msgid "Icon Interpolation"
+msgstr "Интерполяция для значка"
+
+msgid "Export Project Only"
+msgstr "Экспортировать только проект"
+
+msgid "Delete Old Export Files Unconditionally"
+msgstr "Удалять старые файлы экспорта в безусловном порядке"
+
+msgid "Entitlements"
+msgstr "Права"
+
+msgid "Increased Memory Limit"
+msgstr "Увеличенный лимит памяти"
+
+msgid "Push Notifications"
+msgstr "Push-уведомления"
+
+msgid "Capabilities"
+msgstr "Возможности"
+
+msgid "Access Wi-Fi"
+msgstr "Доступ к Wi-Fi"
+
+msgid "Performance Gaming Tier"
+msgstr "Игровой уровень производительности"
+
+msgid "Performance A 12"
+msgstr "Производительность A 12"
+
+msgid "User Data"
+msgstr "Пользовательские данные"
+
+msgid "Accessible From Files App"
+msgstr "Доступно из приложения Files"
+
+msgid "Accessible From iTunes Sharing"
+msgstr "Доступно из iTunes Sharing"
+
+msgid "Privacy"
+msgstr "Конфиденциальность"
+
+msgid "Camera Usage Description"
+msgstr "Описание использования камеры"
+
+msgid "Camera Usage Description Localized"
+msgstr "Локализованное описание использования камеры"
+
+msgid "Microphone Usage Description"
+msgstr "Описание использования микрофона"
 
 msgid "iOS 192 X 192"
 msgstr "iOS 192 X 192"
@@ -5196,9 +5246,6 @@ msgstr "Скрипт очистки"
 
 msgid "macOS"
 msgstr "macOS"
-
-msgid "rcodesign"
-msgstr "rcodesign"
 
 msgid "Distribution Type"
 msgstr "Тип распространения"

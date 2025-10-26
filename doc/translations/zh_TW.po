@@ -31,16 +31,12 @@
 # STENYIN lee <stenyin@gmail.com>, 2024, 2025.
 # 钟广申 <ZhongGuangshen@hotmail.com>, 2024.
 # XJQXJQ <xjqxjq2018@126.com>, 2025.
-# powder <hhurhxhdyruw@gmail.com>, 2025.
-# Myeongjin <aranet100@gmail.com>, 2025.
-# sashimi <kyle2160k@gmail.com>, 2025.
-# 源来是小白 <baijinyuan0603@outlook.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine class reference\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
-"PO-Revision-Date: 2025-08-03 16:15+0000\n"
-"Last-Translator: 源来是小白 <baijinyuan0603@outlook.com>\n"
+"PO-Revision-Date: 2025-03-22 09:57+0000\n"
+"Last-Translator: XJQXJQ <xjqxjq2018@126.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/godot-engine/godot-class-reference/zh_Hant/>\n"
 "Language: zh_TW\n"
@@ -48,7 +44,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 msgid "All classes"
 msgstr "所有類別"

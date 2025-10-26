@@ -4,6 +4,6 @@ from misc.utility.scons_hints import *
 Import("env")
 
 env.add_source_files(env.editor_sources, "*.cpp")
+# register_types.cpp is already matched by the glob above; avoid duplicate object warnings
 
-# Only include our Gameable plugin subtree explicitly; upstream gizmos/tiles are elsewhere in 4.5.
-SConscript("gameable/SCsub")
+

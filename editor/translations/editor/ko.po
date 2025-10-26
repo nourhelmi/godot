@@ -77,16 +77,13 @@
 # Ji Yong Jeung <thomasjeung@gmail.com>, 2025.
 # ZiLA3 <kms-0509@naver.com>, 2025.
 # Wayne <eunchan0817@gmail.com>, 2025.
-# HaeBunYeok <bestfreendover@gmail.com>, 2025.
-# Clover <bestfreendover@gmail.com>, 2025.
-# samidare20 <dolphine0019@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-09-19 22:58+0000\n"
-"Last-Translator: Myeongjin <aranet100@gmail.com>\n"
+"PO-Revision-Date: 2025-03-24 03:29+0000\n"
+"Last-Translator: Wayne <eunchan0817@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/godot-engine/godot/"
 "ko/>\n"
 "Language: ko\n"
@@ -94,7 +91,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
+
+msgid "Main Thread"
+msgstr "메인 스레드"
 
 msgid "Unset"
 msgstr "설정 해제"
@@ -874,8 +874,11 @@ msgstr "이 이름으로 된 애니메이션이 이미 있습니다."
 msgid "Enter a library name."
 msgstr "라이브러리 이름을 입력하세요."
 
-msgid "Library name contains invalid characters: '/', ':', ',' or '['."
-msgstr "라이브러리 이름에 잘못된 문자가 있습니다: '/', ':', ',', '['."
+msgid "Nearest FPS: %d"
+msgstr "가장 가까운 FPS: %d"
+
+msgid "Change Animation Step"
+msgstr "애니메이션 단계 바꾸기"
 
 msgid "Library with the same name already exists."
 msgstr "이 이름으로 된 라이브러리가 이미 있습니다."
@@ -1996,9 +1999,11 @@ msgctxt "Transition Type"
 msgid "Quint"
 msgstr "5차곡선형"
 
-msgctxt "Transition Type"
-msgid "Quart"
-msgstr "4차곡선형"
+msgid "Files to be deleted:"
+msgstr "삭제할 파일:"
+
+msgid "Dependencies of files to be deleted:"
+msgstr "삭제될 파일의 의존성:"
 
 msgctxt "Transition Type"
 msgid "Quad"
@@ -2047,18 +2052,29 @@ msgctxt "Ease Type"
 msgid "InOut"
 msgstr "가속감속"
 
-msgctxt "Ease Type"
-msgid "OutIn"
-msgstr "감속가속"
+msgid "File name can't end with /."
+msgstr "파일 이름은 /로 끝날 수 없습니다."
+
+msgid "File name cannot be empty."
+msgstr "파일 이름은 비어있을 수 없습니다."
 
 msgid "FPS:"
 msgstr "FPS:"
 
-msgid "Animation Baker"
-msgstr "애니메이션 베이커"
+msgid "File name contains invalid characters."
+msgstr "파일 이름에 잘못된 문자가 있습니다."
 
-msgid "3D Pos/Rot/Scl Track:"
-msgstr "3D 위치/각도/스케일 트랙:"
+msgid "Folder name contains invalid characters."
+msgstr "폴더 이름에 잘못된 문자가 있습니다."
+
+msgid "File name begins with a dot."
+msgstr "파일명이 마침표로 시작합니다."
+
+msgid "Folder name begins with a dot."
+msgstr "폴더 이름이 마침표로 시작합니다."
+
+msgid "File with that name already exists."
+msgstr "이 이름으로 된 파일이 이미 있습니다."
 
 msgid "Blendshape Track:"
 msgstr "블렌드모양 트랙:"
@@ -2066,8 +2082,14 @@ msgstr "블렌드모양 트랙:"
 msgid "Value Track:"
 msgstr "값 트랙:"
 
-msgid "Select Tracks to Copy"
-msgstr "복사할 트랙 선택"
+msgid "File name is valid."
+msgstr "파일 이름이 잘못되었습니다."
+
+msgid "Base path: %s"
+msgstr "베이스 경로: %s"
+
+msgid "Folder name is valid."
+msgstr "폴더 이름이 올바릅니다."
 
 msgid "Select All/None"
 msgstr "모두 선택/해제"
@@ -2346,8 +2368,11 @@ msgstr "온라인으로 이동"
 msgid "Failed to get repository configuration."
 msgstr "저장소 구성을 얻는 데 실패했습니다."
 
-msgid "All"
-msgstr "모두"
+msgid "Must be a valid Unicode identifier."
+msgstr "올바른 유니코드 식별자여야 합니다."
+
+msgid "Must not collide with an existing engine class name."
+msgstr "기존 엔진 클래스 이름과 충돌해서는 안 됩니다."
 
 msgid "No results for \"%s\" for support level(s): %s."
 msgstr "\"%s\"에 대한 결과가 서포트 레벨 %s에 없습니다."
@@ -2584,8 +2609,14 @@ msgstr "오디오 버스 레이아웃 열기"
 msgid "Error saving file: %s"
 msgstr "파일 저장 중 오류: %s"
 
-msgid "Layout:"
-msgstr "레이아웃:"
+msgid "Open the %s dock."
+msgstr "%s 독을 엽니다."
+
+msgid "Focus on the %s dock."
+msgstr "%s 독을 포커스 합니다."
+
+msgid "%s - Godot Engine"
+msgstr "%s - Godot 엔진"
 
 msgid "Add Bus"
 msgstr "버스 추가"
@@ -2819,11 +2850,32 @@ msgstr ""
 "가지를 씬으로 저장하려면 노드 한 개만 선택해야 하지만, 노드 %d개가 선택되어 있"
 "습니다."
 
-msgid "Expression to evaluate"
-msgstr "평가할 표현식"
+msgid "Project initialization"
+msgstr "프로젝트 초기화"
 
-msgid "Clear on Run"
-msgstr "실행 시 비우기"
+msgid "Scanning file structure..."
+msgstr "파일 구조 탐색 중..."
+
+msgid "Loading global class names..."
+msgstr "전역 클래스 이름을 불러오는 중..."
+
+msgid "Verifying GDExtensions..."
+msgstr "GDExtensions 검증 중..."
+
+msgid "Creating autoload scripts..."
+msgstr "자동 로드 스크립트를 생성하는 중..."
+
+msgid "Initializing plugins..."
+msgstr "플러그인을 초기화중..."
+
+msgid "Starting file scan..."
+msgstr "파일 탐색 시작 중..."
+
+msgid "Scanning actions..."
+msgstr "액션 탐색 중..."
+
+msgid "Some extensions need the editor to restart to take effect."
+msgstr "변경사항을 반영하려면 에디터를 다시 시작해야 합니다."
 
 msgid "Evaluate"
 msgstr "평가"
@@ -9720,8 +9772,8 @@ msgstr "폴리곤 비우기"
 msgid "Rotate Polygons Right"
 msgstr "폴리곤 오른쪽으로 회전"
 
-msgid "Rotate Polygons Left"
-msgstr "폴리곤 왼쪽으로 회전"
+msgid "Post"
+msgstr "게시물"
 
 msgid "Flip Polygons Horizontally"
 msgstr "폴리곤 가로로 뒤집기"

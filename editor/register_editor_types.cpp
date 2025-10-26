@@ -132,6 +132,7 @@
 #include "editor/scene/2d/parallax_background_editor_plugin.h"
 #include "editor/scene/3d/skeleton_ik_3d_editor_plugin.h"
 #endif
+#include "editor/plugins/gameable/register_types.h"
 
 void register_editor_types() {
 	OS::get_singleton()->benchmark_begin_measure("Editor", "Register Types");
@@ -306,6 +307,9 @@ void register_editor_types() {
 	// class is actually instantiated.
 	EditorHelp::init_gdext_pointers();
 
+	// Initialize Gameable editor shim to inject addon into any opened project.
+	initialize_gameable_editor_plugin();
+
 	OS::get_singleton()->benchmark_end_measure("Editor", "Register Types");
 }
 
@@ -319,6 +323,9 @@ void unregister_editor_types() {
 		EditorPaths::free();
 	}
 	EditorStringNames::free();
+
+	// Cleanup hook for Gameable editor shim (currently no-op).
+	uninitialize_gameable_editor_plugin();
 
 	OS::get_singleton()->benchmark_end_measure("Editor", "Unregister Types");
 }

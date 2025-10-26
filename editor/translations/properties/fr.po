@@ -140,23 +140,13 @@
 # Patrice Ferlet <metal3d@gmail.com>, 2025.
 # trobador <gbrosset@proton.me>, 2025.
 # Marc-Daniel DALEBA <marcodxv10@gmail.com>, 2025.
-# aioshiro <aioshiro57@proton.me>, 2025.
-# fleprohon <felix.leprohon@gmail.com>, 2025.
-# MaxiMaxdu59 <max.miroux@gmail.com>, 2025.
-# mbenrubi <maxime.benrubi@gmail.com>, 2025.
-# Patou <75997617+xorblo-doitus@users.noreply.github.com>, 2025.
-# Omgeta <anooptiger@hotmail.com>, 2025.
-# Creator of Fun <Thewhiteshadow664@gmail.com>, 2025.
-# TermNinja <termninja@users.noreply.hosted.weblate.org>, 2025.
-# Fabien2S <fabien2s+github@proton.me>, 2025.
-# Natahan-Tatan <me@natahan.net>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine properties\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-09-27 00:24+0000\n"
-"Last-Translator: Natahan-Tatan <me@natahan.net>\n"
+"PO-Revision-Date: 2025-03-23 22:19+0000\n"
+"Last-Translator: Marc-Daniel DALEBA <marcodxv10@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/godot-engine/godot-"
 "properties/fr/>\n"
 "Language: fr\n"
@@ -164,7 +154,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 msgid "Application"
 msgstr "Application"
@@ -667,20 +657,8 @@ msgstr "Compatibilité"
 msgid "Legacy Just Pressed Behavior"
 msgstr "Comportement historique pour Just Pressed"
 
-msgid "Sensors"
-msgstr "Capteurs"
-
 msgid "Enable Accelerometer"
 msgstr "Activer l'Accéléromètre"
-
-msgid "Enable Gravity"
-msgstr "Activer la gravité"
-
-msgid "Enable Gyroscope"
-msgstr "Activer le gyroscope"
-
-msgid "Enable Magnetometer"
-msgstr "Activer le magnétomètre"
 
 msgid "Device"
 msgstr "Périphérique"
@@ -2358,8 +2336,11 @@ msgstr "Chemin de Blender"
 msgid "RPC Port"
 msgstr "Port RPC"
 
-msgid "RPC Server Uptime"
-msgstr "Temps de disponibilité du serveur RPC"
+msgid "Linux/*BSD"
+msgstr "Linux/*BSD"
+
+msgid "Prefer Wayland"
+msgstr "Préférer Wayland"
 
 msgid "FBX"
 msgstr "FBX"

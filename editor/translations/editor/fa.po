@@ -64,8 +64,8 @@ msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-09-25 19:02+0000\n"
-"Last-Translator: \"Mahdi B. Jahani\" <kelbowonl@gmail.com>\n"
+"PO-Revision-Date: 2025-03-24 09:59+0000\n"
+"Last-Translator: John Smith <pkafsharix@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/godot-engine/"
 "godot/fa/>\n"
 "Language: fa\n"
@@ -3746,8 +3746,28 @@ msgstr "تبدیل به..."
 msgid "Reimport"
 msgstr "بازدرون‌برد"
 
-msgid "Open in Terminal"
-msgstr "گشودن در پایانه"
+msgid ""
+"The Android build template is already installed in this project and it won't "
+"be overwritten.\n"
+"Remove the \"%s\" directory manually before attempting this operation again."
+msgstr ""
+"قالب ساخت اندروید از قبل در این پروژه نصب شده است و بازنویسی نخواهد شد.\n"
+"پوشه «%s» را به‌صورت دستی حذف کنید و سپس دوباره این عملیات را انجام دهید."
+
+msgid ""
+"This will set up your project for gradle Android builds by installing the "
+"source template to \"%s\".\n"
+"Note that in order to make gradle builds instead of using pre-built APKs, the "
+"\"Use Gradle Build\" option should be enabled in the Android export preset."
+msgstr ""
+"این عملیات، پروژه شما را برای ساخت‌های اندروید با گریدل آماده می‌کند و قالب "
+"منبع را در «%s» نصب خواهد کرد.\n"
+"توجه داشته باشید که برای ساخت با گریدل به‌جای استفاده از ای‌پی‌کی‌های از پیش "
+"ساخته‌شده، گزینه «استفاده از ساخت گریدل» باید در پیش‌تنظیم برون‌برد اندروید فعال "
+"شود."
+
+msgid "Unnamed Project"
+msgstr "پروژه بی‌نام"
 
 msgid "Open Folder in Terminal"
 msgstr "گشودن پوشه در پایانه"
@@ -14229,8 +14249,11 @@ msgstr "برچیدن همهٔ نقطه‌های گسست"
 msgid "Go to Next Breakpoint"
 msgstr "رفتن به نقطهٔ گسست بعدی"
 
-msgid "Go to Previous Breakpoint"
-msgstr "رفتن به نقطهٔ گسست پیشین"
+msgid "Rename Constant Item"
+msgstr "تغییر نام مورد ثابت"
+
+msgid "Rename Font Item"
+msgstr "بازنامگذاری مورد قلم"
 
 msgid ""
 "Invalid action name. It cannot be empty nor contain '/', ':', '=', '\\' or "
@@ -15184,9 +15207,6 @@ msgstr "نشاندن رنگ فریم"
 msgid "Toggle Auto Shrink"
 msgstr "روشن/خاموش کردن تنجش خودکار"
 
-msgid "Set Input Default Port"
-msgstr "تنظیم پورت پیش‌فرض ورودی"
-
 msgid "Set Custom Node Option"
 msgstr "نشاندن گزینهٔ سفارشی گره‌"
 
@@ -15198,6 +15218,325 @@ msgstr "جابه‌جایی گره(ها)‌ی VisualShader"
 
 msgid "Insert node"
 msgstr "جایگذاری گره"
+
+msgid "Enable Auto Shrink"
+msgstr "به‌کاراندازی تنجش خودکار"
+
+msgid "Set Constant: %s"
+msgstr "نشاندن ثابت‌: %s"
+
+msgid "Add Node(s) to Visual Shader"
+msgstr "افزودن گره(ها) به سایه‌زن دیداری"
+
+msgid "Vertex"
+msgstr "رأس"
+
+msgid "Light"
+msgstr "نور"
+
+msgid "Process"
+msgstr "فرآیند"
+
+msgid "Sky"
+msgstr "آسمان"
+
+msgid "Fog"
+msgstr "مه"
+
+msgid "Add Node"
+msgstr "افزودن گره"
+
+msgid "Insert New Node"
+msgstr "جایگذاری گرهٔ نو"
+
+msgid "Create Shader Node"
+msgstr "ساخت گرهٔ سایه‌زن"
+
+msgid "Color function."
+msgstr "تابع رنگ."
+
+msgid "Color operator."
+msgstr "عملگر رنگ."
+
+msgid "Grayscale function."
+msgstr "تابع درجه‌خاکستری."
+
+msgid "Color constant."
+msgstr "مقدار ثابت رنگ"
+
+msgid "Equal (==)"
+msgstr "مساوی (==)"
+
+msgid "Greater Than (>)"
+msgstr "بزرگتر از (<)"
+
+msgid "Greater Than or Equal (>=)"
+msgstr "بزرگتر یا برابر (=<)"
+
+msgid "Less Than (<)"
+msgstr "کمتر از (>)"
+
+msgid "Less Than or Equal (<=)"
+msgstr "کمتر یا مساوی (=>)"
+
+msgid "Not Equal (!=)"
+msgstr "نا مساوی (=!)"
+
+msgid ""
+"Returns an associated 2D vector if the provided boolean value is true or "
+"false."
+msgstr ""
+"اگر مقدار بولی ارائه‌شده درست یا نادرست باشد یک بردار ۲ بعدی مربوط برمی‌گرداند."
+
+msgid ""
+"Returns an associated 3D vector if the provided boolean value is true or "
+"false."
+msgstr ""
+"اگر مقدار بولی ارائه‌شده درست یا نادرست باشد یک بردار ۳‌ بعدی مربوط برمی‌گرداند."
+
+msgid "Boolean constant."
+msgstr "ثابت بولی."
+
+msgid "Translated to '%s' in Godot Shading Language."
+msgstr "در زبان سایه‌زنی گودوت '%s' ترجمه شد."
+
+msgid "Input parameter."
+msgstr "پارامتر ورودی."
+
+msgid "'%s' input parameter for sky shader mode."
+msgstr "پارامتر ورودی «%s» برای حالت سایه‌زن آسمان."
+
+msgid ""
+"A node for help to multiply a position input vector by rotation using "
+"specific axis. Intended to work with emitters."
+msgstr ""
+"گره‌ای برای کمک به ضرب بردار ورودی موقعیت در چرخش با استفاده از محور مشخص. "
+"برای کار با منتشرکننده‌ها طراحی شده است."
+
+msgid "Float function."
+msgstr "تابع اعشاری."
+
+msgid "Float operator."
+msgstr "عملگر اعشاری."
+
+msgid "Integer function."
+msgstr "تابع عدد صحیح."
+
+msgid "Integer operator."
+msgstr "عملگر عدد صحیح."
+
+msgid "Unsigned integer function."
+msgstr "تابع عدد صحیح بدون علامت."
+
+msgid "Unsigned integer operator."
+msgstr "عملگر عدد صحیح بدون علامت."
+
+msgid "Returns the absolute value of the parameter."
+msgstr "قدر مطلق پارامتر را برمی‌گرداند."
+
+msgid "Returns the arc-cosine of the parameter."
+msgstr "ارک‌کوسینوس پارامتر را بازمی‌گرداند."
+
+msgid "Returns the inverse hyperbolic cosine of the parameter."
+msgstr "معکوس ارک‌کوسینوس هیپربولیک پارامتر را بازمی‌گرداند."
+
+msgid "Returns the arc-sine of the parameter."
+msgstr "ارک‌سینوس پارامتر را بازمی‌گرداند."
+
+msgid "Returns the inverse hyperbolic sine of the parameter."
+msgstr "معکوس ارک‌سینوس هیپربولیک پارامتر را بازمی‌گرداند."
+
+msgid "Returns the arc-tangent of the parameter."
+msgstr "ارک‌تانژانت پارامتر را بازمی‌گرداند."
+
+msgid "Returns the arc-tangent of the parameters."
+msgstr "ارک‌تانژانت پارامترها را بازمی‌گرداند."
+
+msgid "Returns the result of bitwise NOT (~a) operation on the integer."
+msgstr "نتیجه عملگر نقیض بیتی (~a) روی عدد صحیح را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise NOT (~a) operation on the unsigned integer."
+msgstr "نتیجه عملگر نقیض بیتی (~a) روی عدد صحیح بدون علامت را برمی‌گرداند."
+
+msgid ""
+"Finds the nearest integer that is greater than or equal to the parameter."
+msgstr "نزدیک‌ترین عدد صحیح بزرگ‌تر از یا مساوی پارامتر را پیدا می‌کند."
+
+msgid "Constrains a value to lie between two further values."
+msgstr "مقدار را محدود می‌کند تا بین دو مقدار دیگر قرار گیرد."
+
+msgid "Returns the cosine of the parameter."
+msgstr "کسینوس پارامتر را برمی‌گرداند."
+
+msgid "Returns the hyperbolic cosine of the parameter."
+msgstr "کسینوس هذلولوی پارامتر را برمی‌گرداند."
+
+msgid "Converts a quantity in radians to degrees."
+msgstr "کمیّت رادیانی را به درجه تبدیل می‌کند."
+
+msgid "(Scalar) Derivative in 'x' using local differencing."
+msgstr "(عدد اسکالر) مشتق در «x» با استفاده از تفاوت محلی."
+
+msgid "(Scalar) Derivative in 'y' using local differencing."
+msgstr "(عدد اسکالر) مشتق در «y» با استفاده از تفاوت محلی."
+
+msgid "Finds the nearest integer less than or equal to the parameter."
+msgstr "نزدیک‌ترین عدد صحیح کمتر از یا مساوی پارامتر را پیدا می‌کند."
+
+msgid "Computes the fractional part of the argument."
+msgstr "بخش برخالی آرگومان را می‌رایاند."
+
+msgid "Returns the inverse of the square root of the parameter."
+msgstr "معکوس ریشه دوم پارامتر را برمی‌گرداند."
+
+msgid "Natural logarithm."
+msgstr "لگاریتم طبیعی."
+
+msgid "Base-2 logarithm."
+msgstr "لگاریتم پایه ۲."
+
+msgid "Returns the greater of two values."
+msgstr "بزرگ‌ترین مقدار از دو مقدار را برمی‌گرداند."
+
+msgid "Returns the lesser of two values."
+msgstr "کوچک‌ترین مقدار از دو مقدار را برمی‌گرداند."
+
+msgid "Linear interpolation between two scalars."
+msgstr "میان‌یابی خطی میان دو نرده‌ای."
+
+msgid "Performs a fused multiply-add operation (a * b + c) on scalars."
+msgstr "عملگر ضرب و جمع پیوسته (a * b + c) را روی اعداد اسکالر انجام می‌دهد."
+
+msgid "Returns the opposite value of the parameter."
+msgstr "مقدار مخالف پارامتر را برمی‌گرداند."
+
+msgid "1.0 - scalar"
+msgstr "۱.۰ - نرده‌ای"
+
+msgid ""
+"Returns the value of the first parameter raised to the power of the second."
+msgstr "مقدار پارامتر اول را به توان پارامتر دوم برمی‌گرداند."
+
+msgid "Converts a quantity in degrees to radians."
+msgstr "کمیّت درجه‌ای را به رادیان تبدیل می‌کند."
+
+msgid "Set Input Default Port"
+msgstr "تنظیم پورت پیش‌فرض ورودی"
+
+msgid "Remaps a value from the input range to the output range."
+msgstr "مقدار را از دامنه ورودی به دامنه خروجی بازنقش می‌کند."
+
+msgid "Finds the nearest integer to the parameter."
+msgstr "نزدیک‌ترین عدد صحیح به پارامتر را پیدا می‌کند."
+
+msgid "Finds the nearest even integer to the parameter."
+msgstr "نزدیک‌ترین عدد صحیح زوج به پارامتر را پیدا می‌کند."
+
+msgid "Clamps the value between 0.0 and 1.0."
+msgstr "مقدار را بین ۰.۰ و ۱.۰ محدود می‌کند."
+
+msgid "Extracts the sign of the parameter."
+msgstr "علامت پارامتر را استخراج می‌کند."
+
+msgid "Returns the sine of the parameter."
+msgstr "سینوس پارامتر را برمی‌گرداند."
+
+msgid "Returns the hyperbolic sine of the parameter."
+msgstr "سینوس هذلولوی پارامتر را برمی‌گرداند."
+
+msgid "Returns the square root of the parameter."
+msgstr "ریشهٔ دوم پارامتر را برمی‌گرداند."
+
+msgid ""
+"SmoothStep function( scalar(edge0), scalar(edge1), scalar(x) ).\n"
+"\n"
+"Returns 0.0 if 'x' is smaller than 'edge0' and 1.0 if x is larger than "
+"'edge1'. Otherwise the return value is interpolated between 0.0 and 1.0 using "
+"Hermite polynomials."
+msgstr ""
+"عملکرد SmoothStep (عدد اسکالر(edge0)، عدد اسکالر(edge1)، عدد اسکالر(x)).\n"
+"\n"
+"اگر «x» از «edge0» کوچک‌تر باشد، مقدار ۰.۰ را برمی‌گرداند و اگر «x» از «edge1» "
+"بزرگ‌تر باشد، مقدار ۱.۰ را برمی‌گرداند. در غیر این صورت، مقدار برگشتی بین ۰.۰ و "
+"۱.۰ با استفاده از چندجمله‌ای‌های هرمیت درون‌یابی می‌شود."
+
+msgid ""
+"Step function( scalar(edge), scalar(x) ).\n"
+"\n"
+"Returns 0.0 if 'x' is smaller than 'edge' and otherwise 1.0."
+msgstr ""
+"عملکرد Step (عدد اسکالر(edge)، عدد اسکالر(x)).\n"
+"\n"
+"اگر «x» از «edge» کوچک‌تر باشد، مقدار ۰.۰ را برمی‌گرداند و در غیر این صورت "
+"مقدار ۱.۰ را برمی‌گرداند."
+
+msgid ""
+"(Fragment/Light mode only) (Scalar) Sum of absolute derivative in 'x' and 'y'."
+msgstr "(فقط حالت Fragment/Light) (عدد اسکالر) مجموع مشتق‌های مطلق در «x» و «y»."
+
+msgid "(Scalar) Sum of absolute derivative in 'x' and 'y'."
+msgstr "(عدد اسکالر) مجموع مشتق‌های مطلق در «x» و «y»."
+
+msgid "Returns the tangent of the parameter."
+msgstr "تانژانت پارامتر را برمی‌گرداند."
+
+msgid "Returns the hyperbolic tangent of the parameter."
+msgstr "تانژانت هذلولوی پارامتر را برمی‌گرداند."
+
+msgid "Finds the truncated value of the parameter."
+msgstr "مقدار بریده‌شده پارامتر را پیدا می‌کند."
+
+msgid "Sums two floating-point scalars."
+msgstr "جمع دو عدد اعشاری اسکالر را محاسبه می‌کند."
+
+msgid "Sums two integer scalars."
+msgstr "جمع دو عدد صحیح اسکالر را محاسبه می‌کند."
+
+msgid "Sums two unsigned integer scalars."
+msgstr "جمع دو عدد صحیح بدون علامت اسکالر را محاسبه می‌کند."
+
+msgid "Returns the result of bitwise AND (a & b) operation for two integers."
+msgstr "نتیجه عملگر AND بیتی (a & b) برای دو عدد صحیح را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise AND (a & b) operation for two unsigned integers."
+msgstr "نتیجه عملگر AND بیتی (a & b) برای دو عدد صحیح بدون علامت را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise left shift (a << b) operation on the integer."
+msgstr "نتیجه عملگر جابه‌جایی بیتی به چپ (a << b) روی عدد صحیح را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise left shift (a << b) operation on the unsigned "
+"integer."
+msgstr ""
+"نتیجه عملگر جابه‌جایی بیتی به چپ (a << b) روی عدد صحیح بدون علامت را "
+"برمی‌گرداند."
+
+msgid "Returns the result of bitwise OR (a | b) operation for two integers."
+msgstr "نتیجه عملگر OR بیتی (a | b) برای دو عدد صحیح را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise OR (a | b) operation for two unsigned integers."
+msgstr "نتیجه عملگر OR بیتی (a | b) برای دو عدد صحیح بدون علامت را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise right shift (a >> b) operation on the integer."
+msgstr "نتیجه عملگر جابه‌جایی بیتی به راست (a >> b) روی عدد صحیح را برمی‌گرداند."
+
+msgid ""
+"Returns the result of bitwise right shift (a >> b) operation on the unsigned "
+"integer."
+msgstr ""
+"نتیجه عملگر جابه‌جایی بیتی به راست (a >> b) روی عدد صحیح بدون علامت را "
+"برمی‌گرداند."
+
+msgid "Returns the result of bitwise XOR (a ^ b) operation on the integer."
+msgstr "نتیجه عملگر XOR بیتی (a ^ b) روی عدد صحیح را برمی‌گرداند."
+
+msgid "Apply panning function on texture coordinates."
+msgstr "تابع سراسرنمایی را روی بافت مختصات به کار ببندید."
 
 msgid "Enable Auto Shrink"
 msgstr "به‌کاراندازی تنجش خودکار"
@@ -17514,9 +17853,6 @@ msgstr ""
 msgid "Path property must point to a valid Node2D node to work."
 msgstr "دارایی Path باید به یک گره Node2D معتبر اشاره کند تا کار کند."
 
-msgid "This Bone2D chain should end at a Skeleton2D node."
-msgstr "زنجیره Bone2D باید در یک گره Skeleton2D به پایان برسد."
-
 msgid "A Bone2D only works with a Skeleton2D or another Bone2D as parent node."
 msgstr ""
 "یک Bone2D تنها با یک Skeleton2D یا یک Bone2D دیگر به‌عنوان گره والد کار می‌کند."
@@ -17607,28 +17943,6 @@ msgstr ""
 "مشاهده نخواهد بود."
 
 msgid ""
-"The decal has a Normal and/or ORM texture, but no Albedo texture is set.\n"
-"An Albedo texture with an alpha channel is required to blend the normal/ORM "
-"maps onto the underlying surface.\n"
-"If you don't want the Albedo texture to be visible, set Albedo Mix to 0."
-msgstr ""
-"برچسب دارای تکسچر Normal و/یا ORM است، اما تکسچر Albedo تنظیم نشده است.\n"
-"برای ترکیب نقشه‌های normal/ORM بر روی سطح زیرین، به یک تکسچر Albedo با کانال "
-"آلفا نیاز است. \n"
-"\n"
-"گر نمی‌خواهید تکسچر Albedo قابل مشاهده باشد، مقدار Albedo Mix را به ۰ تنظیم "
-"کنید."
-
-msgid ""
-"The decal's Cull Mask has no bits enabled, which means the decal will not "
-"paint objects on any layer.\n"
-"To resolve this, enable at least one bit in the Cull Mask property."
-msgstr ""
-"ماسک Cull برچسب هیچ بیتی فعال ندارد، به این معنی که برچسب هیچ شیء‌ای را در هیچ "
-"لایه‌ای رنگ نمی‌کند.\n"
-"برای رفع این مشکل، حداقل یک بیت در ویژگی ماسک Cull فعال کنید."
-
-msgid ""
 "Fog Volumes need volumetric fog to be enabled in the scene's Environment in "
 "order to be visible."
 msgstr ""
@@ -17710,49 +18024,6 @@ msgstr "در حال آماده‌سازی نورپرداز"
 
 msgid "Preparing Environment"
 msgstr "آماده‌سازی محیط"
-
-msgid "Generating Probe Volumes"
-msgstr "تولید حجم‌های کاوند"
-
-msgid "Generating Probe Acceleration Structures"
-msgstr "تولید ساختارهای شتاب‌دهنده کاوند"
-
-msgid ""
-"Lightmaps can only be baked from a GPU that supports the RenderingDevice "
-"backends.\n"
-"Your GPU (%s) does not support RenderingDevice, as it does not support "
-"Vulkan, Direct3D 12, or Metal.\n"
-"Lightmap baking will not be available on this device, although rendering "
-"existing baked lightmaps will work."
-msgstr ""
-"نورنگاشت‌ها تنها می‌توانند از یک واحد پردازش گرافیکی که از پشت‌صحنه‌های "
-"RenderingDevice پشتیبانی می‌کند، پخته شوند.\n"
-"واحد پردازش گرافیکی شما (%s) از RenderingDevice پشتیبانی نمی‌کند، زیرا از "
-"Vulkan، Direct3D 12 یا Metal پشتیبانی نمی‌کند.\n"
-"پخت نورنگاشت‌ها در این دستگاه در دسترس نخواهد بود، اگرچه رندر نورنگاشت‌های "
-"پخته‌شده موجود کار خواهد کرد."
-
-msgid ""
-"The lightmap has no baked shadowmask textures. Please rebake with the "
-"Shadowmask Mode set to anything other than None."
-msgstr ""
-"نورنگاشت هیچ تکسچر ماسک سایه پخته‌شده‌ای ندارد. لطفاً با تنظیم حالت Shadowmask "
-"بر روی هر مقداری غیر از None دوباره پخت انجام دهید."
-
-msgid ""
-"Lightmaps cannot be baked on %s. Rendering existing baked lightmaps will "
-"still work."
-msgstr ""
-"نقشه‌های نوری روی %s نمی‌توانند پخته شوند. با این حال، رندر کردن نقشه‌های نوری "
-"پخته‌شده موجود همچنان کار خواهد کرد."
-
-msgid ""
-"Lightmaps cannot be baked, as the `lightmapper_rd` module was disabled at "
-"compile-time. Rendering existing baked lightmaps will still work."
-msgstr ""
-"نقشه‌های نوری نمی‌توانند پخته شوند، زیرا ماژول «lightmapper_rd» در زمان کامپایل "
-"غیرفعال شده است. با این حال، رندر کردن نقشه‌های نوری پخته‌شده موجود هنوز کار "
-"خواهد کرد."
 
 msgid "Forward axis and primary rotation axis must not be parallel."
 msgstr "محور رو به جلو و محور چرخش اصلی نباید موازی باشند."
