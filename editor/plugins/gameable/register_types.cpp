@@ -52,6 +52,24 @@ class GameableDock final : public PanelContainer {
 	RichTextLabel *bottom_logs = nullptr;
 	Button *run_harness_btn = nullptr;
 
+	// Phase 1 UI: token meter, tool-progress, reasoning pane
+	Label *token_meter = nullptr;
+	int64_t turn_tokens = 0;
+	int64_t session_tokens = 0;
+	int tool_call_count = 0;
+
+	// Tool-progress tracking: tool_id -> { name, stage, progress }
+	VBoxContainer *tool_progress_container = nullptr;
+	HashMap<String, HBoxContainer *> active_tool_rows;
+	HashMap<String, uint64_t> tool_result_times; // for delayed removal
+
+	// Collapsible reasoning pane
+	VBoxContainer *reasoning_section = nullptr;
+	Button *reasoning_toggle = nullptr;
+	RichTextLabel *reasoning_text = nullptr;
+	bool reasoning_collapsed = true;
+	String current_reasoning; // accumulates thinking text for current turn
+
 public:
 	GameableDock() {
 		set_name("Gameable");
@@ -59,12 +77,49 @@ public:
 		root = memnew(VBoxContainer);
 		add_child(root);
 
+		// Token meter row at top
+		HBoxContainer *meter_row = memnew(HBoxContainer);
+		root->add_child(meter_row);
+		token_meter = memnew(Label);
+		token_meter->set_text("Tokens: — | Session: —");
+		token_meter->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+		meter_row->add_child(token_meter);
+
+		// New conversation button
+		Button *new_conv_btn = memnew(Button);
+		new_conv_btn->set_text("New");
+		new_conv_btn->set_tooltip_text("Start new conversation");
+		meter_row->add_child(new_conv_btn);
+		new_conv_btn->connect("pressed", callable_mp(this, &GameableDock::_on_new_conversation));
+
+		// Tool-progress container (shows active tools)
+		tool_progress_container = memnew(VBoxContainer);
+		root->add_child(tool_progress_container);
+
 		log = memnew(RichTextLabel);
 		log->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
 		log->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 		root->add_child(log);
 		log->set_meta_underline(true);
 		log->connect("meta_clicked", callable_mp(this, &GameableDock::_on_meta_clicked));
+
+		// Collapsible reasoning pane (below chat log)
+		reasoning_section = memnew(VBoxContainer);
+		root->add_child(reasoning_section);
+
+		reasoning_toggle = memnew(Button);
+		reasoning_toggle->set_text("▶ Reasoning");
+		reasoning_toggle->set_text_alignment(HORIZONTAL_ALIGNMENT_LEFT);
+		reasoning_section->add_child(reasoning_toggle);
+		reasoning_toggle->connect("pressed", callable_mp(this, &GameableDock::_toggle_reasoning));
+
+		reasoning_text = memnew(RichTextLabel);
+		reasoning_text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
+		reasoning_text->set_custom_minimum_size(Size2(0, 0));
+		reasoning_text->set_v_size_flags(Control::SIZE_SHRINK_BEGIN);
+		reasoning_text->set_visible(false); // collapsed by default
+		reasoning_text->add_theme_font_override("normal_font", get_theme_font("source", "EditorFonts"));
+		reasoning_section->add_child(reasoning_text);
 
 		HBoxContainer *status_row = memnew(HBoxContainer);
 		root->add_child(status_row);
@@ -107,6 +162,91 @@ public:
 		// Listen to editor selection changes to push context updates.
 		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
 			es->connect("selection_changed", callable_mp(this, &GameableDock::_on_selection_changed));
+		}
+	}
+
+	void _toggle_reasoning() {
+		reasoning_collapsed = !reasoning_collapsed;
+		reasoning_text->set_visible(!reasoning_collapsed);
+		reasoning_toggle->set_text(reasoning_collapsed ? "▶ Reasoning" : "▼ Reasoning");
+		if (!reasoning_collapsed) {
+			// Limit max height when expanded
+			reasoning_text->set_custom_minimum_size(Size2(0, MIN(240.0, reasoning_text->get_content_height())));
+		}
+	}
+
+	void _on_new_conversation() {
+		// Clear local UI state
+		log->clear();
+		reasoning_text->clear();
+		current_reasoning = "";
+		turn_tokens = 0;
+		tool_call_count = 0;
+		_update_token_meter();
+
+		// Clear active tool rows
+		for (KeyValue<String, HBoxContainer *> &kv : active_tool_rows) {
+			kv.value->queue_free();
+		}
+		active_tool_rows.clear();
+		tool_result_times.clear();
+
+		// Send clearSession RPC to agent
+		Dictionary params;
+		_send_jsonrpc("clearSession", params);
+		_log_output("New conversation started.");
+	}
+
+	void _update_token_meter() {
+		String text = "Turn: " + itos(turn_tokens) + " | Session: " + itos(session_tokens);
+		if (tool_call_count > 0) {
+			text += " | Tools: " + itos(tool_call_count);
+		}
+		token_meter->set_text(text);
+	}
+
+	void _add_tool_progress(const String &p_id, const String &p_name, const String &p_stage, double p_progress = -1.0) {
+		HBoxContainer *row = nullptr;
+		if (active_tool_rows.has(p_id)) {
+			row = active_tool_rows[p_id];
+			// Update existing row
+			for (int i = 0; i < row->get_child_count(); i++) {
+				if (Label *lbl = Object::cast_to<Label>(row->get_child(i))) {
+					lbl->set_text(p_name + ": " + p_stage);
+					break;
+				}
+			}
+		} else {
+			// Create new row
+			row = memnew(HBoxContainer);
+			Label *lbl = memnew(Label);
+			lbl->set_text(p_name + ": " + p_stage);
+			lbl->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+			row->add_child(lbl);
+			tool_progress_container->add_child(row);
+			active_tool_rows[p_id] = row;
+		}
+	}
+
+	void _remove_tool_progress(const String &p_id) {
+		if (active_tool_rows.has(p_id)) {
+			active_tool_rows[p_id]->queue_free();
+			active_tool_rows.erase(p_id);
+		}
+		tool_result_times.erase(p_id);
+	}
+
+	void _check_tool_result_cleanup() {
+		// Remove tool rows 1 second after their result arrived
+		uint64_t now = OS::get_singleton()->get_ticks_msec();
+		Vector<String> to_remove;
+		for (const KeyValue<String, uint64_t> &kv : tool_result_times) {
+			if (now - kv.value > 1000) {
+				to_remove.push_back(kv.key);
+			}
+		}
+		for (const String &id : to_remove) {
+			_remove_tool_progress(id);
 		}
 	}
 
@@ -226,6 +366,13 @@ public:
 		if (t.is_empty()) {
 			return;
 		}
+		// Reset turn-level state before sending
+		turn_tokens = 0;
+		tool_call_count = 0;
+		current_reasoning = "";
+		reasoning_text->clear();
+		_update_token_meter();
+
 		log->append_text("[b]You:[/b] " + t + "\n");
 		Dictionary req;
 		req["jsonrpc"] = "2.0";
@@ -347,21 +494,62 @@ public:
 								if (method == "status") {
 									String level = params.has("level") ? String(params["level"]) : String("info");
 									String msg = params.has("message") ? String(params["message"]) : String();
+									// Reset turn state on chat:start
+									if (msg == "chat:start") {
+										turn_tokens = 0;
+										tool_call_count = 0;
+										current_reasoning = "";
+										reasoning_text->clear();
+										_update_token_meter();
+									}
 									if (bottom_logs) {
 										bottom_logs->append_text("[" + level + "] " + msg + "\n");
 									}
 									continue;
 								}
+								if (method == "usage") {
+									// Update token meter from usage event
+									if (params.has("turn")) {
+										Dictionary turn = params["turn"];
+										turn_tokens = turn.has("totalTokens") ? int64_t(turn["totalTokens"]) : 0;
+									}
+									if (params.has("session")) {
+										Dictionary sess = params["session"];
+										session_tokens = sess.has("totalTokens") ? int64_t(sess["totalTokens"]) : 0;
+									}
+									_update_token_meter();
+									continue;
+								}
 								if (method == "thinking") {
 									String t = params.has("text") ? String(params["text"]) : String();
-									log->append_text(t);
+									// Append to reasoning pane instead of main log
+									current_reasoning += t;
+									reasoning_text->append_text(t);
 									continue;
 								}
 								if (method == "tool-call") {
-									log->append_text("[b]tool-call:[/b] " + String(JSON::stringify(params)) + "\n");
+									String id = params.has("id") ? String(params["id"]) : String();
+									String name = params.has("name") ? String(params["name"]) : String();
+									tool_call_count++;
+									_update_token_meter();
+									// Add to tool progress
+									_add_tool_progress(id, name, "running");
+									log->append_text("[b]" + name + "[/b] ...\n");
+									continue;
+								}
+								if (method == "tool-progress") {
+									String id = params.has("id") ? String(params["id"]) : String();
+									String stage = params.has("stage") ? String(params["stage"]) : String();
+									String note = params.has("note") ? String(params["note"]) : String();
+									double progress = params.has("progress") ? double(params["progress"]) : -1.0;
+									// Find tool name from active rows (or use stage as fallback)
+									_add_tool_progress(id, stage, note.is_empty() ? stage : note, progress);
 									continue;
 								}
 								if (method == "tool-result") {
+									String id = params.has("id") ? String(params["id"]) : String();
+									// Mark for delayed removal
+									tool_result_times[id] = OS::get_singleton()->get_ticks_msec();
 									// Render clickable search results
 									if (params.has("name") && String(params["name"]) == "searchFiles" && params.has("output")) {
 										Dictionary out = params["output"]; // expected { hits: Array<{ path, line, preview }> }
@@ -401,6 +589,8 @@ public:
 				if (now - last_context_sent_msec > 1500) {
 					_send_context_snapshot();
 				}
+				// Cleanup completed tool progress rows after 1s delay
+				_check_tool_result_cleanup();
 			} break;
 			case WebSocketPeer::STATE_CONNECTING: {
 				_set_status("Connecting...");
