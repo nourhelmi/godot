@@ -5,5 +5,4 @@ Import("env")
 
 env.add_source_files(env.editor_sources, "*.cpp")
 
-# Only include our Gameable plugin subtree explicitly; upstream gizmos/tiles are elsewhere in 4.5.
-SConscript("gameable/SCsub")
+# Note: Gameable AI integration moved to editor/ai/ directory
