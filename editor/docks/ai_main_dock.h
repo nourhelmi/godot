@@ -52,6 +52,7 @@ class AIMainDock : public PanelContainer {
 	RichTextLabel *bottom_logs = nullptr;
 
 	void _build_ui();
+	void _build_child_docks();
 	void _build_styles();
 	void _build_status_bar();
 

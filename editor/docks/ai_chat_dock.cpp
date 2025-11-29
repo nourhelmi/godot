@@ -8,23 +8,19 @@
 
 #include "ai_chat_dock.h"
 
-#include "core/input/input.h"
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
-#include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
 #include "scene/gui/label.h"
-#include "scene/gui/line_edit.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/gui/scroll_container.h"
-#include "scene/gui/separator.h"
 #include "scene/gui/text_edit.h"
 #include "scene/resources/style_box_flat.h"
 
@@ -70,29 +66,25 @@ AIChatDock::~AIChatDock() {
 
 void AIChatDock::_build_ui() {
 	_build_header();
-	_build_tool_progress_area();
 	_build_messages_area();
-	_build_reasoning_section();
 	_build_input_area();
 }
 
 void AIChatDock::_build_styles() {
-	// Get editor theme properties
 	Ref<Theme> theme = EditorNode::get_singleton() ? EditorNode::get_singleton()->get_editor_theme() : nullptr;
 	if (!theme.is_valid()) {
 		return;
 	}
 
-	// Corner radius from editor settings
-	theme_cache.corner_radius = EDITOR_GET("interface/theme/corner_radius");
+	theme_cache.corner_radius = 6;
 	float radius = theme_cache.corner_radius * EDSCALE;
 
-	// Colors from theme
 	Color base_color = theme->get_color("base_color", "Editor");
 	Color accent_color = theme->get_color("accent_color", "Editor");
 	Color font_color = theme->get_color("font_color", "Editor");
 	theme_cache.accent_color = accent_color;
 	theme_cache.text_muted = Color(font_color.r, font_color.g, font_color.b, 0.6);
+	theme_cache.thinking_color = Color(font_color.r, font_color.g, font_color.b, 0.5);
 
 	// User message bubble: subtle accent tint
 	theme_cache.message_bg_user.instantiate();
@@ -106,13 +98,15 @@ void AIChatDock::_build_styles() {
 	theme_cache.message_bg_assistant->set_corner_radius_all(radius);
 	theme_cache.message_bg_assistant->set_content_margin_all(12 * EDSCALE);
 
-	// Reasoning panel: dark, subtle
-	theme_cache.reasoning_bg.instantiate();
-	theme_cache.reasoning_bg->set_bg_color(base_color.darkened(0.15));
-	theme_cache.reasoning_bg->set_corner_radius_all(radius);
-	theme_cache.reasoning_bg->set_content_margin_all(10 * EDSCALE);
+	// Thinking block: subtle, slightly inset appearance
+	theme_cache.thinking_bg.instantiate();
+	theme_cache.thinking_bg->set_bg_color(base_color.darkened(0.05));
+	theme_cache.thinking_bg->set_corner_radius_all(radius * 0.5);
+	theme_cache.thinking_bg->set_content_margin_all(8 * EDSCALE);
+	theme_cache.thinking_bg->set_border_width(SIDE_LEFT, 2 * EDSCALE);
+	theme_cache.thinking_bg->set_border_color(theme_cache.text_muted);
 
-	// Tool progress card: accent border highlight
+	// Tool card: accent border highlight
 	theme_cache.tool_card_bg.instantiate();
 	theme_cache.tool_card_bg->set_bg_color(base_color.lightened(0.05));
 	theme_cache.tool_card_bg->set_corner_radius_all(radius);
@@ -138,15 +132,12 @@ void AIChatDock::_build_styles() {
 	theme_cache.meter_bg->set_content_margin(SIDE_TOP, 4 * EDSCALE);
 	theme_cache.meter_bg->set_content_margin(SIDE_BOTTOM, 4 * EDSCALE);
 
-	// Apply styles to existing components
+	// Apply to existing components
 	if (meter_container) {
 		meter_container->add_theme_style_override("panel", theme_cache.meter_bg);
 	}
 	if (input_container) {
 		input_container->add_theme_style_override("panel", theme_cache.input_bg);
-	}
-	if (reasoning_panel) {
-		reasoning_panel->add_theme_style_override("panel", theme_cache.reasoning_bg);
 	}
 }
 
@@ -155,7 +146,7 @@ void AIChatDock::_build_header() {
 	header->set_h_size_flags(SIZE_EXPAND_FILL);
 	add_child(header);
 
-	// Token meter in a pill-shaped container
+	// Token meter in a pill
 	meter_container = memnew(PanelContainer);
 	header->add_child(meter_container);
 
@@ -175,12 +166,6 @@ void AIChatDock::_build_header() {
 	new_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_new_conversation));
 }
 
-void AIChatDock::_build_tool_progress_area() {
-	tool_progress_area = memnew(VBoxContainer);
-	tool_progress_area->add_theme_constant_override("separation", 6 * EDSCALE);
-	add_child(tool_progress_area);
-}
-
 void AIChatDock::_build_messages_area() {
 	scroll = memnew(ScrollContainer);
 	scroll->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -190,44 +175,8 @@ void AIChatDock::_build_messages_area() {
 
 	messages_container = memnew(VBoxContainer);
 	messages_container->set_h_size_flags(SIZE_EXPAND_FILL);
-	messages_container->add_theme_constant_override("separation", 8 * EDSCALE);
+	messages_container->add_theme_constant_override("separation", 12 * EDSCALE);
 	scroll->add_child(messages_container);
-}
-
-void AIChatDock::_build_reasoning_section() {
-	reasoning_section = memnew(VBoxContainer);
-	add_child(reasoning_section);
-
-	// Toggle button (collapsed by default)
-	reasoning_toggle = memnew(Button);
-	reasoning_toggle->set_text(U"▶ Reasoning");
-	reasoning_toggle->set_text_alignment(HORIZONTAL_ALIGNMENT_LEFT);
-	reasoning_toggle->set_flat(true);
-	reasoning_toggle->add_theme_color_override("font_color", theme_cache.text_muted);
-	reasoning_section->add_child(reasoning_toggle);
-	reasoning_toggle->connect("pressed", callable_mp(this, &AIChatDock::_on_reasoning_toggle));
-
-	// Collapsible panel
-	reasoning_panel = memnew(PanelContainer);
-	reasoning_panel->set_visible(false);
-	reasoning_section->add_child(reasoning_panel);
-
-	reasoning_text = memnew(RichTextLabel);
-	reasoning_text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
-	reasoning_text->set_fit_content(true);
-	reasoning_text->set_selection_enabled(true);
-	reasoning_text->set_custom_minimum_size(Size2(0, 0));
-
-	// Use monospace font for reasoning
-	if (EditorNode::get_singleton()) {
-		Ref<Theme> theme = EditorNode::get_singleton()->get_editor_theme();
-		if (theme.is_valid()) {
-			reasoning_text->add_theme_font_override("normal_font", theme->get_font("source", "EditorFonts"));
-			reasoning_text->add_theme_font_size_override("normal_font_size", 12 * EDSCALE);
-		}
-	}
-	reasoning_text->add_theme_color_override("default_color", theme_cache.text_muted);
-	reasoning_panel->add_child(reasoning_text);
 }
 
 void AIChatDock::_build_input_area() {
@@ -238,7 +187,7 @@ void AIChatDock::_build_input_area() {
 	input_row->add_theme_constant_override("separation", 8 * EDSCALE);
 	input_container->add_child(input_row);
 
-	// Multi-line input with auto-grow
+	// Multi-line input
 	input = memnew(TextEdit);
 	input->set_h_size_flags(SIZE_EXPAND_FILL);
 	input->set_placeholder("Ask Gameable...");
@@ -246,10 +195,10 @@ void AIChatDock::_build_input_area() {
 	input->set_custom_minimum_size(Size2(0, 36 * EDSCALE));
 	input->set_fit_content_height_enabled(true);
 
-	// Make input look cleaner
+	// Transparent style for cleaner look
 	Ref<StyleBoxFlat> input_style;
 	input_style.instantiate();
-	input_style->set_bg_color(Color(0, 0, 0, 0)); // Transparent
+	input_style->set_bg_color(Color(0, 0, 0, 0));
 	input_style->set_content_margin_all(4 * EDSCALE);
 	input->add_theme_style_override("normal", input_style);
 	input->add_theme_style_override("focus", input_style);
@@ -267,40 +216,163 @@ void AIChatDock::_build_input_area() {
 	input->connect("gui_input", callable_mp(this, &AIChatDock::_on_input_gui_input));
 }
 
-PanelContainer *AIChatDock::_create_message_bubble(const String &p_role, const String &p_text) {
-	PanelContainer *bubble = memnew(PanelContainer);
+// === Turn management ===
+// Lazily creates the assistant turn container and sub-blocks as needed
 
-	// Style based on role
-	if (p_role == "You" || p_role == "user") {
-		bubble->add_theme_style_override("panel", theme_cache.message_bg_user);
-	} else {
-		bubble->add_theme_style_override("panel", theme_cache.message_bg_assistant);
+void AIChatDock::_ensure_assistant_turn() {
+	if (current_turn) {
+		return;
 	}
+
+	// Create the turn container (holds thinking + response + tools in sequence)
+	current_turn = memnew(VBoxContainer);
+	current_turn->add_theme_constant_override("separation", 8 * EDSCALE);
+
+	// Wrap in assistant-styled panel
+	PanelContainer *wrapper = memnew(PanelContainer);
+	wrapper->add_theme_style_override("panel", theme_cache.message_bg_assistant);
+	wrapper->add_child(current_turn);
+
+	messages_container->add_child(wrapper);
+	_scroll_to_bottom();
+}
+
+void AIChatDock::_ensure_thinking_block() {
+	_ensure_assistant_turn();
+
+	if (current_thinking_block) {
+		return;
+	}
+
+	// Create thinking block with subtle styling
+	current_thinking_block = memnew(PanelContainer);
+	current_thinking_block->add_theme_style_override("panel", theme_cache.thinking_bg);
+
+	VBoxContainer *thinking_content = memnew(VBoxContainer);
+	thinking_content->add_theme_constant_override("separation", 2 * EDSCALE);
+	current_thinking_block->add_child(thinking_content);
+
+	// "Thinking..." label
+	Label *thinking_label = memnew(Label);
+	thinking_label->set_text("Thinking...");
+	thinking_label->add_theme_font_size_override("font_size", 10 * EDSCALE);
+	thinking_label->add_theme_color_override("font_color", theme_cache.text_muted);
+	thinking_content->add_child(thinking_label);
+
+	// Streaming text area
+	current_thinking_text = memnew(RichTextLabel);
+	current_thinking_text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
+	current_thinking_text->set_fit_content(true);
+	current_thinking_text->set_selection_enabled(true);
+	current_thinking_text->add_theme_color_override("default_color", theme_cache.thinking_color);
+
+	// Use italic/monospace for distinction
+	if (EditorNode::get_singleton()) {
+		Ref<Theme> theme = EditorNode::get_singleton()->get_editor_theme();
+		if (theme.is_valid()) {
+			current_thinking_text->add_theme_font_override("normal_font", theme->get_font("source", "EditorFonts"));
+			current_thinking_text->add_theme_font_size_override("normal_font_size", 11 * EDSCALE);
+		}
+	}
+	thinking_content->add_child(current_thinking_text);
+
+	// Insert at start of turn (thinking comes first)
+	current_turn->add_child(current_thinking_block);
+	current_turn->move_child(current_thinking_block, 0);
+
+	has_thinking = true;
+}
+
+void AIChatDock::_ensure_response_block() {
+	_ensure_assistant_turn();
+
+	if (current_response_text) {
+		return;
+	}
+
+	current_response_text = memnew(RichTextLabel);
+	current_response_text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
+	current_response_text->set_fit_content(true);
+	current_response_text->set_use_bbcode(true);
+	current_response_text->set_selection_enabled(true);
+	current_response_text->set_meta_underline(true);
+	current_response_text->connect("meta_clicked", callable_mp(this, &AIChatDock::_on_meta_clicked));
+
+	// Insert after thinking block (if any), before tools
+	int idx = has_thinking ? 1 : 0;
+	current_turn->add_child(current_response_text);
+	current_turn->move_child(current_response_text, idx);
+
+	has_response = true;
+}
+
+void AIChatDock::_ensure_tools_container() {
+	_ensure_assistant_turn();
+
+	if (current_tools_container) {
+		return;
+	}
+
+	current_tools_container = memnew(VBoxContainer);
+	current_tools_container->add_theme_constant_override("separation", 4 * EDSCALE);
+
+	// Tools always at the end
+	current_turn->add_child(current_tools_container);
+}
+
+// === Message creation ===
+
+PanelContainer *AIChatDock::_create_user_bubble(const String &p_text) {
+	PanelContainer *bubble = memnew(PanelContainer);
+	bubble->add_theme_style_override("panel", theme_cache.message_bg_user);
 
 	VBoxContainer *content = memnew(VBoxContainer);
 	content->add_theme_constant_override("separation", 4 * EDSCALE);
 	bubble->add_child(content);
 
-	// Role label (small, muted)
+	// "You" label
 	Label *role_label = memnew(Label);
-	role_label->set_text(p_role);
+	role_label->set_text("You");
 	role_label->add_theme_font_size_override("font_size", 10 * EDSCALE);
 	role_label->add_theme_color_override("font_color", theme_cache.text_muted);
 	content->add_child(role_label);
 
-	// Message text with BBCode support
+	// Message text
 	RichTextLabel *text = memnew(RichTextLabel);
 	text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
 	text->set_fit_content(true);
-	text->set_use_bbcode(true);
 	text->set_selection_enabled(true);
-	text->set_meta_underline(true);
 	text->append_text(p_text);
-	text->connect("meta_clicked", callable_mp(this, &AIChatDock::_on_meta_clicked));
 	content->add_child(text);
 
 	return bubble;
 }
+
+PanelContainer *AIChatDock::_create_tool_card(const String &p_name, const String &p_status) {
+	PanelContainer *card = memnew(PanelContainer);
+	card->add_theme_style_override("panel", theme_cache.tool_card_bg);
+
+	HBoxContainer *row = memnew(HBoxContainer);
+	row->add_theme_constant_override("separation", 8 * EDSCALE);
+	card->add_child(row);
+
+	// Tool icon (spinner or checkmark)
+	Label *icon = memnew(Label);
+	icon->set_text(U"◐"); // Spinner
+	icon->set_meta("is_icon", true);
+	row->add_child(icon);
+
+	// Tool name + status
+	Label *label = memnew(Label);
+	label->set_text(p_name + ": " + p_status);
+	label->add_theme_font_size_override("font_size", 12 * EDSCALE);
+	label->set_meta("is_label", true);
+	row->add_child(label);
+
+	return card;
+}
+
+// === Event handlers ===
 
 void AIChatDock::_on_send_pressed() {
 	String text = input->get_text().strip_edges();
@@ -308,8 +380,13 @@ void AIChatDock::_on_send_pressed() {
 		return;
 	}
 
-	reset_turn_state();
+	// End any previous turn
+	end_turn();
 
+	// Add user message
+	append_user_message(text);
+
+	// Send to agent
 	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
 		agent->request_chat(text);
 	}
@@ -318,7 +395,6 @@ void AIChatDock::_on_send_pressed() {
 }
 
 void AIChatDock::_on_input_gui_input(const Ref<InputEvent> &p_event) {
-	// Handle Enter without Shift to submit
 	Ref<InputEventKey> key = p_event;
 	if (key.is_valid() && key->is_pressed() && !key->is_echo()) {
 		if (key->get_keycode() == Key::ENTER && !key->is_shift_pressed()) {
@@ -335,19 +411,6 @@ void AIChatDock::_on_new_conversation() {
 	}
 }
 
-void AIChatDock::_on_reasoning_toggle() {
-	reasoning_collapsed = !reasoning_collapsed;
-	reasoning_panel->set_visible(!reasoning_collapsed);
-	reasoning_toggle->set_text(reasoning_collapsed ? U"▶ Reasoning" : U"▼ Reasoning");
-
-	if (!reasoning_collapsed && !current_reasoning.is_empty()) {
-		// Limit max height
-		float max_height = 200 * EDSCALE;
-		float content_height = reasoning_text->get_content_height();
-		reasoning_panel->set_custom_minimum_size(Size2(0, MIN(max_height, content_height + 20 * EDSCALE)));
-	}
-}
-
 void AIChatDock::_on_meta_clicked(const Variant &p_meta) {
 	if (p_meta.get_type() != Variant::STRING) {
 		return;
@@ -358,7 +421,7 @@ void AIChatDock::_on_meta_clicked(const Variant &p_meta) {
 		return;
 	}
 
-	// Open file in appropriate editor
+	// Navigate to file/resource
 	if (path.ends_with(".tscn") || path.ends_with(".scn")) {
 		EditorInterface::get_singleton()->open_scene_from_path(path);
 	} else {
@@ -371,14 +434,15 @@ void AIChatDock::_on_meta_clicked(const Variant &p_meta) {
 	}
 }
 
-// Agent signal handlers
+// === Agent signal handlers ===
+
 void AIChatDock::_on_thinking(const String &p_text) {
 	append_thinking(p_text);
 }
 
 void AIChatDock::_on_status(const String &p_level, const String &p_message) {
-	if (p_message == "chat:start") {
-		reset_turn_state();
+	if (p_message == "chat:end") {
+		end_turn();
 	}
 }
 
@@ -388,26 +452,25 @@ void AIChatDock::_on_usage_updated(int64_t p_turn, int64_t p_session) {
 
 void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input) {
 	tool_call_count++;
-	add_tool_progress(p_id, p_name, "running");
+	add_tool_card(p_id, p_name, "running...");
 	_update_meter();
 }
 
 void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output) {
-	mark_tool_done(p_id);
+	update_tool_card(p_id, p_ok ? "done" : "failed", true);
 }
 
 void AIChatDock::_on_tool_progress(const String &p_id, const String &p_stage, float p_progress) {
-	// Update existing card if present
-	if (active_tool_cards.has(p_id)) {
-		PanelContainer *card = active_tool_cards[p_id];
-		if (Label *lbl = Object::cast_to<Label>(card->get_child(0))) {
-			lbl->set_text(p_stage);
-		}
-	}
+	update_tool_card(p_id, p_stage, false);
 }
 
 void AIChatDock::_on_chat_message(const String &p_role, const String &p_text) {
-	append_message(p_role, p_text);
+	if (p_role == "You" || p_role == "user") {
+		// User message already handled in _on_send_pressed
+		return;
+	}
+	// Assistant response - stream into current turn
+	append_response(p_text);
 }
 
 void AIChatDock::_update_meter() {
@@ -427,7 +490,6 @@ void AIChatDock::_update_meter() {
 }
 
 void AIChatDock::_scroll_to_bottom() {
-	// Defer to next frame so layout is updated
 	callable_mp(this, &AIChatDock::_do_scroll_to_bottom).call_deferred();
 }
 
@@ -437,40 +499,79 @@ void AIChatDock::_do_scroll_to_bottom() {
 	}
 }
 
-// Public API
-void AIChatDock::append_message(const String &p_role, const String &p_text) {
-	PanelContainer *bubble = _create_message_bubble(p_role, p_text);
+// === Public API ===
+
+void AIChatDock::append_user_message(const String &p_text) {
+	// End any previous assistant turn
+	end_turn();
+
+	PanelContainer *bubble = _create_user_bubble(p_text);
 	messages_container->add_child(bubble);
 	_scroll_to_bottom();
 }
 
-void AIChatDock::append_assistant_chunk(const String &p_text) {
-	// For streaming: append to last assistant message or create new one
-	int child_count = messages_container->get_child_count();
-	if (child_count > 0) {
-		if (PanelContainer *last = Object::cast_to<PanelContainer>(messages_container->get_child(child_count - 1))) {
-			if (VBoxContainer *content = Object::cast_to<VBoxContainer>(last->get_child(0))) {
-				for (int i = 0; i < content->get_child_count(); i++) {
-					if (RichTextLabel *rtl = Object::cast_to<RichTextLabel>(content->get_child(i))) {
-						rtl->append_text(p_text);
-						_scroll_to_bottom();
-						return;
-					}
-				}
+void AIChatDock::append_thinking(const String &p_text) {
+	_ensure_thinking_block();
+	current_thinking_text->append_text(p_text);
+	_scroll_to_bottom();
+}
+
+void AIChatDock::append_response(const String &p_text) {
+	_ensure_response_block();
+	current_response_text->append_text(p_text);
+	_scroll_to_bottom();
+}
+
+void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const String &p_status) {
+	_ensure_tools_container();
+
+	PanelContainer *card = _create_tool_card(p_name, p_status);
+	current_tools_container->add_child(card);
+	active_tool_cards[p_id] = card;
+	_scroll_to_bottom();
+}
+
+void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bool p_done) {
+	if (!active_tool_cards.has(p_id)) {
+		return;
+	}
+
+	PanelContainer *card = active_tool_cards[p_id];
+	HBoxContainer *row = Object::cast_to<HBoxContainer>(card->get_child(0));
+	if (!row) {
+		return;
+	}
+
+	// Update icon and label
+	for (int i = 0; i < row->get_child_count(); i++) {
+		Node *child = row->get_child(i);
+		if (child->has_meta("is_icon")) {
+			Label *icon = Object::cast_to<Label>(child);
+			if (icon) {
+				icon->set_text(p_done ? U"✓" : U"◐");
+			}
+		}
+		if (child->has_meta("is_label")) {
+			Label *label = Object::cast_to<Label>(child);
+			if (label) {
+				// Extract tool name (before colon)
+				String current = label->get_text();
+				int colon_pos = current.find(":");
+				String name = colon_pos >= 0 ? current.substr(0, colon_pos) : current;
+				label->set_text(name + ": " + p_status);
 			}
 		}
 	}
 
-	// No existing message, create new
-	append_message("Assistant", p_text);
-}
+	if (p_done) {
+		// Mark for cleanup
+		tool_done_times[p_id] = OS::get_singleton()->get_ticks_msec();
 
-void AIChatDock::append_thinking(const String &p_text) {
-	current_reasoning += p_text;
-	reasoning_text->append_text(p_text);
-
-	// Show toggle if reasoning exists
-	reasoning_toggle->set_visible(!current_reasoning.is_empty());
+		// Change border to green for success
+		Ref<StyleBoxFlat> done_style = theme_cache.tool_card_bg->duplicate();
+		done_style->set_border_color(Color(0.4, 0.8, 0.4));
+		card->add_theme_style_override("panel", done_style);
+	}
 }
 
 void AIChatDock::update_usage(int64_t p_turn, int64_t p_session) {
@@ -479,86 +580,37 @@ void AIChatDock::update_usage(int64_t p_turn, int64_t p_session) {
 	_update_meter();
 }
 
-void AIChatDock::add_tool_progress(const String &p_id, const String &p_name, const String &p_stage) {
-	PanelContainer *card = nullptr;
-
-	if (active_tool_cards.has(p_id)) {
-		card = active_tool_cards[p_id];
-		if (Label *lbl = Object::cast_to<Label>(card->get_child(0))) {
-			lbl->set_text(p_name + ": " + p_stage);
-		}
-	} else {
-		card = memnew(PanelContainer);
-		card->add_theme_style_override("panel", theme_cache.tool_card_bg);
-
-		Label *lbl = memnew(Label);
-		lbl->set_text(p_name + ": " + p_stage);
-		lbl->add_theme_font_size_override("font_size", 12 * EDSCALE);
-		card->add_child(lbl);
-
-		tool_progress_area->add_child(card);
-		active_tool_cards[p_id] = card;
-	}
-}
-
-void AIChatDock::mark_tool_done(const String &p_id) {
-	tool_done_times[p_id] = OS::get_singleton()->get_ticks_msec();
-
-	// Update card to show done state
-	if (active_tool_cards.has(p_id)) {
-		PanelContainer *card = active_tool_cards[p_id];
-		// Fade to success color
-		Ref<StyleBoxFlat> done_style = theme_cache.tool_card_bg->duplicate();
-		done_style->set_border_color(Color(0.4, 0.8, 0.4)); // Green accent
-		card->add_theme_style_override("panel", done_style);
-	}
-}
-
 void AIChatDock::cleanup_done_tools() {
-	uint64_t now = OS::get_singleton()->get_ticks_msec();
-	Vector<String> to_remove;
-
-	for (const KeyValue<String, uint64_t> &kv : tool_done_times) {
-		if (now - kv.value > 1500) { // Fade out after 1.5s
-			to_remove.push_back(kv.key);
-		}
-	}
-
-	for (const String &id : to_remove) {
-		if (active_tool_cards.has(id)) {
-			active_tool_cards[id]->queue_free();
-			active_tool_cards.erase(id);
-		}
-		tool_done_times.erase(id);
-	}
+	// Keep completed tools visible for a bit, then fade them
+	// (For now, just leave them - they're part of the conversation history)
 }
 
-void AIChatDock::reset_turn_state() {
+void AIChatDock::end_turn() {
+	// Clear streaming state - turn container stays in messages
+	current_turn = nullptr;
+	current_thinking_block = nullptr;
+	current_thinking_text = nullptr;
+	current_response_text = nullptr;
+	current_tools_container = nullptr;
+	has_thinking = false;
+	has_response = false;
+
+	// Reset per-turn tracking
 	turn_tokens = 0;
 	tool_call_count = 0;
-	current_reasoning = "";
-	reasoning_text->clear();
-	reasoning_toggle->set_visible(false);
-	reasoning_panel->set_visible(false);
-	reasoning_collapsed = true;
+	active_tool_cards.clear();
+	tool_done_times.clear();
 	_update_meter();
 }
 
 void AIChatDock::clear_all() {
-	// Remove all message bubbles
+	// Remove all messages
 	for (int i = messages_container->get_child_count() - 1; i >= 0; i--) {
 		messages_container->get_child(i)->queue_free();
 	}
 
-	// Clear tool cards
-	for (KeyValue<String, PanelContainer *> &kv : active_tool_cards) {
-		kv.value->queue_free();
-	}
-	active_tool_cards.clear();
-	tool_done_times.clear();
-
-	// Reset state
-	reset_turn_state();
+	// Reset all state
+	end_turn();
 	session_tokens = 0;
 	_update_meter();
 }

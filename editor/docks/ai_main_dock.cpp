@@ -29,7 +29,10 @@ void AIMainDock::_bind_methods() {
 
 void AIMainDock::_notification(int p_what) {
 	switch (p_what) {
-		case NOTIFICATION_ENTER_TREE: {
+		case NOTIFICATION_READY: {
+			// Create child docks here (deferred from constructor) to avoid
+			// "parent busy" errors during editor initialization
+			_build_child_docks();
 			_build_styles();
 
 			// Connect to AI agent and start connection
@@ -55,16 +58,23 @@ AIMainDock::~AIMainDock() {
 }
 
 void AIMainDock::_build_ui() {
+	// Build basic container structure - can be called from constructor
 	root = memnew(VBoxContainer);
 	add_child(root);
 
-	// Tab container with all docks
+	// Tab container (child docks added later in _build_child_docks)
 	tabs = memnew(TabContainer);
 	tabs->set_v_size_flags(SIZE_EXPAND_FILL);
 	tabs->set_tab_alignment(TabBar::ALIGNMENT_CENTER);
 	root->add_child(tabs);
 
-	// Create child docks
+	// Status bar at bottom
+	_build_status_bar();
+}
+
+void AIMainDock::_build_child_docks() {
+	// Create child docks - called from NOTIFICATION_READY to avoid
+	// "parent busy" errors when each dock builds its own UI
 	chat_dock = memnew(AIChatDock);
 	tabs->add_child(chat_dock);
 
@@ -73,9 +83,6 @@ void AIMainDock::_build_ui() {
 
 	harness_dock = memnew(AIHarnessDock);
 	tabs->add_child(harness_dock);
-
-	// Status bar at bottom
-	_build_status_bar();
 }
 
 void AIMainDock::_build_styles() {

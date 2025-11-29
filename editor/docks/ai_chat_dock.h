@@ -14,28 +14,28 @@ class Button;
 class HBoxContainer;
 class InputEvent;
 class Label;
-class LineEdit;
 class PanelContainer;
 class RichTextLabel;
 class ScrollContainer;
 class StyleBoxFlat;
 class TextEdit;
 
-// Beautiful chat panel with soft message bubbles, elegant token meter,
-// collapsible reasoning pane, and animated tool progress cards.
+// Chat panel with inline streaming: reasoning → response → tools flow sequentially
+// like Cursor/Claude. Each assistant turn is a container holding all parts.
 class AIChatDock : public VBoxContainer {
 	GDCLASS(AIChatDock, VBoxContainer);
 
-	// Theme cache for styled components
+	// Theme cache
 	struct ThemeCache {
 		Ref<StyleBoxFlat> message_bg_user;
 		Ref<StyleBoxFlat> message_bg_assistant;
-		Ref<StyleBoxFlat> reasoning_bg;
+		Ref<StyleBoxFlat> thinking_bg; // Subtle style for reasoning blocks
 		Ref<StyleBoxFlat> tool_card_bg;
 		Ref<StyleBoxFlat> input_bg;
 		Ref<StyleBoxFlat> meter_bg;
 		Color accent_color;
 		Color text_muted;
+		Color thinking_color; // Dimmed color for reasoning text
 		int corner_radius = 6;
 	} theme_cache;
 
@@ -45,20 +45,9 @@ class AIChatDock : public VBoxContainer {
 	Label *token_meter = nullptr;
 	Button *new_btn = nullptr;
 
-	// Tool progress area (floating cards above chat)
-	VBoxContainer *tool_progress_area = nullptr;
-
 	// Main chat scroll area
 	ScrollContainer *scroll = nullptr;
 	VBoxContainer *messages_container = nullptr;
-
-	// Collapsible reasoning section
-	VBoxContainer *reasoning_section = nullptr;
-	Button *reasoning_toggle = nullptr;
-	PanelContainer *reasoning_panel = nullptr;
-	RichTextLabel *reasoning_text = nullptr;
-	bool reasoning_collapsed = true;
-	String current_reasoning;
 
 	// Input area
 	PanelContainer *input_container = nullptr;
@@ -66,12 +55,22 @@ class AIChatDock : public VBoxContainer {
 	TextEdit *input = nullptr;
 	Button *send_btn = nullptr;
 
+	// Current assistant turn container (for streaming)
+	// Structure: [thinking_container] [response_text] [tool_cards...]
+	VBoxContainer *current_turn = nullptr;
+	PanelContainer *current_thinking_block = nullptr;
+	RichTextLabel *current_thinking_text = nullptr;
+	RichTextLabel *current_response_text = nullptr;
+	VBoxContainer *current_tools_container = nullptr;
+	bool has_thinking = false;
+	bool has_response = false;
+
 	// State tracking
 	int64_t turn_tokens = 0;
 	int64_t session_tokens = 0;
 	int tool_call_count = 0;
 
-	// Active tool progress cards
+	// Active tool cards within current turn
 	HashMap<String, PanelContainer *> active_tool_cards;
 	HashMap<String, uint64_t> tool_done_times;
 
@@ -79,19 +78,23 @@ class AIChatDock : public VBoxContainer {
 	void _build_ui();
 	void _build_styles();
 	void _build_header();
-	void _build_tool_progress_area();
 	void _build_messages_area();
-	void _build_reasoning_section();
 	void _build_input_area();
 
+	// Turn management - creates assistant turn container for streaming
+	void _ensure_assistant_turn();
+	void _ensure_thinking_block();
+	void _ensure_response_block();
+	void _ensure_tools_container();
+
 	// Message bubble creation
-	PanelContainer *_create_message_bubble(const String &p_role, const String &p_text);
+	PanelContainer *_create_user_bubble(const String &p_text);
+	PanelContainer *_create_tool_card(const String &p_name, const String &p_status);
 
 	// Event handlers
 	void _on_send_pressed();
 	void _on_input_gui_input(const Ref<InputEvent> &p_event);
 	void _on_new_conversation();
-	void _on_reasoning_toggle();
 	void _on_meta_clicked(const Variant &p_meta);
 
 	// Agent signal handlers
@@ -112,15 +115,15 @@ protected:
 	static void _bind_methods();
 
 public:
-	// Public API for message display
-	void append_message(const String &p_role, const String &p_text);
-	void append_assistant_chunk(const String &p_text);
+	// Public API - streaming content into current turn
+	void append_user_message(const String &p_text);
 	void append_thinking(const String &p_text);
+	void append_response(const String &p_text);
+	void add_tool_card(const String &p_id, const String &p_name, const String &p_status);
+	void update_tool_card(const String &p_id, const String &p_status, bool p_done);
 	void update_usage(int64_t p_turn, int64_t p_session);
-	void add_tool_progress(const String &p_id, const String &p_name, const String &p_stage);
-	void mark_tool_done(const String &p_id);
 	void cleanup_done_tools();
-	void reset_turn_state();
+	void end_turn(); // Finalizes current turn, clears streaming state
 	void clear_all();
 
 	AIChatDock();

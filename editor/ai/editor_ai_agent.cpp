@@ -80,10 +80,11 @@ EditorAIAgent::~EditorAIAgent() {
 void EditorAIAgent::connect_to_server() {
 	_reconnect();
 	if (poll_timer && !poll_timer->is_inside_tree()) {
-		// Timer needs to be in tree to work; add to EditorNode
+		// Timer needs to be in tree to work; add to EditorNode via deferred call
+		// to avoid "parent busy" errors during editor initialization
 		if (EditorNode::get_singleton()) {
-			EditorNode::get_singleton()->add_child(poll_timer);
-			poll_timer->start();
+			EditorNode::get_singleton()->call_deferred("add_child", poll_timer);
+			poll_timer->call_deferred("start");
 		}
 	}
 }
