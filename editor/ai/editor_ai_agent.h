@@ -32,6 +32,7 @@ class EditorAIAgent : public Object {
 	AIConnectionState connection_state = AI_CONNECTION_DISCONNECTED;
 	bool sent_hello = false;
 	bool sent_initial_context = false;
+	bool selection_connected = false; // Track if we've connected to EditorSelection
 	double retry_delay = 0.5;
 	uint64_t next_retry_msec = 0;
 
@@ -68,7 +69,7 @@ public:
 	// Connection management
 	void connect_to_server();
 	void disconnect_from_server();
-	bool is_connected() const;
+	bool is_agent_connected() const;
 	AIConnectionState get_connection_state() const { return connection_state; }
 
 	// Low-level RPC

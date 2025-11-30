@@ -76,7 +76,10 @@ void AIHarnessDock::_build_styles() {
 		return;
 	}
 
-	theme_cache.corner_radius = EDITOR_GET("interface/theme/corner_radius");
+	// Guard against early calls before EditorSettings is ready
+	if (EditorSettings::get_singleton() && EditorSettings::get_singleton()->has_setting("interface/theme/corner_radius")) {
+		theme_cache.corner_radius = EDITOR_GET("interface/theme/corner_radius");
+	}
 	float radius = theme_cache.corner_radius * EDSCALE;
 
 	Color base_color = theme->get_color("base_color", "Editor");

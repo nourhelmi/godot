@@ -48,24 +48,15 @@ void EditorAIAgent::destroy_singleton() {
 }
 
 EditorAIAgent::EditorAIAgent() {
-	// Get WS URL from editor settings
-	ws_url = EDITOR_GET("gameable/ws_url");
-	if (ws_url.is_empty()) {
-		ws_url = "ws://127.0.0.1:1999/session/dev";
-	}
+	// Default WS URL - actual setting read deferred to connect_to_server()
+	// when EditorSettings is guaranteed to be initialized
+	ws_url = "ws://127.0.0.1:1999/session/dev";
 
-	// Create poll timer
+	// Create poll timer (not added to tree yet - done in connect_to_server)
 	poll_timer = memnew(Timer);
 	poll_timer->set_wait_time(0.1);
 	poll_timer->set_one_shot(false);
 	poll_timer->connect("timeout", callable_mp(this, &EditorAIAgent::_on_poll));
-
-	// Listen to selection changes
-	if (EditorNode::get_singleton()) {
-		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
-			es->connect("selection_changed", callable_mp(this, &EditorAIAgent::_on_selection_changed));
-		}
-	}
 }
 
 EditorAIAgent::~EditorAIAgent() {
@@ -78,10 +69,26 @@ EditorAIAgent::~EditorAIAgent() {
 }
 
 void EditorAIAgent::connect_to_server() {
+	// Read WS URL from settings now that EditorSettings is initialized
+	if (EditorSettings::get_singleton() && EditorSettings::get_singleton()->has_setting("gameable/ws_url")) {
+		String url = EDITOR_GET("gameable/ws_url");
+		if (!url.is_empty()) {
+			ws_url = url;
+		}
+	}
+
+	// Connect selection change listener (deferred since EditorNode might be busy)
+	if (EditorNode::get_singleton() && !selection_connected) {
+		if (EditorSelection *es = EditorNode::get_singleton()->get_editor_selection()) {
+			es->connect("selection_changed", callable_mp(this, &EditorAIAgent::_on_selection_changed));
+			selection_connected = true;
+		}
+	}
+
 	_reconnect();
+
+	// Timer needs to be in tree to work; add via deferred call to avoid "parent busy" errors
 	if (poll_timer && !poll_timer->is_inside_tree()) {
-		// Timer needs to be in tree to work; add to EditorNode via deferred call
-		// to avoid "parent busy" errors during editor initialization
 		if (EditorNode::get_singleton()) {
 			EditorNode::get_singleton()->call_deferred("add_child", poll_timer);
 			poll_timer->call_deferred("start");
@@ -99,7 +106,7 @@ void EditorAIAgent::disconnect_from_server() {
 	emit_signal("connection_state_changed", (int)connection_state);
 }
 
-bool EditorAIAgent::is_connected() const {
+bool EditorAIAgent::is_agent_connected() const {
 	return ws && ws->get_ready_state() == WebSocketPeer::STATE_OPEN;
 }
 
@@ -331,7 +338,7 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 }
 
 bool EditorAIAgent::_send_context_snapshot(bool p_force) {
-	if (!is_connected()) {
+	if (!is_agent_connected()) {
 		return false;
 	}
 
@@ -399,7 +406,7 @@ void EditorAIAgent::_on_selection_changed() {
 }
 
 void EditorAIAgent::send_jsonrpc(const String &p_method, const Dictionary &p_params) {
-	if (!is_connected()) {
+	if (!is_agent_connected()) {
 		return;
 	}
 
@@ -412,7 +419,7 @@ void EditorAIAgent::send_jsonrpc(const String &p_method, const Dictionary &p_par
 }
 
 int EditorAIAgent::send_jsonrpc_with_callback(const String &p_method, const Dictionary &p_params, const Callable &p_callback) {
-	if (!is_connected()) {
+	if (!is_agent_connected()) {
 		return -1;
 	}
 
