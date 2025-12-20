@@ -10,7 +10,9 @@
 
 #include "scene/gui/box_container.h"
 
+class AIMentionPopup;
 class Button;
+class FlowContainer;
 class HBoxContainer;
 class InputEvent;
 class Label;
@@ -49,17 +51,26 @@ class AIChatDock : public VBoxContainer {
 	ScrollContainer *scroll = nullptr;
 	VBoxContainer *messages_container = nullptr;
 
+	// Context chips above input (for @ mentioned items)
+	FlowContainer *context_chips = nullptr;
+	Vector<String> mentioned_paths; // paths mentioned via @ in current input
+
 	// Input area
 	PanelContainer *input_container = nullptr;
 	HBoxContainer *input_row = nullptr;
 	TextEdit *input = nullptr;
 	Button *send_btn = nullptr;
 
+	// @ mention autocomplete
+	AIMentionPopup *mention_popup = nullptr;
+
 	// Current assistant turn container (for streaming)
 	// Structure: [thinking_container] [response_text] [tool_cards...]
 	VBoxContainer *current_turn = nullptr;
 	PanelContainer *current_thinking_block = nullptr;
+	Button *current_thinking_toggle = nullptr; // toggle collapse
 	RichTextLabel *current_thinking_text = nullptr;
+	bool thinking_collapsed = false;
 	RichTextLabel *current_response_text = nullptr;
 	VBoxContainer *current_tools_container = nullptr;
 	bool has_thinking = false;
@@ -94,8 +105,21 @@ class AIChatDock : public VBoxContainer {
 	// Event handlers
 	void _on_send_pressed();
 	void _on_input_gui_input(const Ref<InputEvent> &p_event);
+	void _on_input_text_changed();
 	void _on_new_conversation();
 	void _on_meta_clicked(const Variant &p_meta);
+
+	// @ mention handler
+	void _on_mention_selected(const String &p_path, const String &p_label, int p_start_col);
+
+	// Context chip helpers
+	void _build_context_chips_area();
+	void _add_context_chip(const String &p_path, const String &p_label);
+	void _remove_context_chip(const String &p_path);
+	void _clear_context_chips();
+
+	// Thinking block collapse
+	void _on_thinking_toggle();
 
 	// Agent signal handlers
 	void _on_thinking(const String &p_text);

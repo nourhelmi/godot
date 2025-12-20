@@ -11,7 +11,7 @@
 #include "scene/gui/panel_container.h"
 
 class AIChatDock;
-class AIContextDock;
+class AIContextDock; // kept for bundle/settings UI later
 class AIHarnessDock;
 class Button;
 class HBoxContainer;

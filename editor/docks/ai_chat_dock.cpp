@@ -8,15 +8,18 @@
 
 #include "ai_chat_dock.h"
 
+#include "ai_mention_popup.h"
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "editor/ai/editor_ai_agent.h"
+#include "editor/ai/editor_ai_types.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
+#include "scene/gui/flow_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/rich_text_label.h"
@@ -67,7 +70,14 @@ AIChatDock::~AIChatDock() {
 void AIChatDock::_build_ui() {
 	_build_header();
 	_build_messages_area();
+	_build_context_chips_area();
 	_build_input_area();
+
+	// @ mention popup (Control-based, not Window, to avoid focus issues)
+	mention_popup = memnew(AIMentionPopup);
+	mention_popup->connect("mention_selected", callable_mp(this, &AIChatDock::_on_mention_selected));
+	mention_popup->set_z_index(100); // Render on top
+	add_child(mention_popup);
 }
 
 void AIChatDock::_build_styles() {
@@ -214,6 +224,17 @@ void AIChatDock::_build_input_area() {
 
 	send_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_send_pressed));
 	input->connect("gui_input", callable_mp(this, &AIChatDock::_on_input_gui_input));
+	input->connect("text_changed", callable_mp(this, &AIChatDock::_on_input_text_changed));
+}
+
+void AIChatDock::_build_context_chips_area() {
+	// FlowContainer for showing @ mentioned items as chips above input
+	context_chips = memnew(FlowContainer);
+	context_chips->set_h_size_flags(SIZE_EXPAND_FILL);
+	context_chips->add_theme_constant_override("h_separation", 4 * EDSCALE);
+	context_chips->add_theme_constant_override("v_separation", 4 * EDSCALE);
+	context_chips->set_visible(false); // hidden until items added
+	add_child(context_chips);
 }
 
 // === Turn management ===
@@ -252,12 +273,19 @@ void AIChatDock::_ensure_thinking_block() {
 	thinking_content->add_theme_constant_override("separation", 2 * EDSCALE);
 	current_thinking_block->add_child(thinking_content);
 
-	// "Thinking..." label
-	Label *thinking_label = memnew(Label);
-	thinking_label->set_text("Thinking...");
-	thinking_label->add_theme_font_size_override("font_size", 10 * EDSCALE);
-	thinking_label->add_theme_color_override("font_color", theme_cache.text_muted);
-	thinking_content->add_child(thinking_label);
+	// Collapsible header row
+	HBoxContainer *header_row = memnew(HBoxContainer);
+	thinking_content->add_child(header_row);
+
+	// Toggle button (triangle indicator)
+	current_thinking_toggle = memnew(Button);
+	current_thinking_toggle->set_text(U"▼ Thinking...");
+	current_thinking_toggle->set_flat(true);
+	current_thinking_toggle->add_theme_font_size_override("font_size", 10 * EDSCALE);
+	current_thinking_toggle->add_theme_color_override("font_color", theme_cache.text_muted);
+	current_thinking_toggle->set_tooltip_text("Click to collapse/expand");
+	current_thinking_toggle->connect("pressed", callable_mp(this, &AIChatDock::_on_thinking_toggle));
+	header_row->add_child(current_thinking_toggle);
 
 	// Streaming text area
 	current_thinking_text = memnew(RichTextLabel);
@@ -276,11 +304,26 @@ void AIChatDock::_ensure_thinking_block() {
 	}
 	thinking_content->add_child(current_thinking_text);
 
-	// Insert at start of turn (thinking comes first)
+	// Add inline for proper interleaving (no move_child - keeps chronological order)
 	current_turn->add_child(current_thinking_block);
-	current_turn->move_child(current_thinking_block, 0);
 
+	thinking_collapsed = false;
 	has_thinking = true;
+}
+
+void AIChatDock::_on_thinking_toggle() {
+	if (!current_thinking_text || !current_thinking_toggle) {
+		return;
+	}
+
+	thinking_collapsed = !thinking_collapsed;
+	current_thinking_text->set_visible(!thinking_collapsed);
+
+	if (thinking_collapsed) {
+		current_thinking_toggle->set_text(U"▶ Thinking... (collapsed)");
+	} else {
+		current_thinking_toggle->set_text(U"▼ Thinking...");
+	}
 }
 
 void AIChatDock::_ensure_response_block() {
@@ -298,10 +341,8 @@ void AIChatDock::_ensure_response_block() {
 	current_response_text->set_meta_underline(true);
 	current_response_text->connect("meta_clicked", callable_mp(this, &AIChatDock::_on_meta_clicked));
 
-	// Insert after thinking block (if any), before tools
-	int idx = has_thinking ? 1 : 0;
+	// Add inline for proper interleaving (no move_child - keeps chronological order)
 	current_turn->add_child(current_response_text);
-	current_turn->move_child(current_response_text, idx);
 
 	has_response = true;
 }
@@ -383,6 +424,21 @@ void AIChatDock::_on_send_pressed() {
 	// End any previous turn
 	end_turn();
 
+	// Add mentioned items to context before sending
+	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
+		for (const String &path : mentioned_paths) {
+			if (path.begins_with("node:")) {
+				// Scene tree node
+				String node_path = path.substr(5);
+				agent->add_context_item(AI_CONTEXT_NODE, node_path, node_path.get_file());
+			} else {
+				// File path
+				AIContextItemKind kind = ai_context_kind_from_path(path);
+				agent->add_context_item(kind, path, path.get_file());
+			}
+		}
+	}
+
 	// Add user message
 	append_user_message(text);
 
@@ -392,11 +448,26 @@ void AIChatDock::_on_send_pressed() {
 	}
 
 	input->clear();
+	_clear_context_chips();
 }
 
 void AIChatDock::_on_input_gui_input(const Ref<InputEvent> &p_event) {
 	Ref<InputEventKey> key = p_event;
 	if (key.is_valid() && key->is_pressed() && !key->is_echo()) {
+		// Forward navigation keys to mention popup if visible
+		if (mention_popup && mention_popup->is_visible()) {
+			Key keycode = key->get_keycode();
+			if (keycode == Key::UP || keycode == Key::DOWN ||
+					keycode == Key::ESCAPE || keycode == Key::TAB ||
+					(keycode == Key::ENTER && !key->is_shift_pressed())) {
+				if (mention_popup->handle_key(keycode)) {
+					input->accept_event();
+					return;
+				}
+			}
+		}
+
+		// Normal Enter to send (when popup not handling it)
 		if (key->get_keycode() == Key::ENTER && !key->is_shift_pressed()) {
 			_on_send_pressed();
 			input->accept_event();
@@ -434,6 +505,156 @@ void AIChatDock::_on_meta_clicked(const Variant &p_meta) {
 	}
 }
 
+// === @ Mention handlers ===
+
+void AIChatDock::_on_input_text_changed() {
+	if (!input || !mention_popup) {
+		return;
+	}
+
+	String text = input->get_text();
+	int caret_col = input->get_caret_column();
+	int caret_line = input->get_caret_line();
+
+	// Get the current line text up to caret
+	PackedStringArray lines = text.split("\n");
+	if (caret_line >= lines.size()) {
+		mention_popup->cancel();
+		return;
+	}
+	String line = lines[caret_line];
+	String before_caret = line.substr(0, caret_col);
+
+	// Delegate to popup (now a Control, not a Window, so no focus stealing)
+	if (mention_popup->update_filter(before_caret, caret_col)) {
+		mention_popup->show_at(input_container);
+	}
+}
+
+void AIChatDock::_on_mention_selected(const String &p_path, const String &p_label, int p_start_col) {
+	if (!input) {
+		return;
+	}
+
+	// Track the mentioned path
+	if (!mentioned_paths.has(p_path)) {
+		mentioned_paths.push_back(p_path);
+		_add_context_chip(p_path, p_label);
+	}
+
+	// Replace @filter with @label in input
+	String text = input->get_text();
+	int caret_line = input->get_caret_line();
+	PackedStringArray lines = text.split("\n");
+
+	if (caret_line < lines.size()) {
+		String line = lines[caret_line];
+		int caret_col = input->get_caret_column();
+
+		// Replace from @ to caret with @label + space
+		String new_line = line.substr(0, p_start_col) + "@" + p_label + " ";
+		if (caret_col < line.length()) {
+			new_line += line.substr(caret_col);
+		}
+		lines.set(caret_line, new_line);
+
+		// Rebuild text
+		String new_text;
+		for (int i = 0; i < lines.size(); i++) {
+			if (i > 0) {
+				new_text += "\n";
+			}
+			new_text += lines[i];
+		}
+		input->set_text(new_text);
+
+		// Move caret after inserted mention
+		int new_col = p_start_col + 1 + p_label.length() + 1;
+		input->set_caret_column(new_col);
+		input->set_caret_line(caret_line);
+	}
+}
+
+// === Context chip helpers ===
+
+void AIChatDock::_add_context_chip(const String &p_path, const String &p_label) {
+	if (!context_chips) {
+		return;
+	}
+
+	// Create chip button with x to remove
+	HBoxContainer *chip = memnew(HBoxContainer);
+	chip->add_theme_constant_override("separation", 4 * EDSCALE);
+	chip->set_meta("path", p_path);
+
+	// Apply chip style
+	PanelContainer *chip_panel = memnew(PanelContainer);
+	Ref<StyleBoxFlat> chip_style;
+	chip_style.instantiate();
+	chip_style->set_bg_color(theme_cache.accent_color.lerp(Color(0.2, 0.2, 0.2), 0.7));
+	chip_style->set_corner_radius_all(12 * EDSCALE);
+	chip_style->set_content_margin(SIDE_LEFT, 8 * EDSCALE);
+	chip_style->set_content_margin(SIDE_RIGHT, 4 * EDSCALE);
+	chip_style->set_content_margin(SIDE_TOP, 2 * EDSCALE);
+	chip_style->set_content_margin(SIDE_BOTTOM, 2 * EDSCALE);
+	chip_panel->add_theme_style_override("panel", chip_style);
+
+	HBoxContainer *chip_content = memnew(HBoxContainer);
+	chip_content->add_theme_constant_override("separation", 4 * EDSCALE);
+	chip_panel->add_child(chip_content);
+
+	Label *label = memnew(Label);
+	label->set_text(p_label);
+	label->add_theme_font_size_override("font_size", 11 * EDSCALE);
+	chip_content->add_child(label);
+
+	Button *remove_btn = memnew(Button);
+	remove_btn->set_text(U"×");
+	remove_btn->set_flat(true);
+	remove_btn->add_theme_font_size_override("font_size", 12 * EDSCALE);
+	remove_btn->connect("pressed", callable_mp(this, &AIChatDock::_remove_context_chip).bind(p_path));
+	chip_content->add_child(remove_btn);
+
+	chip->add_child(chip_panel);
+	context_chips->add_child(chip);
+	context_chips->set_visible(true);
+}
+
+void AIChatDock::_remove_context_chip(const String &p_path) {
+	if (!context_chips) {
+		return;
+	}
+
+	// Remove from tracked paths
+	mentioned_paths.erase(p_path);
+
+	// Remove chip from UI
+	for (int i = context_chips->get_child_count() - 1; i >= 0; i--) {
+		Node *child = context_chips->get_child(i);
+		if (child->has_meta("path") && String(child->get_meta("path")) == p_path) {
+			child->queue_free();
+			break;
+		}
+	}
+
+	// Hide container if empty
+	if (context_chips->get_child_count() <= 1) {
+		context_chips->set_visible(false);
+	}
+}
+
+void AIChatDock::_clear_context_chips() {
+	if (!context_chips) {
+		return;
+	}
+
+	for (int i = context_chips->get_child_count() - 1; i >= 0; i--) {
+		context_chips->get_child(i)->queue_free();
+	}
+	context_chips->set_visible(false);
+	mentioned_paths.clear();
+}
+
 // === Agent signal handlers ===
 
 void AIChatDock::_on_thinking(const String &p_text) {
@@ -452,6 +673,14 @@ void AIChatDock::_on_usage_updated(int64_t p_turn, int64_t p_session) {
 
 void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input) {
 	tool_call_count++;
+
+	// Close current blocks so post-tool thinking/response creates new ones
+	// This creates the interleaved flow: thinking → tool → thinking → tool → response
+	current_thinking_block = nullptr;
+	current_thinking_toggle = nullptr;
+	current_thinking_text = nullptr;
+	current_response_text = nullptr;
+
 	add_tool_card(p_id, p_name, "running...");
 	_update_meter();
 }
@@ -523,10 +752,11 @@ void AIChatDock::append_response(const String &p_text) {
 }
 
 void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const String &p_status) {
-	_ensure_tools_container();
+	_ensure_assistant_turn();
 
+	// Add tool card directly to turn for proper chronological ordering
 	PanelContainer *card = _create_tool_card(p_name, p_status);
-	current_tools_container->add_child(card);
+	current_turn->add_child(card);
 	active_tool_cards[p_id] = card;
 	_scroll_to_bottom();
 }
@@ -589,7 +819,9 @@ void AIChatDock::end_turn() {
 	// Clear streaming state - turn container stays in messages
 	current_turn = nullptr;
 	current_thinking_block = nullptr;
+	current_thinking_toggle = nullptr;
 	current_thinking_text = nullptr;
+	thinking_collapsed = false;
 	current_response_text = nullptr;
 	current_tools_container = nullptr;
 	has_thinking = false;
@@ -613,4 +845,8 @@ void AIChatDock::clear_all() {
 	end_turn();
 	session_tokens = 0;
 	_update_meter();
+	_clear_context_chips();
+	if (mention_popup) {
+		mention_popup->cancel();
+	}
 }

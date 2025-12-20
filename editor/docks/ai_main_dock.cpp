@@ -78,8 +78,9 @@ void AIMainDock::_build_child_docks() {
 	chat_dock = memnew(AIChatDock);
 	tabs->add_child(chat_dock);
 
-	context_dock = memnew(AIContextDock);
-	tabs->add_child(context_dock);
+	// Context tab removed - context now managed via @ mentions + right-click menus
+	// context_dock kept as member for potential settings/bundle UI later
+	context_dock = nullptr;
 
 	harness_dock = memnew(AIHarnessDock);
 	tabs->add_child(harness_dock);
@@ -165,8 +166,8 @@ void AIMainDock::_on_connection_state_changed(int p_state) {
 }
 
 void AIMainDock::_on_verify_result(const Dictionary &p_result) {
-	// Switch to harness tab when verification completes
-	tabs->set_current_tab(2);
+	// Switch to harness tab when verification completes (index 1 after Context removed)
+	tabs->set_current_tab(1);
 }
 
 void AIMainDock::_on_reconnect_pressed() {

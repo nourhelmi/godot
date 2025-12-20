@@ -14,6 +14,7 @@
 #include "core/string/print_string.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
+#include "editor/file_system/editor_file_system.h"
 #include "editor/settings/editor_settings.h"
 #include "modules/websocket/websocket_peer.h"
 #include "scene/main/timer.h"
@@ -318,8 +319,14 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 	if (p_method == "tool-result") {
 		String id = p_params.has("id") ? String(p_params["id"]) : String();
 		bool ok = p_params.has("ok") ? bool(p_params["ok"]) : false;
+		String name = p_params.has("name") ? String(p_params["name"]) : String();
 		Dictionary output = p_params.has("output") ? Dictionary(p_params["output"]) : Dictionary();
 		emit_signal("tool_result", id, ok, output);
+
+		// Auto-reload files after successful write operations
+		if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch")) {
+			_handle_file_written(name, output);
+		}
 		return;
 	}
 
@@ -334,6 +341,84 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 	if (p_method == "verify-result") {
 		emit_signal("verify_result", p_params);
 		return;
+	}
+
+	if (p_method == "chat_message") {
+		String role = p_params.has("role") ? String(p_params["role"]) : String();
+		String text = p_params.has("text") ? String(p_params["text"]) : String();
+		emit_signal("chat_message", role, text);
+		return;
+	}
+}
+
+void EditorAIAgent::_handle_file_written(const String &p_tool_name, const Dictionary &p_output) {
+	// Extract written file paths based on tool type
+	Vector<String> written_paths;
+
+	if (p_tool_name == "writeFile") {
+		// writeFile output: { writeFileResult: { ok: true, path: "...", bytes: N } }
+		if (p_output.has("writeFileResult")) {
+			Dictionary result = p_output["writeFileResult"];
+			if (result.has("path") && result.has("ok") && bool(result["ok"])) {
+				written_paths.push_back(String(result["path"]));
+			}
+		}
+	} else if (p_tool_name == "applySceneEdits") {
+		// applySceneEdits output: { sceneEditResult: { ok: true, scenePath: "...", ... } }
+		if (p_output.has("sceneEditResult")) {
+			Dictionary result = p_output["sceneEditResult"];
+			if (result.has("ok") && bool(result["ok"]) && result.has("scenePath")) {
+				written_paths.push_back(String(result["scenePath"]));
+			}
+		}
+	} else if (p_tool_name == "writePatch") {
+		// writePatch output: { applyResult: { ok: true, results: [{ path: "...", wrote: bool }] } }
+		if (p_output.has("applyResult")) {
+			Dictionary result = p_output["applyResult"];
+			if (result.has("results")) {
+				Array results = result["results"];
+				for (int i = 0; i < results.size(); i++) {
+					Dictionary file_result = results[i];
+					if (file_result.has("wrote") && bool(file_result["wrote"]) && file_result.has("path")) {
+						written_paths.push_back(String(file_result["path"]));
+					}
+				}
+			}
+		}
+	}
+
+	if (written_paths.is_empty()) {
+		return;
+	}
+
+	// Trigger filesystem scan to detect external changes
+	if (EditorFileSystem::get_singleton()) {
+		EditorFileSystem::get_singleton()->scan();
+	}
+
+	// Check if any written file is the currently open scene - if so, reload it
+	if (EditorNode::get_singleton()) {
+		Node *edited_scene = EditorNode::get_singleton()->get_edited_scene();
+		if (edited_scene) {
+			String current_scene_path = edited_scene->get_scene_file_path();
+			for (const String &path : written_paths) {
+				if (!path.is_empty() && path.ends_with(".tscn")) {
+					// Convert absolute path to res:// if needed
+					String res_path = path;
+					if (path.begins_with("/")) {
+						String project_path = ProjectSettings::get_singleton()->get_resource_path();
+						if (path.begins_with(project_path)) {
+							res_path = "res://" + path.substr(project_path.length() + 1);
+						}
+					}
+					if (res_path == current_scene_path) {
+						// Defer reload to avoid issues during message processing
+						callable_mp(EditorInterface::get_singleton(), &EditorInterface::reload_scene_from_path).call_deferred(res_path);
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 

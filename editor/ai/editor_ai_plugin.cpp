@@ -9,7 +9,9 @@
 #include "editor_ai_plugin.h"
 
 #include "editor/ai/editor_ai_agent.h"
+#include "editor/ai/editor_ai_menu_handler.h"
 #include "editor/docks/ai_main_dock.h"
+#include "editor/inspector/editor_context_menu_plugin.h"
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/editor_node.h"
 #include "editor/settings/editor_settings.h"
@@ -55,9 +57,30 @@ void EditorAIPlugin::_notification(int p_what) {
 
 			bottom_toggle_btn = add_control_to_bottom_panel(bottom_logs, "Gameable");
 			main_dock->set_bottom_logs(bottom_logs);
+
+			// Register context menu handlers for "Add to AI Context"
+			if (EditorContextMenuPluginManager *mgr = EditorContextMenuPluginManager::get_singleton()) {
+				filesystem_menu_handler.instantiate();
+				mgr->add_plugin(EditorContextMenuPlugin::CONTEXT_SLOT_FILESYSTEM, filesystem_menu_handler);
+
+				scene_tree_menu_handler.instantiate();
+				mgr->add_plugin(EditorContextMenuPlugin::CONTEXT_SLOT_SCENE_TREE, scene_tree_menu_handler);
+			}
 		} break;
 
 		case NOTIFICATION_EXIT_TREE: {
+			// Unregister context menu handlers
+			if (EditorContextMenuPluginManager *mgr = EditorContextMenuPluginManager::get_singleton()) {
+				if (filesystem_menu_handler.is_valid()) {
+					mgr->remove_plugin(filesystem_menu_handler);
+					filesystem_menu_handler.unref();
+				}
+				if (scene_tree_menu_handler.is_valid()) {
+					mgr->remove_plugin(scene_tree_menu_handler);
+					scene_tree_menu_handler.unref();
+				}
+			}
+
 			if (main_dock) {
 				remove_control_from_docks(main_dock);
 				main_dock->queue_free();

@@ -55,6 +55,7 @@ class EditorAIAgent : public Object {
 	void _handle_message(const String &p_text);
 	void _handle_response(const Dictionary &p_response);
 	void _handle_notification(const String &p_method, const Dictionary &p_params);
+	void _handle_file_written(const String &p_tool_name, const Dictionary &p_output);
 	bool _send_context_snapshot(bool p_force = false);
 	void _on_selection_changed();
 
