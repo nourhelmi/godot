@@ -6545,9 +6545,22 @@ void EditorNode::reload_scene(const String &p_path) {
 
 	// Reload scene.
 	_remove_scene(scene_idx, false);
-	load_scene(p_path, true, false, true);
+	Error err = load_scene(p_path, true, false, true);
 
-	// Adjust index so tab is back a the previous position.
+	if (err != OK) {
+		// Scene failed to load (parse error, corrupt file, etc). Don't crash trying to
+		// reposition a tab that doesn't exist. Show error and recover gracefully.
+		ERR_PRINT(vformat("Failed to reload scene '%s'. The file may be corrupted.", p_path));
+		scene_tabs->update_scene_tabs();
+		// Switch to a valid tab if any scenes remain open
+		if (editor_data.get_edited_scene_count() > 0) {
+			int safe_idx = CLAMP(current_tab, 0, editor_data.get_edited_scene_count() - 1);
+			_set_current_scene(safe_idx);
+		}
+		return;
+	}
+
+	// Adjust index so tab is back at the previous position.
 	editor_data.move_edited_scene_to_index(scene_idx);
 	EditorUndoRedoManager::get_singleton()->clear_history(editor_data.get_scene_history_id(scene_idx), false);
 
