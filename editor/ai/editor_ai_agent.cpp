@@ -9,8 +9,13 @@
 #include "editor_ai_agent.h"
 
 #include "core/config/project_settings.h"
+#include "core/io/dir_access.h"
+#include "core/io/file_access.h"
 #include "core/io/json.h"
+#include "core/io/resource_loader.h"
+#include "core/object/script_language.h"
 #include "core/os/os.h"
+#include "core/string/char_utils.h"
 #include "core/string/print_string.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
@@ -18,6 +23,12 @@
 #include "editor/settings/editor_settings.h"
 #include "modules/websocket/websocket_peer.h"
 #include "scene/main/timer.h"
+#include "scene/main/node.h"
+#include "scene/resources/packed_scene.h"
+#include "servers/rendering_server.h"
+#include "servers/rendering/shader_language.h"
+#include "servers/rendering/shader_preprocessor.h"
+#include "servers/rendering/shader_types.h"
 
 EditorAIAgent *EditorAIAgent::singleton = nullptr;
 
@@ -238,6 +249,14 @@ void EditorAIAgent::_handle_message(const String &p_text) {
 		return;
 	}
 
+	// JSON-RPC request (has method and id)
+	if (d.has("method") && d.has("id")) {
+		String method = d["method"];
+		Dictionary params = d.has("params") ? Dictionary(d["params"]) : Dictionary();
+		_handle_request(method, params, int(d["id"]));
+		return;
+	}
+
 	// JSON-RPC notification (has method, no id)
 	if (d.has("method") && !d.has("id") && d.has("params")) {
 		String method = d["method"];
@@ -245,6 +264,478 @@ void EditorAIAgent::_handle_message(const String &p_text) {
 		_handle_notification(method, params);
 		return;
 	}
+}
+
+static ScriptLanguage *_find_language_for_extension(const String &p_ext) {
+	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
+		ScriptLanguage *lang = ScriptServer::get_language(i);
+		if (lang && lang->get_extension() == p_ext) {
+			return lang;
+		}
+	}
+	return nullptr;
+}
+
+struct DiagnosticPrintCapture {
+	PrintHandlerList handler;
+	Vector<String> errors;
+	Vector<String> warnings;
+	int max_entries = 200;
+
+	static void _handle_print(void *p_userdata, const String &p_string, bool p_error, bool p_rich) {
+		(void)p_rich;
+		DiagnosticPrintCapture *self = static_cast<DiagnosticPrintCapture *>(p_userdata);
+		if (!self) {
+			return;
+		}
+		if (p_error) {
+			if (self->errors.size() < self->max_entries) {
+				self->errors.push_back(p_string);
+			}
+			return;
+		}
+		const String trimmed = p_string.strip_edges();
+		if (trimmed.begins_with("WARNING:")) {
+			if (self->warnings.size() < self->max_entries) {
+				self->warnings.push_back(p_string);
+			}
+		}
+	}
+
+	DiagnosticPrintCapture() {
+		handler.printfunc = _handle_print;
+		handler.userdata = this;
+		add_print_handler(&handler);
+	}
+
+	~DiagnosticPrintCapture() {
+		remove_print_handler(&handler);
+	}
+};
+
+static String _to_res_path(const String &p_path) {
+	if (p_path.begins_with("res://")) {
+		return p_path;
+	}
+	if (ProjectSettings::get_singleton()) {
+		const String root = ProjectSettings::get_singleton()->get_resource_path();
+		if (p_path.begins_with(root)) {
+			const String rel = p_path.substr(root.length() + 1);
+			return "res://" + rel;
+		}
+	}
+	return p_path;
+}
+
+static String _find_csproj_path(const String &p_project_root) {
+	Ref<DirAccess> dir = DirAccess::open(p_project_root);
+	if (dir.is_null()) {
+		return String();
+	}
+	dir->list_dir_begin();
+	while (true) {
+		String file = dir->get_next();
+		if (file.is_empty()) {
+			break;
+		}
+		if (dir->current_is_dir()) {
+			continue;
+		}
+		if (file.get_extension().to_lower() == "csproj") {
+			dir->list_dir_end();
+			return p_project_root.path_join(file);
+		}
+	}
+	dir->list_dir_end();
+	return String();
+}
+
+static ShaderLanguage::DataType _get_global_shader_uniform_type(const StringName &p_variable) {
+	RenderingServer::GlobalShaderParameterType gvt = RenderingServer::get_singleton()->global_shader_parameter_get_type(p_variable);
+	return (ShaderLanguage::DataType)RenderingServer::global_shader_uniform_type_get_shader_datatype(gvt);
+}
+
+static RenderingServer::ShaderMode _shader_mode_from_type(const String &p_type) {
+	if (p_type == "canvas_item") {
+		return RenderingServer::SHADER_CANVAS_ITEM;
+	}
+	if (p_type == "particles") {
+		return RenderingServer::SHADER_PARTICLES;
+	}
+	if (p_type == "sky") {
+		return RenderingServer::SHADER_SKY;
+	}
+	if (p_type == "fog") {
+		return RenderingServer::SHADER_FOG;
+	}
+	return RenderingServer::SHADER_SPATIAL;
+}
+
+static void _add_diagnostic(Array &r_diags, const String &p_path, int p_line, int p_column, const String &p_severity, const String &p_message, const String &p_source) {
+	Dictionary d;
+	d["path"] = p_path;
+	d["line"] = p_line;
+	d["column"] = p_column;
+	d["severity"] = p_severity;
+	d["message"] = p_message;
+	d["source"] = p_source;
+	r_diags.push_back(d);
+}
+
+static String _diagnostic_source_from_path(const String &p_path) {
+	const String ext = p_path.get_extension().to_lower();
+	if (ext == "gd") {
+		return "gdscript";
+	}
+	if (ext == "tscn") {
+		return "scene";
+	}
+	if (ext == "gdshader" || ext == "gdshaderinc") {
+		return "shader";
+	}
+	if (ext == "cs") {
+		return "csharp";
+	}
+	return "engine";
+}
+
+static String _strip_log_prefix(const String &p_line) {
+	String line = p_line.strip_edges();
+	if (line.begins_with("ERROR:")) {
+		line = line.substr(6).strip_edges();
+	} else if (line.begins_with("WARNING:")) {
+		line = line.substr(8).strip_edges();
+	}
+	return line;
+}
+
+static bool _parse_print_log_line(const String &p_line, String &r_path, int &r_line, int &r_column, String &r_message) {
+	String line = _strip_log_prefix(p_line);
+	int res_index = line.find("res://");
+	if (res_index < 0) {
+		r_message = line;
+		return false;
+	}
+
+	int colon = -1;
+	for (int i = line.find(":", res_index + 1); i >= 0; i = line.find(":", i + 1)) {
+		int j = i + 1;
+		while (j < line.length() && line[j] == ' ') {
+			j++;
+		}
+		if (j < line.length() && is_digit(line[j])) {
+			colon = i;
+			break;
+		}
+	}
+	if (colon < 0) {
+	r_message = line;
+	return false;
+}
+
+	r_path = line.substr(res_index, colon - res_index);
+	int pos = colon + 1;
+	while (pos < line.length() && line[pos] == ' ') {
+		pos++;
+	}
+	const int line_start = pos;
+	while (pos < line.length() && is_digit(line[pos])) {
+		pos++;
+	}
+	if (pos == line_start) {
+		r_message = line;
+		return false;
+	}
+	r_line = line.substr(line_start, pos - line_start).to_int();
+	r_column = 1;
+
+	if (pos < line.length() && line[pos] == ':') {
+		int col_start = pos + 1;
+		while (col_start < line.length() && line[col_start] == ' ') {
+			col_start++;
+		}
+		int col_end = col_start;
+		while (col_end < line.length() && is_digit(line[col_end])) {
+			col_end++;
+		}
+		if (col_end > col_start) {
+			r_column = line.substr(col_start, col_end - col_start).to_int();
+			pos = col_end;
+		}
+	}
+
+	int msg_index = line.find(" - ", pos);
+	if (msg_index >= 0) {
+		r_message = line.substr(msg_index + 3).strip_edges();
+	} else if (pos < line.length()) {
+		r_message = line.substr(pos).strip_edges();
+	} else {
+		r_message = line;
+	}
+	return true;
+}
+
+static void _append_print_diagnostics(Array &r_diags, const String &p_fallback_path, const Vector<String> &p_errors, const Vector<String> &p_warnings) {
+	const String fallback = _to_res_path(p_fallback_path);
+	for (int i = 0; i < p_errors.size(); i++) {
+		String path;
+		int line = 1;
+		int column = 1;
+		String message;
+		bool parsed = _parse_print_log_line(p_errors[i], path, line, column, message);
+		const String diag_path = parsed ? _to_res_path(path) : fallback;
+		if (diag_path.is_empty()) {
+			continue;
+		}
+		const String source = _diagnostic_source_from_path(diag_path);
+		if (message.is_empty()) {
+			message = _strip_log_prefix(p_errors[i]);
+		}
+		_add_diagnostic(r_diags, diag_path, line, column, "error", message, source);
+	}
+	for (int i = 0; i < p_warnings.size(); i++) {
+		String path;
+		int line = 1;
+		int column = 1;
+		String message;
+		bool parsed = _parse_print_log_line(p_warnings[i], path, line, column, message);
+		const String diag_path = parsed ? _to_res_path(path) : fallback;
+		if (diag_path.is_empty()) {
+			continue;
+		}
+		const String source = _diagnostic_source_from_path(diag_path);
+		if (message.is_empty()) {
+			message = _strip_log_prefix(p_warnings[i]);
+		}
+		_add_diagnostic(r_diags, diag_path, line, column, "warning", message, source);
+	}
+}
+
+static void _collect_scene_configuration_warnings(Node *p_root, const String &p_scene_path, Array &r_diags) {
+	if (!p_root) {
+		return;
+	}
+	Vector<Node *> stack;
+	stack.push_back(p_root);
+	while (!stack.is_empty()) {
+		Node *node = stack[stack.size() - 1];
+		stack.remove_at(stack.size() - 1);
+		if (!node) {
+			continue;
+		}
+		node->update_configuration_warnings();
+		PackedStringArray warnings = node->get_configuration_warnings();
+		for (int i = 0; i < warnings.size(); i++) {
+			const String warning = warnings[i];
+			if (warning.is_empty()) {
+				continue;
+			}
+			const String message = String(node->get_path()) + ": " + warning;
+			_add_diagnostic(r_diags, p_scene_path, 1, 1, "warning", message, "scene");
+		}
+		const int child_count = node->get_child_count();
+		for (int i = 0; i < child_count; i++) {
+			stack.push_back(node->get_child(i));
+		}
+	}
+}
+
+void EditorAIAgent::_handle_request(const String &p_method, const Dictionary &p_params, int p_id) {
+	if (p_method == "getDiagnostics") {
+		Array diagnostics;
+		bool run_csharp_build = false;
+		String project_root;
+		if (ProjectSettings::get_singleton()) {
+			project_root = ProjectSettings::get_singleton()->get_resource_path();
+		}
+
+		PackedStringArray paths;
+		if (p_params.has("paths")) {
+			Variant v = p_params["paths"];
+			if (v.get_type() == Variant::PACKED_STRING_ARRAY) {
+				paths = v;
+			} else if (v.get_type() == Variant::ARRAY) {
+				Array arr = v;
+				for (int i = 0; i < arr.size(); i++) {
+					if (arr[i].get_type() == Variant::STRING) {
+						paths.push_back(arr[i]);
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < paths.size(); i++) {
+			const String path = paths[i];
+			const String res_path = _to_res_path(path);
+			const String ext = res_path.get_extension().to_lower();
+			DiagnosticPrintCapture print_capture;
+
+			if (ext == "gd") {
+				String text = FileAccess::get_file_as_string(res_path);
+				ScriptLanguage *lang = _find_language_for_extension(ext);
+				if (!lang) {
+					_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+					continue;
+				}
+
+				List<ScriptLanguage::ScriptError> errors;
+				List<ScriptLanguage::Warning> warnings;
+				lang->validate(text, path, nullptr, &errors, &warnings, nullptr);
+
+				for (const ScriptLanguage::ScriptError &e : errors) {
+					const String err_path = e.path.is_empty() ? path : e.path;
+					_add_diagnostic(diagnostics, _to_res_path(err_path), e.line, e.column, "error", e.message, "gdscript");
+				}
+				for (const ScriptLanguage::Warning &w : warnings) {
+					const int line = w.start_line > 0 ? w.start_line : 1;
+					_add_diagnostic(diagnostics, res_path, line, 1, "warning", w.message, "gdscript");
+				}
+				_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+				continue;
+			}
+
+			if (ext == "tscn") {
+				Error err = OK;
+				Ref<Resource> res = ResourceLoader::load(res_path, "", ResourceFormatLoader::CACHE_MODE_REUSE, &err);
+				if (err != OK || res.is_null()) {
+					_add_diagnostic(diagnostics, res_path, 1, 1, "error", "Failed to load scene", "scene");
+					_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+					continue;
+				}
+				Ref<PackedScene> scene = res;
+				if (scene.is_valid()) {
+					Node *inst = scene->instantiate();
+					if (!inst) {
+						_add_diagnostic(diagnostics, res_path, 1, 1, "error", "Failed to instantiate scene", "scene");
+					} else {
+						_collect_scene_configuration_warnings(inst, res_path, diagnostics);
+						memdelete(inst);
+					}
+				}
+				_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+				continue;
+			}
+
+			if (ext == "gdshader" || ext == "gdshaderinc") {
+				String code = FileAccess::get_file_as_string(res_path);
+				ShaderPreprocessor preprocessor;
+				String code_pp;
+				String error_pp;
+				List<ShaderPreprocessor::FilePosition> err_positions;
+				List<ShaderPreprocessor::Region> regions;
+				Error pp_err = preprocessor.preprocess(code, res_path, code_pp, &error_pp, &err_positions, &regions);
+				if (pp_err != OK) {
+					String err_path = path;
+					int err_line = 1;
+					if (!err_positions.is_empty()) {
+						err_path = err_positions.front()->get().file;
+						err_line = err_positions.front()->get().line;
+					}
+					String msg = error_pp.is_empty() ? "Shader preprocessor error" : error_pp;
+					_add_diagnostic(diagnostics, _to_res_path(err_path), err_line, 1, "error", msg, "shader");
+					continue;
+				}
+
+				ShaderLanguage sl;
+				ShaderLanguage::ShaderCompileInfo comp_info;
+				comp_info.global_shader_uniform_type_func = _get_global_shader_uniform_type;
+
+				if (ext == "gdshaderinc") {
+					comp_info.is_include = true;
+				} else {
+					const String shader_type = ShaderLanguage::get_shader_type(code_pp);
+					const RenderingServer::ShaderMode mode = _shader_mode_from_type(shader_type);
+					comp_info.functions = ShaderTypes::get_singleton()->get_functions(mode);
+					comp_info.render_modes = ShaderTypes::get_singleton()->get_modes(mode);
+					comp_info.stencil_modes = ShaderTypes::get_singleton()->get_stencil_modes(mode);
+					comp_info.shader_types = ShaderTypes::get_singleton()->get_types();
+				}
+
+				Error comp_err = sl.compile(code_pp, comp_info);
+				if (comp_err != OK) {
+					Vector<ShaderLanguage::FilePosition> include_positions = sl.get_include_positions();
+					String err_text = sl.get_error_text();
+					String err_path = path;
+					int err_line = sl.get_error_line();
+
+					if (include_positions.size() > 1) {
+						err_line = include_positions[0].line;
+						err_path = include_positions[include_positions.size() - 1].file;
+					} else if (include_positions.size() == 1 && !include_positions[0].file.is_empty()) {
+						err_path = include_positions[0].file;
+						if (include_positions[0].line > 0) {
+							err_line = include_positions[0].line;
+						}
+					}
+					_add_diagnostic(diagnostics, _to_res_path(err_path), err_line, 1, "error", err_text, "shader");
+				}
+				_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+				continue;
+			}
+
+			if (ext == "cs" || ext == "csproj") {
+				run_csharp_build = true;
+				_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+				continue;
+			}
+
+			_append_print_diagnostics(diagnostics, res_path, print_capture.errors, print_capture.warnings);
+		}
+
+		if (run_csharp_build) {
+			String csproj = _find_csproj_path(project_root);
+			if (csproj.is_empty()) {
+				_add_diagnostic(diagnostics, "res://", 1, 1, "error", "C# project file not found", "csharp");
+			} else {
+				List<String> args;
+				args.push_back("build");
+				args.push_back(csproj);
+				args.push_back("-nologo");
+				args.push_back("-v:q");
+
+				String output;
+				int exit_code = 0;
+				Error exec_err = OS::get_singleton()->execute("dotnet", args, &output, &exit_code, true);
+				if (exec_err != OK) {
+					_add_diagnostic(diagnostics, _to_res_path(csproj), 1, 1, "error", "dotnet build failed to run", "csharp");
+				} else {
+					PackedStringArray lines = output.split("\n", false);
+					for (int i = 0; i < lines.size(); i++) {
+						String line = lines[i].strip_edges();
+						if (line.is_empty()) {
+							continue;
+						}
+						int paren = line.find("(");
+						int colon = line.find("):", paren);
+						if (paren <= 0 || colon <= paren) {
+							continue;
+						}
+						String file = line.substr(0, paren).strip_edges();
+						String coords = line.substr(paren + 1, colon - paren - 1);
+						PackedStringArray parts = coords.split(",", false);
+						if (parts.size() < 2) {
+							continue;
+						}
+						int line_no = parts[0].to_int();
+						int col_no = parts[1].to_int();
+						String severity = line.find("error") >= 0 ? "error" : (line.find("warning") >= 0 ? "warning" : "error");
+						String message = line.substr(colon + 2).strip_edges();
+						_add_diagnostic(diagnostics, _to_res_path(file), line_no, col_no, severity, message, "csharp");
+					}
+					if (exit_code != 0 && diagnostics.is_empty()) {
+						_add_diagnostic(diagnostics, _to_res_path(csproj), 1, 1, "error", "C# build failed", "csharp");
+					}
+				}
+			}
+		}
+
+		Dictionary result;
+		result["diagnostics"] = diagnostics;
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	_send_jsonrpc_error(p_id, -32601, "Method not found");
 }
 
 void EditorAIAgent::_handle_response(const Dictionary &p_response) {
@@ -279,6 +770,32 @@ void EditorAIAgent::_handle_response(const Dictionary &p_response) {
 		}
 		emit_signal("context_updated", items);
 	}
+}
+
+void EditorAIAgent::_send_jsonrpc_response(int p_id, const Dictionary &p_result) {
+	if (!is_agent_connected()) {
+		return;
+	}
+	Dictionary resp;
+	resp["jsonrpc"] = "2.0";
+	resp["id"] = p_id;
+	resp["result"] = p_result;
+	ws->send_text(JSON::stringify(resp));
+}
+
+void EditorAIAgent::_send_jsonrpc_error(int p_id, int p_code, const String &p_message) {
+	if (!is_agent_connected()) {
+		return;
+	}
+	Dictionary error;
+	error["code"] = p_code;
+	error["message"] = p_message;
+
+	Dictionary resp;
+	resp["jsonrpc"] = "2.0";
+	resp["id"] = p_id;
+	resp["error"] = error;
+	ws->send_text(JSON::stringify(resp));
 }
 
 void EditorAIAgent::_handle_notification(const String &p_method, const Dictionary &p_params) {

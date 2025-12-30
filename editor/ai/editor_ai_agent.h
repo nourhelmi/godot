@@ -53,10 +53,13 @@ class EditorAIAgent : public Object {
 	void _reconnect();
 	void _on_poll();
 	void _handle_message(const String &p_text);
+	void _handle_request(const String &p_method, const Dictionary &p_params, int p_id);
 	void _handle_response(const Dictionary &p_response);
 	void _handle_notification(const String &p_method, const Dictionary &p_params);
 	void _handle_file_written(const String &p_tool_name, const Dictionary &p_output);
 	bool _send_context_snapshot(bool p_force = false);
+	void _send_jsonrpc_response(int p_id, const Dictionary &p_result);
+	void _send_jsonrpc_error(int p_id, int p_code, const String &p_message);
 	void _on_selection_changed();
 
 protected:
