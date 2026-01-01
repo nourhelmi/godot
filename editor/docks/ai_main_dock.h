@@ -12,7 +12,7 @@
 
 class AIChatDock;
 class AIContextDock; // kept for bundle/settings UI later
-class AIHarnessDock;
+class AIRuntimeDock;
 class Button;
 class HBoxContainer;
 class Label;
@@ -21,7 +21,7 @@ class StyleBoxFlat;
 class TabContainer;
 class VBoxContainer;
 
-// Main AI dock container with TabContainer (Chat/Context/Harness),
+// Main AI dock container with TabContainer (Chat/Live),
 // connection status bar, and integrated bottom logs panel.
 class AIMainDock : public PanelContainer {
 	GDCLASS(AIMainDock, PanelContainer);
@@ -40,7 +40,7 @@ class AIMainDock : public PanelContainer {
 	// Child docks
 	AIChatDock *chat_dock = nullptr;
 	AIContextDock *context_dock = nullptr;
-	AIHarnessDock *harness_dock = nullptr;
+	AIRuntimeDock *runtime_dock = nullptr;
 
 	// Status bar
 	HBoxContainer *status_bar = nullptr;
@@ -58,7 +58,7 @@ class AIMainDock : public PanelContainer {
 
 	// Agent signal handlers
 	void _on_connection_state_changed(int p_state);
-	void _on_verify_result(const Dictionary &p_result);
+	void _on_runtime_state_changed(const String &p_state, const String &p_scene);
 
 	void _on_reconnect_pressed();
 
@@ -73,7 +73,7 @@ public:
 	// Access to child docks
 	AIChatDock *get_chat_dock() const { return chat_dock; }
 	AIContextDock *get_context_dock() const { return context_dock; }
-	AIHarnessDock *get_harness_dock() const { return harness_dock; }
+	AIRuntimeDock *get_runtime_dock() const { return runtime_dock; }
 
 	AIMainDock();
 	~AIMainDock();

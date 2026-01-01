@@ -33,11 +33,18 @@
 #include "core/object/undo_redo.h"
 #include "core/os/keyboard.h"
 #include "core/version.h"
+#include "editor/ai/editor_ai_agent.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
 #include "editor/file_system/editor_paths.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
+
+static const int MENU_ATTACH_LOG = 1001;
+
+void EditorLog::_bind_methods() {
+    ADD_SIGNAL(MethodInfo("message_added", PropertyInfo(Variant::STRING, "text"), PropertyInfo(Variant::INT, "type")));
+}
 #include "scene/gui/separator.h"
 #include "scene/resources/font.h"
 
@@ -111,6 +118,9 @@ void EditorLog::_update_theme() {
 
 	clear_button->set_button_icon(get_editor_theme_icon(SNAME("Clear")));
 	copy_button->set_button_icon(get_editor_theme_icon(SNAME("ActionCopy")));
+	if (attach_button) {
+		attach_button->set_button_icon(get_editor_theme_icon(SNAME("Pin")));
+	}
 	collapse_button->set_button_icon(get_editor_theme_icon(SNAME("CombineLines")));
 	show_search_button->set_button_icon(get_editor_theme_icon(SNAME("Search")));
 	search_box->set_right_icon(get_editor_theme_icon(SNAME("Search")));
@@ -218,6 +228,35 @@ void EditorLog::_copy_request() {
 	}
 }
 
+void EditorLog::_attach_selection_to_context() {
+	if (!log) {
+		return;
+	}
+	String text = log->get_selected_text();
+	if (text.is_empty()) {
+		return;
+	}
+	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
+		agent->add_log_context("Output log selection", text, "output");
+	}
+}
+
+void EditorLog::_on_log_menu_id_pressed(int p_id) {
+	if (p_id == MENU_ATTACH_LOG) {
+		_attach_selection_to_context();
+	}
+}
+
+void EditorLog::_on_log_menu_about_to_popup() {
+	if (!log_menu || !log) {
+		return;
+	}
+	int idx = log_menu->get_item_index(MENU_ATTACH_LOG);
+	if (idx >= 0) {
+		log_menu->set_item_disabled(idx, log->get_selected_text().is_empty());
+	}
+}
+
 void EditorLog::clear() {
 	_clear_request();
 }
@@ -251,6 +290,7 @@ void EditorLog::add_message(const String &p_msg, MessageType p_type) {
 
 	for (int i = 0; i < line_count; i++) {
 		_process_message(lines[i], p_type, i == line_count - 1);
+        emit_signal("message_added", lines[i], (int)p_type);
 	}
 }
 
@@ -462,6 +502,14 @@ EditorLog::EditorLog() {
 	log->connect("meta_clicked", callable_mp(this, &EditorLog::_meta_clicked));
 	vb_left->add_child(log);
 
+	log_menu = log->get_menu();
+	if (log_menu) {
+		log_menu->add_separator();
+		log_menu->add_item(TTR("Attach Selection to Gameable"), MENU_ATTACH_LOG);
+		log_menu->connect(SceneStringName(id_pressed), callable_mp(this, &EditorLog::_on_log_menu_id_pressed));
+		log_menu->connect("about_to_popup", callable_mp(this, &EditorLog::_on_log_menu_about_to_popup));
+	}
+
 	// Search box
 	search_box = memnew(LineEdit);
 	search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
@@ -498,6 +546,17 @@ EditorLog::EditorLog() {
 	copy_button->set_shortcut_context(this);
 	copy_button->connect(SceneStringName(pressed), callable_mp(this, &EditorLog::_copy_request));
 	hb_tools->add_child(copy_button);
+
+	// Attach selection to Gameable.
+	attach_button = memnew(Button);
+	attach_button->set_accessibility_name(TTRC("Attach Selection to Gameable"));
+	attach_button->set_theme_type_variation(SceneStringName(FlatButton));
+	attach_button->set_focus_mode(FOCUS_ACCESSIBILITY);
+	attach_button->set_tooltip_text(TTR("Attach selected output to Gameable context"));
+	attach_button->set_shortcut(ED_SHORTCUT("gameable/attach_output_selection", TTRC("Attach Output Selection"), KeyModifierMask::CMD_OR_CTRL | KeyModifierMask::SHIFT | Key::Y));
+	attach_button->set_shortcut_context(this);
+	attach_button->connect(SceneStringName(pressed), callable_mp(this, &EditorLog::_attach_selection_to_context));
+	hb_tools->add_child(attach_button);
 
 	// Separate toggle buttons from normal buttons.
 	vb_right->add_child(memnew(HSeparator));

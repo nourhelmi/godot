@@ -52,6 +52,7 @@ class AIChatDock : public VBoxContainer {
 	VBoxContainer *messages_container = nullptr;
 
 	// Context chips above input (for @ mentioned items)
+	FlowContainer *pinned_chips = nullptr;
 	FlowContainer *context_chips = nullptr;
 	Vector<String> mentioned_paths; // paths mentioned via @ in current input
 
@@ -113,10 +114,15 @@ class AIChatDock : public VBoxContainer {
 	void _on_mention_selected(const String &p_path, const String &p_label, int p_start_col);
 
 	// Context chip helpers
+	void _build_pinned_chips_area();
 	void _build_context_chips_area();
 	void _add_context_chip(const String &p_path, const String &p_label);
 	void _remove_context_chip(const String &p_path);
 	void _clear_context_chips();
+	void _add_pinned_chip(const String &p_item_id, const String &p_label);
+	void _clear_pinned_chips();
+	void _remove_pinned_chip(const String &p_item_id);
+	void _refresh_pinned_chips(const Array &p_items);
 
 	// Thinking block collapse
 	void _on_thinking_toggle();
@@ -129,6 +135,7 @@ class AIChatDock : public VBoxContainer {
 	void _on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output);
 	void _on_tool_progress(const String &p_id, const String &p_stage, float p_progress);
 	void _on_chat_message(const String &p_role, const String &p_text);
+	void _on_context_updated(const Array &p_items);
 
 	void _update_meter();
 	void _scroll_to_bottom();

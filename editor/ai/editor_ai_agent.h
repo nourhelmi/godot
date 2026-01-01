@@ -35,6 +35,19 @@ class EditorAIAgent : public Object {
 	bool selection_connected = false; // Track if we've connected to EditorSelection
 	double retry_delay = 0.5;
 	uint64_t next_retry_msec = 0;
+	bool runbar_connected = false;
+	bool log_connected = false;
+	bool debugger_connected = false;
+	uint64_t log_context_seq = 0;
+
+	// Runtime play loop
+	bool runtime_capture_active = false;
+	bool runtime_chat_active = false;
+	bool runtime_auto_fix_enabled = true;
+	String runtime_scene_path;
+	Vector<String> runtime_errors;
+	Vector<String> runtime_warnings;
+	Vector<String> runtime_logs;
 
 	// Context tracking (deduplication)
 	uint64_t last_context_sent_msec = 0;
@@ -61,6 +74,15 @@ class EditorAIAgent : public Object {
 	void _send_jsonrpc_response(int p_id, const Dictionary &p_result);
 	void _send_jsonrpc_error(int p_id, int p_code, const String &p_message);
 	void _on_selection_changed();
+	void _ensure_runtime_hooks();
+	void _on_play_pressed();
+	void _on_stop_pressed();
+	void _on_editor_log_message(const String &p_text, int p_type);
+	void _on_debugger_error_logged(const String &p_message, bool p_warning, const String &p_source_file, int p_source_line);
+	void _request_runtime_fix_internal(bool p_manual);
+	String _build_runtime_session_id() const;
+	String _truncate_context_text(const String &p_text, int p_max_chars) const;
+	String _build_log_context_path(const String &p_source);
 
 protected:
 	static void _bind_methods();
@@ -85,7 +107,7 @@ public:
 	void clear_session();
 
 	// Context management
-	void add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label = String());
+	void add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label = String(), const Dictionary &p_metadata = Dictionary());
 	void remove_context_item(const String &p_item_id);
 	void clear_context();
 	void load_bundle(const String &p_name);
@@ -95,8 +117,15 @@ public:
 	const Vector<AIContextItem> &get_pinned_items() const { return pinned_items; }
 	const Vector<String> &get_bundle_names() const { return bundle_names; }
 
+	void add_log_context(const String &p_label, const String &p_text, const String &p_source, const String &p_scene_path = String());
+
 	// Harness
 	void run_harness(const String &p_scene_path, int p_frames = 60);
+
+	// Runtime play loop
+	void set_runtime_auto_fix_enabled(bool p_enabled) { runtime_auto_fix_enabled = p_enabled; }
+	bool is_runtime_auto_fix_enabled() const { return runtime_auto_fix_enabled; }
+	void request_runtime_fix(bool p_manual = false);
 
 	// Usage
 	const AITokenUsage &get_session_usage() const { return session_usage; }

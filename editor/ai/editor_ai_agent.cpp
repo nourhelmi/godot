@@ -17,18 +17,22 @@
 #include "core/os/os.h"
 #include "core/string/char_utils.h"
 #include "core/string/print_string.h"
+#include "editor/debugger/editor_debugger_node.h"
+#include "editor/debugger/script_editor_debugger.h"
 #include "editor/editor_interface.h"
+#include "editor/editor_log.h"
 #include "editor/editor_node.h"
 #include "editor/file_system/editor_file_system.h"
+#include "editor/run/editor_run_bar.h"
 #include "editor/settings/editor_settings.h"
 #include "modules/websocket/websocket_peer.h"
-#include "scene/main/timer.h"
 #include "scene/main/node.h"
+#include "scene/main/timer.h"
 #include "scene/resources/packed_scene.h"
-#include "servers/rendering_server.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
+#include "servers/rendering_server.h"
 
 EditorAIAgent *EditorAIAgent::singleton = nullptr;
 
@@ -45,6 +49,14 @@ void EditorAIAgent::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("context_updated", PropertyInfo(Variant::ARRAY, "items")));
 	ADD_SIGNAL(MethodInfo("bundles_updated", PropertyInfo(Variant::PACKED_STRING_ARRAY, "names")));
 	ADD_SIGNAL(MethodInfo("chat_message", PropertyInfo(Variant::STRING, "role"), PropertyInfo(Variant::STRING, "text")));
+	ADD_SIGNAL(MethodInfo("runtime_state_changed", PropertyInfo(Variant::STRING, "state"), PropertyInfo(Variant::STRING, "scene_path")));
+	ADD_SIGNAL(MethodInfo("runtime_log_added", PropertyInfo(Variant::STRING, "text"), PropertyInfo(Variant::STRING, "level")));
+	ADD_SIGNAL(MethodInfo("runtime_summary", PropertyInfo(Variant::DICTIONARY, "summary")));
+	ADD_SIGNAL(MethodInfo("runtime_chat_message", PropertyInfo(Variant::STRING, "role"), PropertyInfo(Variant::STRING, "text")));
+	ADD_SIGNAL(MethodInfo("runtime_thinking", PropertyInfo(Variant::STRING, "text")));
+	ADD_SIGNAL(MethodInfo("runtime_tool_call", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::DICTIONARY, "input")));
+	ADD_SIGNAL(MethodInfo("runtime_tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output")));
+	ADD_SIGNAL(MethodInfo("runtime_tool_progress", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "stage"), PropertyInfo(Variant::FLOAT, "progress")));
 }
 
 void EditorAIAgent::create_singleton() {
@@ -114,12 +126,43 @@ void EditorAIAgent::disconnect_from_server() {
 		memdelete(ws);
 		ws = nullptr;
 	}
+	runtime_chat_active = false;
 	connection_state = AI_CONNECTION_DISCONNECTED;
 	emit_signal("connection_state_changed", (int)connection_state);
 }
 
 bool EditorAIAgent::is_agent_connected() const {
 	return ws && ws->get_ready_state() == WebSocketPeer::STATE_OPEN;
+}
+
+void EditorAIAgent::_ensure_runtime_hooks() {
+	if (!EditorNode::get_singleton()) {
+		return;
+	}
+
+	if (!runbar_connected) {
+		if (EditorRunBar *run_bar = EditorRunBar::get_singleton()) {
+			run_bar->connect("play_pressed", callable_mp(this, &EditorAIAgent::_on_play_pressed));
+			run_bar->connect("stop_pressed", callable_mp(this, &EditorAIAgent::_on_stop_pressed));
+			runbar_connected = true;
+		}
+	}
+
+	if (!log_connected) {
+		if (EditorLog *log = EditorNode::get_singleton()->get_log()) {
+			log->connect("message_added", callable_mp(this, &EditorAIAgent::_on_editor_log_message));
+			log_connected = true;
+		}
+	}
+
+	if (!debugger_connected) {
+		if (EditorDebuggerNode *debugger_node = EditorDebuggerNode::get_singleton()) {
+			if (ScriptEditorDebugger *debugger = debugger_node->get_default_debugger()) {
+				debugger->connect("error_logged", callable_mp(this, &EditorAIAgent::_on_debugger_error_logged));
+				debugger_connected = true;
+			}
+		}
+	}
 }
 
 void EditorAIAgent::_reconnect() {
@@ -158,6 +201,7 @@ void EditorAIAgent::_reconnect() {
 }
 
 void EditorAIAgent::_on_poll() {
+	_ensure_runtime_hooks();
 	if (!ws) {
 		return;
 	}
@@ -417,6 +461,14 @@ static bool _parse_print_log_line(const String &p_line, String &r_path, int &r_l
 		return false;
 	}
 
+	// Handle Godot's "[Resource file res://path:line]" format where message is BEFORE the bracket.
+	// e.g.: "Parse Error: Parse error. [Resource file res://node_3d.tscn:85]"
+	int bracket_start = line.rfind("[", res_index);
+	String prefix_msg;
+	if (bracket_start > 0) {
+		prefix_msg = line.substr(0, bracket_start).strip_edges();
+	}
+
 	int colon = -1;
 	for (int i = line.find(":", res_index + 1); i >= 0; i = line.find(":", i + 1)) {
 		int j = i + 1;
@@ -429,9 +481,9 @@ static bool _parse_print_log_line(const String &p_line, String &r_path, int &r_l
 		}
 	}
 	if (colon < 0) {
-	r_message = line;
-	return false;
-}
+		r_message = line;
+		return false;
+	}
 
 	r_path = line.substr(res_index, colon - res_index);
 	int pos = colon + 1;
@@ -462,6 +514,13 @@ static bool _parse_print_log_line(const String &p_line, String &r_path, int &r_l
 			r_column = line.substr(col_start, col_end - col_start).to_int();
 			pos = col_end;
 		}
+	}
+
+	// Prefer prefix message (before [Resource file...]) if available, as Godot puts
+	// the actual error there. Otherwise fall back to suffix extraction.
+	if (!prefix_msg.is_empty()) {
+		r_message = prefix_msg;
+		return true;
 	}
 
 	int msg_index = line.find(" - ", pos);
@@ -799,6 +858,62 @@ void EditorAIAgent::_send_jsonrpc_error(int p_id, int p_code, const String &p_me
 }
 
 void EditorAIAgent::_handle_notification(const String &p_method, const Dictionary &p_params) {
+	if (runtime_chat_active) {
+		if (p_method == "status") {
+			String msg = p_params.has("message") ? String(p_params["message"]) : String();
+			if (msg == "chat:done") {
+				runtime_chat_active = false;
+			}
+			return;
+		}
+
+		if (p_method == "thinking") {
+			String text = p_params.has("text") ? String(p_params["text"]) : String();
+			emit_signal("runtime_thinking", text);
+			return;
+		}
+
+		if (p_method == "tool-call") {
+			String id = p_params.has("id") ? String(p_params["id"]) : String();
+			String name = p_params.has("name") ? String(p_params["name"]) : String();
+			Dictionary input = p_params.has("input") ? Dictionary(p_params["input"]) : Dictionary();
+			emit_signal("runtime_tool_call", id, name, input);
+			return;
+		}
+
+		if (p_method == "tool-result") {
+			String id = p_params.has("id") ? String(p_params["id"]) : String();
+			bool ok = p_params.has("ok") ? bool(p_params["ok"]) : false;
+			String name = p_params.has("name") ? String(p_params["name"]) : String();
+			Dictionary output = p_params.has("output") ? Dictionary(p_params["output"]) : Dictionary();
+			emit_signal("runtime_tool_result", id, ok, output);
+
+			if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch")) {
+				_handle_file_written(name, output);
+			}
+			return;
+		}
+
+		if (p_method == "tool-progress") {
+			String id = p_params.has("id") ? String(p_params["id"]) : String();
+			String stage = p_params.has("stage") ? String(p_params["stage"]) : String();
+			float progress = p_params.has("progress") ? float(p_params["progress"]) : -1.0f;
+			emit_signal("runtime_tool_progress", id, stage, progress);
+			return;
+		}
+
+		if (p_method == "chat_message") {
+			String role = p_params.has("role") ? String(p_params["role"]) : String();
+			String text = p_params.has("text") ? String(p_params["text"]) : String();
+			emit_signal("runtime_chat_message", role, text);
+			return;
+		}
+
+		if (p_method == "usage") {
+			return;
+		}
+	}
+
 	if (p_method == "status") {
 		String level = p_params.has("level") ? String(p_params["level"]) : "info";
 		String msg = p_params.has("message") ? String(p_params["message"]) : String();
@@ -866,6 +981,154 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		emit_signal("chat_message", role, text);
 		return;
 	}
+}
+
+void EditorAIAgent::_on_play_pressed() {
+	String scene_path;
+	if (EditorRunBar::get_singleton()) {
+		scene_path = EditorRunBar::get_singleton()->get_playing_scene();
+	}
+	if (scene_path.is_empty() && EditorNode::get_singleton()) {
+		Node *edited_scene = EditorNode::get_singleton()->get_edited_scene();
+		if (edited_scene) {
+			scene_path = edited_scene->get_scene_file_path();
+		}
+	}
+
+	runtime_scene_path = scene_path;
+	runtime_capture_active = true;
+	runtime_errors.clear();
+	runtime_warnings.clear();
+	runtime_logs.clear();
+
+	emit_signal("runtime_state_changed", "running", runtime_scene_path);
+}
+
+void EditorAIAgent::_on_stop_pressed() {
+	runtime_capture_active = false;
+	emit_signal("runtime_state_changed", "stopped", runtime_scene_path);
+
+	Dictionary summary;
+	summary["scenePath"] = runtime_scene_path;
+	summary["errors"] = runtime_errors;
+	summary["warnings"] = runtime_warnings;
+	summary["logs"] = runtime_logs;
+	emit_signal("runtime_summary", summary);
+
+	if (runtime_auto_fix_enabled) {
+		_request_runtime_fix_internal(false);
+	}
+}
+
+void EditorAIAgent::_on_editor_log_message(const String &p_text, int p_type) {
+	if (!runtime_capture_active) {
+		return;
+	}
+	if (p_text.is_empty()) {
+		return;
+	}
+
+	String level = "info";
+	if (p_type == EditorLog::MSG_TYPE_ERROR) {
+		level = "error";
+		runtime_errors.push_back(p_text);
+	} else if (p_type == EditorLog::MSG_TYPE_WARNING) {
+		level = "warning";
+		runtime_warnings.push_back(p_text);
+	}
+
+	runtime_logs.push_back(p_text);
+	emit_signal("runtime_log_added", p_text, level);
+}
+
+void EditorAIAgent::_on_debugger_error_logged(const String &p_message, bool p_warning, const String &p_source_file, int p_source_line) {
+	if (!runtime_capture_active) {
+		return;
+	}
+	if (p_message.is_empty()) {
+		return;
+	}
+
+	String message = p_message;
+	if (!p_source_file.is_empty() && p_source_file.begins_with("res://")) {
+		if (p_source_line >= 0) {
+			message += " (" + p_source_file + ":" + itos(p_source_line) + ")";
+		} else {
+			message += " (" + p_source_file + ")";
+		}
+	}
+
+	Vector<String> &bucket = p_warning ? runtime_warnings : runtime_errors;
+	bool exists = false;
+	for (const String &entry : bucket) {
+		if (entry == message) {
+			exists = true;
+			break;
+		}
+	}
+	if (!exists) {
+		bucket.push_back(message);
+	}
+
+	runtime_logs.push_back(message);
+	emit_signal("runtime_log_added", message, p_warning ? "warning" : "error");
+}
+
+String EditorAIAgent::_build_runtime_session_id() const {
+	if (runtime_scene_path.is_empty()) {
+		return "runtime:unknown";
+	}
+	return "runtime:" + runtime_scene_path;
+}
+
+void EditorAIAgent::_request_runtime_fix_internal(bool p_manual) {
+	if (runtime_scene_path.is_empty()) {
+		return;
+	}
+	if (runtime_chat_active) {
+		return;
+	}
+
+	PackedStringArray lines;
+	lines.push_back("Fix runtime issues from the last Play run.");
+	lines.push_back("Scene: " + runtime_scene_path);
+	lines.push_back("Always check play readiness:");
+	lines.push_back("- 2D: ensure Camera2D exists and is current.");
+	lines.push_back("- 3D: ensure Camera3D exists and is current, and add a DirectionalLight3D if missing.");
+	lines.push_back("If you add nodes, parent them under a \"GameableRuntime\" node (create if missing).");
+	if (p_manual) {
+		lines.push_back("This was manually triggered from the Live tab.");
+	}
+	if (!runtime_errors.is_empty()) {
+		lines.push_back("Errors:");
+		for (const String &err : runtime_errors) {
+			lines.push_back("- " + err);
+		}
+	}
+	if (!runtime_warnings.is_empty()) {
+		lines.push_back("Warnings:");
+		for (const String &warn : runtime_warnings) {
+			lines.push_back("- " + warn);
+		}
+	}
+	if (runtime_errors.is_empty() && runtime_warnings.is_empty()) {
+		lines.push_back("No explicit errors captured; still fix missing camera/light if present.");
+	}
+	lines.push_back("After changes, run verify on touched paths.");
+
+	String prompt = String("\n").join(lines);
+
+	Dictionary params;
+	params["prompt"] = prompt;
+	params["sessionId"] = _build_runtime_session_id();
+
+	runtime_chat_active = true;
+	send_jsonrpc("chat", params);
+	emit_signal("runtime_chat_message", "You", prompt);
+}
+
+void EditorAIAgent::request_runtime_fix(bool p_manual) {
+	_request_runtime_fix_internal(p_manual);
 }
 
 void EditorAIAgent::_handle_file_written(const String &p_tool_name, const Dictionary &p_output) {
@@ -1051,11 +1314,14 @@ void EditorAIAgent::clear_session() {
 	emit_signal("usage_updated", 0, 0);
 }
 
-void EditorAIAgent::add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label) {
+void EditorAIAgent::add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label, const Dictionary &p_metadata) {
 	Dictionary params;
 	params["kind"] = ai_context_kind_to_string(p_kind);
 	params["path"] = p_path;
 	params["label"] = p_label.is_empty() ? p_path.get_file() : p_label;
+	if (!p_metadata.is_empty()) {
+		params["metadata"] = p_metadata;
+	}
 	send_jsonrpc("context.add", params);
 	refresh_context(); // Refresh to get updated list
 }
@@ -1095,6 +1361,43 @@ void EditorAIAgent::refresh_bundles() {
 void EditorAIAgent::refresh_context() {
 	Dictionary params;
 	send_jsonrpc("context.get", params);
+}
+
+String EditorAIAgent::_truncate_context_text(const String &p_text, int p_max_chars) const {
+	if (p_text.length() <= p_max_chars) {
+		return p_text;
+	}
+	int start = MAX(0, p_text.length() - p_max_chars);
+	String tail = p_text.substr(start);
+	return "...(truncated)\n" + tail;
+}
+
+String EditorAIAgent::_build_log_context_path(const String &p_source) {
+	uint64_t stamp = OS::get_singleton()->get_unix_time();
+	String safe_source = p_source.is_empty() ? String("log") : p_source;
+	return "log://" + safe_source + "/" + itos(stamp) + "/" + itos(log_context_seq++);
+}
+
+void EditorAIAgent::add_log_context(const String &p_label, const String &p_text, const String &p_source, const String &p_scene_path) {
+	if (p_text.is_empty()) {
+		return;
+	}
+
+	const int max_chars = 4000;
+	String trimmed = _truncate_context_text(p_text, max_chars);
+
+	Dictionary metadata;
+	metadata["text"] = trimmed;
+	if (!p_source.is_empty()) {
+		metadata["source"] = p_source;
+	}
+	if (!p_scene_path.is_empty()) {
+		metadata["scenePath"] = p_scene_path;
+	}
+	metadata["capturedAt"] = int64_t(OS::get_singleton()->get_unix_time());
+
+	String label = p_label.is_empty() ? String("Runtime log") : p_label;
+	add_context_item(AI_CONTEXT_LOG, _build_log_context_path(p_source), label, metadata);
 }
 
 void EditorAIAgent::run_harness(const String &p_scene_path, int p_frames) {

@@ -6543,16 +6543,31 @@ void EditorNode::reload_scene(const String &p_path) {
 		_save_editor_states(p_path);
 	}
 
-	// Reload scene.
+	// Pre-validate: try loading the scene file BEFORE removing the in-memory scene.
+	// If the file is corrupt/malformed, keep the current scene and bail out.
+	Error preload_err = OK;
+	Ref<PackedScene> preload_test = ResourceLoader::load(lpath, "", ResourceFormatLoader::CACHE_MODE_IGNORE, &preload_err);
+	if (preload_err != OK || preload_test.is_null()) {
+		ERR_PRINT(vformat("Cannot reload scene '%s': file failed to parse. Keeping current in-memory scene.", p_path));
+		return;
+	}
+
+	// Also verify it can instantiate (catches deeper issues like missing scripts).
+	Node *instantiate_test = preload_test->instantiate(PackedScene::GEN_EDIT_STATE_DISABLED);
+	if (!instantiate_test) {
+		ERR_PRINT(vformat("Cannot reload scene '%s': instantiation failed. Keeping current in-memory scene.", p_path));
+		return;
+	}
+	memdelete(instantiate_test);
+
+	// Reload scene - safe now since we validated it loads.
 	_remove_scene(scene_idx, false);
 	Error err = load_scene(p_path, true, false, true);
 
 	if (err != OK) {
-		// Scene failed to load (parse error, corrupt file, etc). Don't crash trying to
-		// reposition a tab that doesn't exist. Show error and recover gracefully.
-		ERR_PRINT(vformat("Failed to reload scene '%s'. The file may be corrupted.", p_path));
+		// Shouldn't happen after pre-validation, but handle defensively.
+		ERR_PRINT(vformat("Failed to reload scene '%s' after validation passed. The file may be corrupted.", p_path));
 		scene_tabs->update_scene_tabs();
-		// Switch to a valid tab if any scenes remain open
 		if (editor_data.get_edited_scene_count() > 0) {
 			int safe_idx = CLAMP(current_tab, 0, editor_data.get_edited_scene_count() - 1);
 			_set_current_scene(safe_idx);

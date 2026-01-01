@@ -34,6 +34,7 @@
 #include "core/debugger/remote_debugger.h"
 #include "core/string/ustring.h"
 #include "core/version.h"
+#include "editor/ai/editor_ai_agent.h"
 #include "editor/debugger/editor_debugger_plugin.h"
 #include "editor/debugger/editor_expression_evaluator.h"
 #include "editor/debugger/editor_performance_profiler.h"
@@ -653,6 +654,7 @@ void ScriptEditorDebugger::_msg_error(uint64_t p_thread_id, const Array &p_data)
 	// If we have a (custom) error message, use it as title, and add a C++ Error
 	// item with the original error condition.
 	error_title += oe.error_descr.is_empty() ? oe.error : oe.error_descr;
+	emit_signal(SNAME("error_logged"), error_title, oe.warning, oe.source_file, oe.source_line);
 	error->set_text(1, error_title);
 	error->set_autowrap_mode(1, TextServer::AUTOWRAP_WORD_SMART);
 	tooltip += " " + error_title + "\n";
@@ -1818,6 +1820,7 @@ void ScriptEditorDebugger::_error_tree_item_rmb_selected(const Vector2 &p_pos, M
 
 	if (error_tree->is_anything_selected()) {
 		item_menu->add_icon_item(get_editor_theme_icon(SNAME("ActionCopy")), TTR("Copy Error"), ACTION_COPY_ERROR);
+		item_menu->add_icon_item(get_editor_theme_icon(SNAME("Pin")), TTR("Attach Error to Gameable"), ACTION_ATTACH_ERROR);
 		item_menu->add_icon_item(get_editor_theme_icon(SNAME("ExternalLink")), TTR("Open C++ Source on GitHub"), ACTION_OPEN_SOURCE);
 	}
 
@@ -1854,6 +1857,36 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
 			}
 
 			DisplayServer::get_singleton()->clipboard_set(text);
+		} break;
+		case ACTION_ATTACH_ERROR: {
+			TreeItem *ti = error_tree->get_selected();
+			while (ti->get_parent() != error_tree->get_root()) {
+				ti = ti->get_parent();
+			}
+
+			String type;
+			String label = "Debugger error";
+
+			if (ti->has_meta("_is_warning")) {
+				type = "W ";
+				label = "Debugger warning";
+			} else if (ti->has_meta("_is_error")) {
+				type = "E ";
+			}
+
+			String text = ti->get_text(0) + "   ";
+			int rpad_len = text.length();
+
+			text = type + text + ti->get_text(1) + "\n";
+			TreeItem *ci = ti->get_first_child();
+			while (ci) {
+				text += "  " + ci->get_text(0).rpad(rpad_len) + ci->get_text(1) + "\n";
+				ci = ci->get_next();
+			}
+
+			if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
+				agent->add_log_context(label, text.strip_edges(), "debugger");
+			}
 		} break;
 
 		case ACTION_OPEN_SOURCE: {
@@ -1954,6 +1987,11 @@ void ScriptEditorDebugger::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("stack_frame_vars", PropertyInfo(Variant::INT, "num_vars")));
 	ADD_SIGNAL(MethodInfo("stack_frame_var", PropertyInfo(Variant::ARRAY, "data")));
 	ADD_SIGNAL(MethodInfo("debug_data", PropertyInfo(Variant::STRING, "msg"), PropertyInfo(Variant::ARRAY, "data")));
+	ADD_SIGNAL(MethodInfo("error_logged",
+			PropertyInfo(Variant::STRING, "message"),
+			PropertyInfo(Variant::BOOL, "warning"),
+			PropertyInfo(Variant::STRING, "source_file"),
+			PropertyInfo(Variant::INT, "source_line")));
 	ADD_SIGNAL(MethodInfo("set_breakpoint", PropertyInfo("script"), PropertyInfo(Variant::INT, "line"), PropertyInfo(Variant::BOOL, "enabled")));
 	ADD_SIGNAL(MethodInfo("clear_breakpoints"));
 	ADD_SIGNAL(MethodInfo("errors_cleared"));

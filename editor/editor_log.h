@@ -35,6 +35,7 @@
 #include "scene/gui/button.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/gui/popup_menu.h"
 
 class UndoRedo;
 
@@ -129,9 +130,11 @@ private:
 	HashMap<MessageType, LogFilter *> type_filter_map;
 
 	RichTextLabel *log = nullptr;
+	PopupMenu *log_menu = nullptr;
 
 	Button *clear_button = nullptr;
 	Button *copy_button = nullptr;
+	Button *attach_button = nullptr;
 
 	Button *collapse_button = nullptr;
 	bool collapse = false;
@@ -153,6 +156,9 @@ private:
 	void _meta_clicked(const String &p_meta);
 	void _clear_request();
 	void _copy_request();
+	void _attach_selection_to_context();
+	void _on_log_menu_id_pressed(int p_id);
+	void _on_log_menu_about_to_popup();
 	static void _undo_redo_cbk(void *p_self, const String &p_name);
 
 	void _rebuild_log();
@@ -177,6 +183,7 @@ private:
 
 protected:
 	void _notification(int p_what);
+	static void _bind_methods();
 
 public:
 	void add_message(const String &p_msg, MessageType p_type = MSG_TYPE_STD);

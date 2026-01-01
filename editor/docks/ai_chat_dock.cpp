@@ -45,6 +45,7 @@ void AIChatDock::_notification(int p_what) {
 				agent->connect("tool_result", callable_mp(this, &AIChatDock::_on_tool_result));
 				agent->connect("tool_progress", callable_mp(this, &AIChatDock::_on_tool_progress));
 				agent->connect("chat_message", callable_mp(this, &AIChatDock::_on_chat_message));
+				agent->connect("context_updated", callable_mp(this, &AIChatDock::_on_context_updated));
 			}
 		} break;
 
@@ -70,6 +71,7 @@ AIChatDock::~AIChatDock() {
 void AIChatDock::_build_ui() {
 	_build_header();
 	_build_messages_area();
+	_build_pinned_chips_area();
 	_build_context_chips_area();
 	_build_input_area();
 
@@ -235,6 +237,15 @@ void AIChatDock::_build_context_chips_area() {
 	context_chips->add_theme_constant_override("v_separation", 4 * EDSCALE);
 	context_chips->set_visible(false); // hidden until items added
 	add_child(context_chips);
+}
+
+void AIChatDock::_build_pinned_chips_area() {
+	pinned_chips = memnew(FlowContainer);
+	pinned_chips->set_h_size_flags(SIZE_EXPAND_FILL);
+	pinned_chips->add_theme_constant_override("h_separation", 4 * EDSCALE);
+	pinned_chips->add_theme_constant_override("v_separation", 4 * EDSCALE);
+	pinned_chips->set_visible(false); // hidden until items added
+	add_child(pinned_chips);
 }
 
 // === Turn management ===
@@ -655,6 +666,88 @@ void AIChatDock::_clear_context_chips() {
 	mentioned_paths.clear();
 }
 
+void AIChatDock::_add_pinned_chip(const String &p_item_id, const String &p_label) {
+	if (!pinned_chips) {
+		return;
+	}
+
+	HBoxContainer *chip = memnew(HBoxContainer);
+	chip->add_theme_constant_override("separation", 4 * EDSCALE);
+	chip->set_meta("item_id", p_item_id);
+
+	PanelContainer *chip_panel = memnew(PanelContainer);
+	Ref<StyleBoxFlat> chip_style;
+	chip_style.instantiate();
+	chip_style->set_bg_color(theme_cache.accent_color.lerp(Color(0.2, 0.2, 0.2), 0.75));
+	chip_style->set_corner_radius_all(12 * EDSCALE);
+	chip_style->set_content_margin(SIDE_LEFT, 8 * EDSCALE);
+	chip_style->set_content_margin(SIDE_RIGHT, 4 * EDSCALE);
+	chip_style->set_content_margin(SIDE_TOP, 2 * EDSCALE);
+	chip_style->set_content_margin(SIDE_BOTTOM, 2 * EDSCALE);
+	chip_panel->add_theme_style_override("panel", chip_style);
+
+	HBoxContainer *chip_content = memnew(HBoxContainer);
+	chip_content->add_theme_constant_override("separation", 4 * EDSCALE);
+	chip_panel->add_child(chip_content);
+
+	Label *label = memnew(Label);
+	label->set_text(p_label);
+	label->add_theme_font_size_override("font_size", 11 * EDSCALE);
+	chip_content->add_child(label);
+
+	Button *remove_btn = memnew(Button);
+	remove_btn->set_text(U"×");
+	remove_btn->set_flat(true);
+	remove_btn->add_theme_font_size_override("font_size", 12 * EDSCALE);
+	remove_btn->connect("pressed", callable_mp(this, &AIChatDock::_remove_pinned_chip).bind(p_item_id));
+	chip_content->add_child(remove_btn);
+
+	chip->add_child(chip_panel);
+	pinned_chips->add_child(chip);
+	pinned_chips->set_visible(true);
+}
+
+void AIChatDock::_clear_pinned_chips() {
+	if (!pinned_chips) {
+		return;
+	}
+
+	for (int i = pinned_chips->get_child_count() - 1; i >= 0; i--) {
+		pinned_chips->get_child(i)->queue_free();
+	}
+	pinned_chips->set_visible(false);
+}
+
+void AIChatDock::_remove_pinned_chip(const String &p_item_id) {
+	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
+		agent->remove_context_item(p_item_id);
+	}
+}
+
+void AIChatDock::_refresh_pinned_chips(const Array &p_items) {
+	if (!pinned_chips) {
+		return;
+	}
+
+	_clear_pinned_chips();
+
+	for (int i = 0; i < p_items.size(); i++) {
+		if (p_items[i].get_type() != Variant::DICTIONARY) {
+			continue;
+		}
+		Dictionary dict = p_items[i];
+		AIContextItem item = AIContextItem::from_dict(dict);
+		String label = item.label.is_empty() ? item.path.get_file() : item.label;
+		if (item.kind == AI_CONTEXT_LOG && label.is_empty()) {
+			label = "Runtime log";
+		}
+		if (item.id.is_empty()) {
+			continue;
+		}
+		_add_pinned_chip(item.id, label);
+	}
+}
+
 // === Agent signal handlers ===
 
 void AIChatDock::_on_thinking(const String &p_text) {
@@ -700,6 +793,10 @@ void AIChatDock::_on_chat_message(const String &p_role, const String &p_text) {
 	}
 	// Assistant response - stream into current turn
 	append_response(p_text);
+}
+
+void AIChatDock::_on_context_updated(const Array &p_items) {
+	_refresh_pinned_chips(p_items);
 }
 
 void AIChatDock::_update_meter() {

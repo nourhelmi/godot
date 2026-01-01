@@ -10,7 +10,7 @@
 
 #include "ai_chat_dock.h"
 #include "ai_context_dock.h"
-#include "ai_harness_dock.h"
+#include "ai_runtime_dock.h"
 #include "core/string/print_string.h"
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/editor_node.h"
@@ -38,8 +38,8 @@ void AIMainDock::_notification(int p_what) {
 			// Connect to AI agent and start connection
 			if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
 				agent->connect("connection_state_changed", callable_mp(this, &AIMainDock::_on_connection_state_changed));
-				agent->connect("verify_result", callable_mp(this, &AIMainDock::_on_verify_result));
-				agent->connect_to_server();
+			agent->connect("runtime_state_changed", callable_mp(this, &AIMainDock::_on_runtime_state_changed));
+			agent->connect_to_server();
 			}
 		} break;
 
@@ -82,8 +82,8 @@ void AIMainDock::_build_child_docks() {
 	// context_dock kept as member for potential settings/bundle UI later
 	context_dock = nullptr;
 
-	harness_dock = memnew(AIHarnessDock);
-	tabs->add_child(harness_dock);
+	runtime_dock = memnew(AIRuntimeDock);
+	tabs->add_child(runtime_dock);
 }
 
 void AIMainDock::_build_styles() {
@@ -165,8 +165,8 @@ void AIMainDock::_on_connection_state_changed(int p_state) {
 	}
 }
 
-void AIMainDock::_on_verify_result(const Dictionary &p_result) {
-	// Switch to harness tab when verification completes (index 1 after Context removed)
+void AIMainDock::_on_runtime_state_changed(const String &p_state, const String &p_scene) {
+	// Switch to live tab when runtime starts/stops (index 1 after Context removed)
 	tabs->set_current_tab(1);
 }
 

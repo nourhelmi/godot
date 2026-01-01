@@ -20,6 +20,7 @@ enum AIContextItemKind {
 	AI_CONTEXT_SHADER,
 	AI_CONTEXT_MATERIAL,
 	AI_CONTEXT_ASSET,
+	AI_CONTEXT_LOG,
 	AI_CONTEXT_MAX
 };
 
@@ -36,6 +37,8 @@ inline String ai_context_kind_to_string(AIContextItemKind p_kind) {
 			return "shader";
 		case AI_CONTEXT_MATERIAL:
 			return "material";
+		case AI_CONTEXT_LOG:
+			return "log";
 		case AI_CONTEXT_ASSET:
 		default:
 			return "asset";
@@ -59,6 +62,9 @@ inline AIContextItemKind ai_context_string_to_kind(const String &p_str) {
 	if (p_str == "material") {
 		return AI_CONTEXT_MATERIAL;
 	}
+	if (p_str == "log") {
+		return AI_CONTEXT_LOG;
+	}
 	return AI_CONTEXT_ASSET;
 }
 
@@ -75,6 +81,8 @@ inline String ai_context_kind_to_icon(AIContextItemKind p_kind) {
 			return "Shader";
 		case AI_CONTEXT_MATERIAL:
 			return "BaseMaterial3D";
+		case AI_CONTEXT_LOG:
+			return "File";
 		case AI_CONTEXT_ASSET:
 		default:
 			return "File";
