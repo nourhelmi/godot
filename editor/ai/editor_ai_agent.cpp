@@ -9,6 +9,7 @@
 #include "editor_ai_agent.h"
 
 #include "core/config/project_settings.h"
+#include "core/core_bind.h"
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
 #include "core/io/json.h"
@@ -21,13 +22,17 @@
 #include "editor/debugger/script_editor_debugger.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_log.h"
+#include "editor/editor_main_screen.h"
 #include "editor/editor_node.h"
 #include "editor/file_system/editor_file_system.h"
 #include "editor/run/editor_run_bar.h"
+#include "editor/scene/3d/node_3d_editor_plugin.h"
+#include "editor/script/script_editor_plugin.h"
 #include "editor/settings/editor_settings.h"
 #include "modules/websocket/websocket_peer.h"
 #include "scene/main/node.h"
 #include "scene/main/timer.h"
+#include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_preprocessor.h"
@@ -35,6 +40,120 @@
 #include "servers/rendering_server.h"
 
 EditorAIAgent *EditorAIAgent::singleton = nullptr;
+
+static void _count_scene_node_types_for_capture(Node *p_node, Node *p_root, int &r_2d, int &r_3d) {
+	if (!p_node || !p_root) {
+		return;
+	}
+	if (p_node->is_class("Viewport") || (p_node != p_root && p_node->get_owner() != p_root)) {
+		return;
+	}
+
+	if (p_node->is_class("CanvasItem")) {
+		r_2d++;
+	} else if (p_node->is_class("Node3D")) {
+		r_3d++;
+	}
+
+	for (int i = 0; i < p_node->get_child_count(); i++) {
+		_count_scene_node_types_for_capture(p_node->get_child(i), p_root, r_2d, r_3d);
+	}
+}
+
+static Ref<Image> _capture_editor_viewport_image(const String &p_mode, String &r_label) {
+	EditorNode *editor = EditorNode::get_singleton();
+	if (!editor) {
+		return Ref<Image>();
+	}
+
+	auto capture_2d = [&]() -> Ref<Image> {
+		SubViewport *scene_root = editor->get_scene_root();
+		if (!scene_root) {
+			return Ref<Image>();
+		}
+		Ref<ViewportTexture> texture = scene_root->get_texture();
+		if (!texture.is_valid() || texture->get_width() <= 0 || texture->get_height() <= 0) {
+			return Ref<Image>();
+		}
+		return texture->get_image();
+	};
+
+	auto capture_3d = [&]() -> Ref<Image> {
+		Node3DEditor *editor_3d = Node3DEditor::get_singleton();
+		if (!editor_3d) {
+			return Ref<Image>();
+		}
+		Node3DEditorViewport *viewport = editor_3d->get_editor_viewport(0);
+		if (!viewport) {
+			return Ref<Image>();
+		}
+		Viewport *vp_node = viewport->get_viewport_node();
+		if (!vp_node) {
+			return Ref<Image>();
+		}
+		Ref<ViewportTexture> texture = vp_node->get_texture();
+		if (!texture.is_valid() || texture->get_width() <= 0 || texture->get_height() <= 0) {
+			return Ref<Image>();
+		}
+		return texture->get_image();
+	};
+
+	String mode = p_mode.to_lower();
+	Ref<Image> image;
+	if (mode == "2d") {
+		image = capture_2d();
+		if (image.is_valid()) {
+			r_label = "Viewport 2D";
+		}
+	} else if (mode == "3d") {
+		image = capture_3d();
+		if (image.is_valid()) {
+			r_label = "Viewport 3D";
+		}
+	} else {
+		int selected = -1;
+		if (EditorMainScreen *main_screen = editor->get_editor_main_screen()) {
+			selected = main_screen->get_selected_index();
+		}
+		if (selected == EditorMainScreen::EDITOR_2D) {
+			image = capture_2d();
+			if (image.is_valid()) {
+				r_label = "Viewport 2D";
+			}
+		} else if (selected == EditorMainScreen::EDITOR_3D) {
+			image = capture_3d();
+			if (image.is_valid()) {
+				r_label = "Viewport 3D";
+			}
+		}
+	}
+
+	if (!image.is_valid()) {
+		int c2d = 0;
+		int c3d = 0;
+		if (Node *root = editor->get_edited_scene()) {
+			_count_scene_node_types_for_capture(root, root, c2d, c3d);
+		}
+		if (c3d >= c2d) {
+			image = capture_3d();
+			if (image.is_valid()) {
+				r_label = "Viewport 3D";
+			}
+		}
+		if (!image.is_valid()) {
+			image = capture_2d();
+			if (image.is_valid()) {
+				r_label = "Viewport 2D";
+			}
+		}
+	}
+
+	if (image.is_valid()) {
+		return image->duplicate();
+	}
+
+	return image;
+}
 
 void EditorAIAgent::_bind_methods() {
 	// Signals for UI binding
@@ -179,6 +298,9 @@ void EditorAIAgent::_reconnect() {
 		emit_signal("status", "error", "WebSocket not supported");
 		return;
 	}
+
+	// 8MB outbound buffer for large payloads like screenshots
+	ws->set_outbound_buffer_size((1 << 23) - 1);
 
 	connection_state = AI_CONNECTION_CONNECTING;
 	emit_signal("connection_state_changed", (int)connection_state);
@@ -600,6 +722,43 @@ static void _collect_scene_configuration_warnings(Node *p_root, const String &p_
 }
 
 void EditorAIAgent::_handle_request(const String &p_method, const Dictionary &p_params, int p_id) {
+	if (p_method == "captureViewport") {
+		String mode = p_params.has("mode") ? String(p_params["mode"]) : String("auto");
+		String label;
+		Ref<Image> image = _capture_editor_viewport_image(mode, label);
+
+		Dictionary result;
+		if (!image.is_valid() || image->get_width() <= 0 || image->get_height() <= 0) {
+			result["ok"] = false;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Vector<uint8_t> buffer = image->save_png_to_buffer();
+		if (buffer.is_empty()) {
+			result["ok"] = false;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		CoreBind::Marshalls *marshalls = CoreBind::Marshalls::get_singleton();
+		if (!marshalls) {
+			result["ok"] = false;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["screenshot"] = marshalls->raw_to_base64(buffer);
+		result["mime"] = "image/png";
+		if (!label.is_empty()) {
+			result["label"] = label;
+		}
+		result["capturedAt"] = int64_t(OS::get_singleton()->get_unix_time());
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
 	if (p_method == "getDiagnostics") {
 		Array diagnostics;
 		bool run_csharp_build = false;
@@ -1176,26 +1335,50 @@ void EditorAIAgent::_handle_file_written(const String &p_tool_name, const Dictio
 		EditorFileSystem::get_singleton()->scan();
 	}
 
-	// Check if any written file is the currently open scene - if so, reload it
-	if (EditorNode::get_singleton()) {
+	// Categorize and convert all paths to res:// format
+	Vector<String> scene_paths;
+	bool has_scripts = false;
+
+	for (const String &path : written_paths) {
+		if (path.is_empty()) {
+			continue;
+		}
+		String res_path = _to_res_path(path);
+
+		// Scenes: .tscn, .scn, .tres (packed scenes or resources that might be open)
+		if (res_path.ends_with(".tscn") || res_path.ends_with(".scn")) {
+			scene_paths.push_back(res_path);
+		}
+		// Scripts: .gd, .gdscript
+		else if (res_path.ends_with(".gd") || res_path.ends_with(".gdscript")) {
+			has_scripts = true;
+		}
+		// Shaders: .gdshader, .shader (these are also handled by script editor)
+		else if (res_path.ends_with(".gdshader") || res_path.ends_with(".shader")) {
+			has_scripts = true;
+		}
+		// Text resources that script editor can handle: .json, .txt, etc.
+		else if (res_path.ends_with(".json") || res_path.ends_with(".txt") || res_path.ends_with(".cfg")) {
+			has_scripts = true;
+		}
+	}
+
+	// Reload scripts if any script-like files were written
+	// ScriptEditor::reload_scripts() checks modification times and reloads open scripts
+	if (has_scripts && ScriptEditor::get_singleton()) {
+		callable_mp(ScriptEditor::get_singleton(), &ScriptEditor::reload_scripts).call_deferred(false);
+	}
+
+	// Reload scenes that are currently open in the editor
+	if (!scene_paths.is_empty() && EditorNode::get_singleton()) {
 		Node *edited_scene = EditorNode::get_singleton()->get_edited_scene();
 		if (edited_scene) {
 			String current_scene_path = edited_scene->get_scene_file_path();
-			for (const String &path : written_paths) {
-				if (!path.is_empty() && path.ends_with(".tscn")) {
-					// Convert absolute path to res:// if needed
-					String res_path = path;
-					if (path.begins_with("/")) {
-						String project_path = ProjectSettings::get_singleton()->get_resource_path();
-						if (path.begins_with(project_path)) {
-							res_path = "res://" + path.substr(project_path.length() + 1);
-						}
-					}
-					if (res_path == current_scene_path) {
-						// Defer reload to avoid issues during message processing
-						callable_mp(EditorInterface::get_singleton(), &EditorInterface::reload_scene_from_path).call_deferred(res_path);
-						break;
-					}
+			for (const String &res_path : scene_paths) {
+				if (res_path == current_scene_path) {
+					// Defer reload to avoid issues during message processing
+					callable_mp(EditorInterface::get_singleton(), &EditorInterface::reload_scene_from_path).call_deferred(res_path);
+					break;
 				}
 			}
 		}
@@ -1300,9 +1483,12 @@ int EditorAIAgent::send_jsonrpc_with_callback(const String &p_method, const Dict
 	return id;
 }
 
-void EditorAIAgent::request_chat(const String &p_prompt) {
+void EditorAIAgent::request_chat(const String &p_prompt, const Array &p_images) {
 	Dictionary params;
 	params["prompt"] = p_prompt;
+	if (!p_images.is_empty()) {
+		params["images"] = p_images;
+	}
 	send_jsonrpc("chat", params);
 	emit_signal("chat_message", "You", p_prompt);
 }

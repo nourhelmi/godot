@@ -9,13 +9,18 @@
 #include "ai_chat_dock.h"
 
 #include "ai_mention_popup.h"
+#include "core/core_bind.h"
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
+#include "core/string/translation.h"
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/ai/editor_ai_types.h"
 #include "editor/editor_interface.h"
+#include "editor/editor_main_screen.h"
 #include "editor/editor_node.h"
+#include "editor/scene/3d/node_3d_editor_plugin.h"
+#include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
@@ -25,7 +30,181 @@
 #include "scene/gui/rich_text_label.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/gui/text_edit.h"
+#include "scene/gui/texture_rect.h"
+#include "scene/main/node.h"
+#include "scene/main/viewport.h"
+#include "scene/resources/image_texture.h"
 #include "scene/resources/style_box_flat.h"
+#include "servers/display_server.h"
+
+using CoreBind::Marshalls;
+
+// Convert markdown to BBCode for RichTextLabel display
+// Handles: code blocks, inline code, bold, italic, headers, links
+static String _markdown_to_bbcode(const String &p_markdown) {
+	String result;
+	String text = p_markdown;
+	int pos = 0;
+	int len = text.length();
+
+	// State for streaming - we track if we're inside formatting contexts
+	bool in_code_block = false;
+	String code_block_lang;
+
+	while (pos < len) {
+		// Check for code block start/end (```)
+		if (pos + 2 < len && text[pos] == '`' && text[pos + 1] == '`' && text[pos + 2] == '`') {
+			if (!in_code_block) {
+				// Start of code block - find language identifier
+				int line_end = text.find("\n", pos + 3);
+				if (line_end == -1) {
+					line_end = len;
+				}
+				code_block_lang = text.substr(pos + 3, line_end - (pos + 3)).strip_edges();
+				in_code_block = true;
+				result += "[code]";
+				pos = line_end + 1;
+				continue;
+			} else {
+				// End of code block
+				in_code_block = false;
+				result += "[/code]";
+				pos += 3;
+				// Skip trailing newline if present
+				if (pos < len && text[pos] == '\n') {
+					pos++;
+				}
+				continue;
+			}
+		}
+
+		// Inside code block - pass through literally (no formatting)
+		if (in_code_block) {
+			result += text[pos];
+			pos++;
+			continue;
+		}
+
+		// Inline code (single backtick)
+		if (text[pos] == '`') {
+			int end = text.find("`", pos + 1);
+			if (end != -1) {
+				result += "[code]" + text.substr(pos + 1, end - pos - 1) + "[/code]";
+				pos = end + 1;
+				continue;
+			}
+		}
+
+		// Bold (**text** or __text__)
+		if (pos + 1 < len && ((text[pos] == '*' && text[pos + 1] == '*') || (text[pos] == '_' && text[pos + 1] == '_'))) {
+			char32_t marker = text[pos];
+			int end = text.find(String::chr(marker) + String::chr(marker), pos + 2);
+			if (end != -1) {
+				result += "[b]" + _markdown_to_bbcode(text.substr(pos + 2, end - pos - 2)) + "[/b]";
+				pos = end + 2;
+				continue;
+			}
+		}
+
+		// Italic (*text* or _text_) - but not when preceded/followed by word char for _
+		if ((text[pos] == '*' || text[pos] == '_') && (pos + 1 < len && text[pos + 1] != text[pos])) {
+			char32_t marker = text[pos];
+			// For underscore, be more careful to avoid matching mid-word
+			if (marker == '_') {
+				bool valid_start = (pos == 0 || !is_ascii_alphanumeric_char(text[pos - 1]));
+				if (!valid_start) {
+					result += text[pos];
+					pos++;
+					continue;
+				}
+			}
+			int end = text.find_char(marker, pos + 1);
+			if (end != -1 && end > pos + 1) {
+				// For underscore, check valid end
+				if (marker == '_' && end + 1 < len && is_ascii_alphanumeric_char(text[end + 1])) {
+					result += text[pos];
+					pos++;
+					continue;
+				}
+				result += "[i]" + _markdown_to_bbcode(text.substr(pos + 1, end - pos - 1)) + "[/i]";
+				pos = end + 1;
+				continue;
+			}
+		}
+
+		// Headers at start of line (# ## ###)
+		if (text[pos] == '#' && (pos == 0 || text[pos - 1] == '\n')) {
+			int header_level = 0;
+			int h_pos = pos;
+			while (h_pos < len && text[h_pos] == '#' && header_level < 6) {
+				header_level++;
+				h_pos++;
+			}
+			if (h_pos < len && text[h_pos] == ' ') {
+				h_pos++; // skip space after #
+				int line_end = text.find("\n", h_pos);
+				if (line_end == -1) {
+					line_end = len;
+				}
+				String header_text = text.substr(h_pos, line_end - h_pos);
+				// Use font size based on header level
+				int size = 24 - (header_level - 1) * 2; // h1=24, h2=22, h3=20...
+				result += "[font_size=" + itos(size) + "][b]" + _markdown_to_bbcode(header_text) + "[/b][/font_size]\n";
+				pos = line_end + 1;
+				continue;
+			}
+		}
+
+		// Links [text](url)
+		if (text[pos] == '[') {
+			int bracket_end = text.find("]", pos + 1);
+			if (bracket_end != -1 && bracket_end + 1 < len && text[bracket_end + 1] == '(') {
+				int paren_end = text.find(")", bracket_end + 2);
+				if (paren_end != -1) {
+					String link_text = text.substr(pos + 1, bracket_end - pos - 1);
+					String url = text.substr(bracket_end + 2, paren_end - bracket_end - 2);
+					result += "[url=" + url + "]" + link_text + "[/url]";
+					pos = paren_end + 1;
+					continue;
+				}
+			}
+		}
+
+		// List items (- or * at start of line)
+		if ((text[pos] == '-' || text[pos] == '*') && (pos == 0 || text[pos - 1] == '\n')) {
+			if (pos + 1 < len && text[pos + 1] == ' ') {
+				result += "• ";
+				pos += 2;
+				continue;
+			}
+		}
+
+		// Default: pass through character
+		result += text[pos];
+		pos++;
+	}
+
+	return result;
+}
+
+static void _count_scene_node_types(Node *p_node, Node *p_root, int &r_2d, int &r_3d) {
+	if (!p_node || !p_root) {
+		return;
+	}
+	if (p_node->is_class("Viewport") || (p_node != p_root && p_node->get_owner() != p_root)) {
+		return;
+	}
+
+	if (p_node->is_class("CanvasItem")) {
+		r_2d++;
+	} else if (p_node->is_class("Node3D")) {
+		r_3d++;
+	}
+
+	for (int i = 0; i < p_node->get_child_count(); i++) {
+		_count_scene_node_types(p_node->get_child(i), p_root, r_2d, r_3d);
+	}
+}
 
 void AIChatDock::_bind_methods() {
 	// No exposed methods yet
@@ -36,16 +215,41 @@ void AIChatDock::_notification(int p_what) {
 		case NOTIFICATION_ENTER_TREE: {
 			_build_styles();
 
-			// Connect to AI agent signals
+			// Connect to AI agent signals (guard against duplicate connections on re-parenting)
 			if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
-				agent->connect("thinking", callable_mp(this, &AIChatDock::_on_thinking));
-				agent->connect("status", callable_mp(this, &AIChatDock::_on_status));
-				agent->connect("usage_updated", callable_mp(this, &AIChatDock::_on_usage_updated));
-				agent->connect("tool_call", callable_mp(this, &AIChatDock::_on_tool_call));
-				agent->connect("tool_result", callable_mp(this, &AIChatDock::_on_tool_result));
-				agent->connect("tool_progress", callable_mp(this, &AIChatDock::_on_tool_progress));
-				agent->connect("chat_message", callable_mp(this, &AIChatDock::_on_chat_message));
-				agent->connect("context_updated", callable_mp(this, &AIChatDock::_on_context_updated));
+				Callable thinking_cb = callable_mp(this, &AIChatDock::_on_thinking);
+				Callable status_cb = callable_mp(this, &AIChatDock::_on_status);
+				Callable usage_cb = callable_mp(this, &AIChatDock::_on_usage_updated);
+				Callable tool_call_cb = callable_mp(this, &AIChatDock::_on_tool_call);
+				Callable tool_result_cb = callable_mp(this, &AIChatDock::_on_tool_result);
+				Callable tool_progress_cb = callable_mp(this, &AIChatDock::_on_tool_progress);
+				Callable chat_message_cb = callable_mp(this, &AIChatDock::_on_chat_message);
+				Callable context_updated_cb = callable_mp(this, &AIChatDock::_on_context_updated);
+
+				if (!agent->is_connected("thinking", thinking_cb)) {
+					agent->connect("thinking", thinking_cb);
+				}
+				if (!agent->is_connected("status", status_cb)) {
+					agent->connect("status", status_cb);
+				}
+				if (!agent->is_connected("usage_updated", usage_cb)) {
+					agent->connect("usage_updated", usage_cb);
+				}
+				if (!agent->is_connected("tool_call", tool_call_cb)) {
+					agent->connect("tool_call", tool_call_cb);
+				}
+				if (!agent->is_connected("tool_result", tool_result_cb)) {
+					agent->connect("tool_result", tool_result_cb);
+				}
+				if (!agent->is_connected("tool_progress", tool_progress_cb)) {
+					agent->connect("tool_progress", tool_progress_cb);
+				}
+				if (!agent->is_connected("chat_message", chat_message_cb)) {
+					agent->connect("chat_message", chat_message_cb);
+				}
+				if (!agent->is_connected("context_updated", context_updated_cb)) {
+					agent->connect("context_updated", context_updated_cb);
+				}
 			}
 		} break;
 
@@ -73,6 +277,7 @@ void AIChatDock::_build_ui() {
 	_build_messages_area();
 	_build_pinned_chips_area();
 	_build_context_chips_area();
+	_build_attachment_chips_area();
 	_build_input_area();
 
 	// @ mention popup (Control-based, not Window, to avoid focus issues)
@@ -151,6 +356,9 @@ void AIChatDock::_build_styles() {
 	if (input_container) {
 		input_container->add_theme_style_override("panel", theme_cache.input_bg);
 	}
+	if (capture_btn) {
+		capture_btn->set_button_icon(theme->get_icon("Camera", "EditorIcons"));
+	}
 }
 
 void AIChatDock::_build_header() {
@@ -217,6 +425,17 @@ void AIChatDock::_build_input_area() {
 
 	input_row->add_child(input);
 
+	// Capture viewport button
+	capture_btn = memnew(Button);
+	capture_btn->set_tooltip_text("Capture viewport screenshot (Cmd/Ctrl+Shift+P)");
+	capture_btn->set_custom_minimum_size(Size2(36 * EDSCALE, 36 * EDSCALE));
+	capture_btn->set_flat(true);
+	input_row->add_child(capture_btn);
+	capture_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_capture_pressed));
+	capture_btn->set_shortcut(
+			ED_SHORTCUT("gameable/capture_viewport", TTRC("Capture Viewport Screenshot"),
+					KeyModifierMask::CMD_OR_CTRL | KeyModifierMask::SHIFT | Key::P));
+
 	// Send button
 	send_btn = memnew(Button);
 	send_btn->set_text(U"→");
@@ -237,6 +456,15 @@ void AIChatDock::_build_context_chips_area() {
 	context_chips->add_theme_constant_override("v_separation", 4 * EDSCALE);
 	context_chips->set_visible(false); // hidden until items added
 	add_child(context_chips);
+}
+
+void AIChatDock::_build_attachment_chips_area() {
+	attachment_chips = memnew(FlowContainer);
+	attachment_chips->set_h_size_flags(SIZE_EXPAND_FILL);
+	attachment_chips->add_theme_constant_override("h_separation", 4 * EDSCALE);
+	attachment_chips->add_theme_constant_override("v_separation", 4 * EDSCALE);
+	attachment_chips->set_visible(false);
+	add_child(attachment_chips);
 }
 
 void AIChatDock::_build_pinned_chips_area() {
@@ -428,7 +656,7 @@ PanelContainer *AIChatDock::_create_tool_card(const String &p_name, const String
 
 void AIChatDock::_on_send_pressed() {
 	String text = input->get_text().strip_edges();
-	if (text.is_empty()) {
+	if (text.is_empty() && pending_images.is_empty()) {
 		return;
 	}
 
@@ -455,16 +683,36 @@ void AIChatDock::_on_send_pressed() {
 
 	// Send to agent
 	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
-		agent->request_chat(text);
+		Array images;
+		for (const PendingImage &img : pending_images) {
+			Dictionary payload;
+			payload["data"] = img.data_base64;
+			payload["mime"] = img.mime;
+			if (!img.label.is_empty()) {
+				payload["label"] = img.label;
+			}
+			images.push_back(payload);
+		}
+		agent->request_chat(text, images);
+		agent->clear_context();
 	}
 
 	input->clear();
 	_clear_context_chips();
+	_clear_pinned_chips();
+	_clear_image_attachments();
 }
 
 void AIChatDock::_on_input_gui_input(const Ref<InputEvent> &p_event) {
 	Ref<InputEventKey> key = p_event;
 	if (key.is_valid() && key->is_pressed() && !key->is_echo()) {
+		if (key->get_keycode() == Key::V && key->is_command_or_control_pressed()) {
+			if (_try_attach_clipboard_image()) {
+				input->accept_event();
+				return;
+			}
+		}
+
 		// Forward navigation keys to mention popup if visible
 		if (mention_popup && mention_popup->is_visible()) {
 			Key keycode = key->get_keycode();
@@ -586,7 +834,206 @@ void AIChatDock::_on_mention_selected(const String &p_path, const String &p_labe
 	}
 }
 
+void AIChatDock::_on_capture_pressed() {
+	String label;
+	Ref<Image> image = _capture_viewport_image(label);
+	if (!image.is_valid()) {
+		return;
+	}
+	_add_image_attachment(image, label);
+}
+
+bool AIChatDock::_try_attach_clipboard_image() {
+	DisplayServer *display = DisplayServer::get_singleton();
+	if (!display || !display->clipboard_has_image()) {
+		return false;
+	}
+
+	Ref<Image> image = display->clipboard_get_image();
+	if (!image.is_valid() || image->get_width() <= 0 || image->get_height() <= 0) {
+		return false;
+	}
+
+	_add_image_attachment(image, "Clipboard image");
+	return true;
+}
+
+void AIChatDock::_add_image_attachment(const Ref<Image> &p_image, const String &p_label) {
+	if (!p_image.is_valid()) {
+		return;
+	}
+
+	Ref<Image> image = p_image->duplicate();
+	if (!image.is_valid() || image->get_width() <= 0 || image->get_height() <= 0) {
+		return;
+	}
+
+	Vector<uint8_t> buffer = image->save_png_to_buffer();
+	if (buffer.is_empty()) {
+		return;
+	}
+
+	PendingImage pending;
+	pending.id = String::num_uint64(++image_sequence);
+	pending.label = p_label.is_empty() ? String("Image") : p_label;
+	pending.mime = "image/png";
+	if (Marshalls *marshalls = Marshalls::get_singleton()) {
+		pending.data_base64 = marshalls->raw_to_base64(buffer);
+	} else {
+		return;
+	}
+
+	Ref<Image> thumb = image->duplicate();
+	int max_size = int(96 * EDSCALE);
+	if (max_size < 1) {
+		max_size = 1;
+	}
+	int w = thumb->get_width();
+	int h = thumb->get_height();
+	if (w > max_size || h > max_size) {
+		float scale = MIN(float(max_size) / w, float(max_size) / h);
+		thumb->resize(MAX(1, int(w * scale)), MAX(1, int(h * scale)), Image::INTERPOLATE_LANCZOS);
+	}
+	pending.preview = ImageTexture::create_from_image(thumb);
+
+	pending_images.push_back(pending);
+	_add_image_chip(pending);
+}
+
+Ref<Image> AIChatDock::_capture_viewport_image(String &r_label) const {
+	EditorNode *editor = EditorNode::get_singleton();
+	if (!editor) {
+		return Ref<Image>();
+	}
+
+	auto capture_2d = [&]() -> Ref<Image> {
+		SubViewport *scene_root = editor->get_scene_root();
+		if (!scene_root) {
+			return Ref<Image>();
+		}
+		Ref<ViewportTexture> texture = scene_root->get_texture();
+		if (!texture.is_valid() || texture->get_width() <= 0 || texture->get_height() <= 0) {
+			return Ref<Image>();
+		}
+		return texture->get_image();
+	};
+
+	auto capture_3d = [&]() -> Ref<Image> {
+		Node3DEditor *editor_3d = Node3DEditor::get_singleton();
+		if (!editor_3d) {
+			return Ref<Image>();
+		}
+		Node3DEditorViewport *viewport = editor_3d->get_editor_viewport(0);
+		if (!viewport) {
+			return Ref<Image>();
+		}
+		Viewport *vp_node = viewport->get_viewport_node();
+		if (!vp_node) {
+			return Ref<Image>();
+		}
+		Ref<ViewportTexture> texture = vp_node->get_texture();
+		if (!texture.is_valid() || texture->get_width() <= 0 || texture->get_height() <= 0) {
+			return Ref<Image>();
+		}
+		return texture->get_image();
+	};
+
+	Ref<Image> image;
+	int selected = -1;
+	if (EditorMainScreen *main_screen = editor->get_editor_main_screen()) {
+		selected = main_screen->get_selected_index();
+	}
+
+	if (selected == EditorMainScreen::EDITOR_2D) {
+		image = capture_2d();
+		if (image.is_valid()) {
+			r_label = "Viewport 2D";
+		}
+	} else if (selected == EditorMainScreen::EDITOR_3D) {
+		image = capture_3d();
+		if (image.is_valid()) {
+			r_label = "Viewport 3D";
+		}
+	}
+
+	if (!image.is_valid()) {
+		int c2d = 0;
+		int c3d = 0;
+		if (Node *root = editor->get_edited_scene()) {
+			_count_scene_node_types(root, root, c2d, c3d);
+		}
+
+		if (c3d >= c2d) {
+			image = capture_3d();
+			if (image.is_valid()) {
+				r_label = "Viewport 3D";
+			}
+		}
+		if (!image.is_valid()) {
+			image = capture_2d();
+			if (image.is_valid()) {
+				r_label = "Viewport 2D";
+			}
+		}
+	}
+
+	if (image.is_valid()) {
+		return image->duplicate();
+	}
+
+	return image;
+}
+
 // === Context chip helpers ===
+
+void AIChatDock::_add_image_chip(const PendingImage &p_image) {
+	if (!attachment_chips) {
+		return;
+	}
+
+	HBoxContainer *chip = memnew(HBoxContainer);
+	chip->add_theme_constant_override("separation", 4 * EDSCALE);
+	chip->set_meta("image_id", p_image.id);
+
+	PanelContainer *chip_panel = memnew(PanelContainer);
+	Ref<StyleBoxFlat> chip_style;
+	chip_style.instantiate();
+	chip_style->set_bg_color(theme_cache.accent_color.lerp(Color(0.2, 0.2, 0.2), 0.75));
+	chip_style->set_corner_radius_all(10 * EDSCALE);
+	chip_style->set_content_margin(SIDE_LEFT, 6 * EDSCALE);
+	chip_style->set_content_margin(SIDE_RIGHT, 4 * EDSCALE);
+	chip_style->set_content_margin(SIDE_TOP, 4 * EDSCALE);
+	chip_style->set_content_margin(SIDE_BOTTOM, 4 * EDSCALE);
+	chip_panel->add_theme_style_override("panel", chip_style);
+
+	HBoxContainer *chip_content = memnew(HBoxContainer);
+	chip_content->add_theme_constant_override("separation", 6 * EDSCALE);
+	chip_panel->add_child(chip_content);
+
+	if (p_image.preview.is_valid()) {
+		TextureRect *thumb = memnew(TextureRect);
+		thumb->set_texture(p_image.preview);
+		thumb->set_custom_minimum_size(Size2(48, 48) * EDSCALE);
+		thumb->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
+		chip_content->add_child(thumb);
+	}
+
+	Label *label = memnew(Label);
+	label->set_text(p_image.label);
+	label->add_theme_font_size_override("font_size", 10 * EDSCALE);
+	chip_content->add_child(label);
+
+	Button *remove_btn = memnew(Button);
+	remove_btn->set_text(U"×");
+	remove_btn->set_flat(true);
+	remove_btn->add_theme_font_size_override("font_size", 12 * EDSCALE);
+	remove_btn->connect("pressed", callable_mp(this, &AIChatDock::_remove_image_attachment).bind(p_image.id));
+	chip_content->add_child(remove_btn);
+
+	chip->add_child(chip_panel);
+	attachment_chips->add_child(chip);
+	attachment_chips->set_visible(true);
+}
 
 void AIChatDock::_add_context_chip(const String &p_path, const String &p_label) {
 	if (!context_chips) {
@@ -664,6 +1111,42 @@ void AIChatDock::_clear_context_chips() {
 	}
 	context_chips->set_visible(false);
 	mentioned_paths.clear();
+}
+
+void AIChatDock::_remove_image_attachment(const String &p_id) {
+	for (int i = 0; i < pending_images.size(); i++) {
+		if (pending_images[i].id == p_id) {
+			pending_images.remove_at(i);
+			break;
+		}
+	}
+
+	if (!attachment_chips) {
+		return;
+	}
+
+	for (int i = attachment_chips->get_child_count() - 1; i >= 0; i--) {
+		Node *child = attachment_chips->get_child(i);
+		if (child->has_meta("image_id") && String(child->get_meta("image_id")) == p_id) {
+			child->queue_free();
+			break;
+		}
+	}
+
+	if (attachment_chips->get_child_count() == 0) {
+		attachment_chips->set_visible(false);
+	}
+}
+
+void AIChatDock::_clear_image_attachments() {
+	pending_images.clear();
+	if (!attachment_chips) {
+		return;
+	}
+	for (int i = attachment_chips->get_child_count() - 1; i >= 0; i--) {
+		attachment_chips->get_child(i)->queue_free();
+	}
+	attachment_chips->set_visible(false);
 }
 
 void AIChatDock::_add_pinned_chip(const String &p_item_id, const String &p_label) {
@@ -755,7 +1238,7 @@ void AIChatDock::_on_thinking(const String &p_text) {
 }
 
 void AIChatDock::_on_status(const String &p_level, const String &p_message) {
-	if (p_message == "chat:end") {
+	if (p_message == "chat:done") {
 		end_turn();
 	}
 }
@@ -773,6 +1256,10 @@ void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const D
 	current_thinking_toggle = nullptr;
 	current_thinking_text = nullptr;
 	current_response_text = nullptr;
+	// Response is rendered by re-converting the full accumulated markdown buffer into BBCode.
+	// When we split response blocks around tool calls, we MUST reset the buffer,
+	// otherwise the next block re-renders prior text and looks duplicated/"combined".
+	current_response_buffer = "";
 
 	add_tool_card(p_id, p_name, "running...");
 	_update_meter();
@@ -844,7 +1331,11 @@ void AIChatDock::append_thinking(const String &p_text) {
 
 void AIChatDock::append_response(const String &p_text) {
 	_ensure_response_block();
-	current_response_text->append_text(p_text);
+	// Accumulate raw markdown and re-render with conversion
+	// This handles markdown syntax that spans multiple streaming chunks
+	current_response_buffer += p_text;
+	current_response_text->clear();
+	current_response_text->append_text(_markdown_to_bbcode(current_response_buffer));
 	_scroll_to_bottom();
 }
 
@@ -920,6 +1411,7 @@ void AIChatDock::end_turn() {
 	current_thinking_text = nullptr;
 	thinking_collapsed = false;
 	current_response_text = nullptr;
+	current_response_buffer = "";
 	current_tools_container = nullptr;
 	has_thinking = false;
 	has_response = false;
@@ -943,6 +1435,8 @@ void AIChatDock::clear_all() {
 	session_tokens = 0;
 	_update_meter();
 	_clear_context_chips();
+	_clear_pinned_chips();
+	_clear_image_attachments();
 	if (mention_popup) {
 		mention_popup->cancel();
 	}

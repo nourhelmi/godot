@@ -14,6 +14,7 @@ class AIMentionPopup;
 class Button;
 class FlowContainer;
 class HBoxContainer;
+class Image;
 class InputEvent;
 class Label;
 class PanelContainer;
@@ -21,6 +22,7 @@ class RichTextLabel;
 class ScrollContainer;
 class StyleBoxFlat;
 class TextEdit;
+class Texture2D;
 
 // Chat panel with inline streaming: reasoning → response → tools flow sequentially
 // like Cursor/Claude. Each assistant turn is a container holding all parts.
@@ -54,12 +56,14 @@ class AIChatDock : public VBoxContainer {
 	// Context chips above input (for @ mentioned items)
 	FlowContainer *pinned_chips = nullptr;
 	FlowContainer *context_chips = nullptr;
+	FlowContainer *attachment_chips = nullptr;
 	Vector<String> mentioned_paths; // paths mentioned via @ in current input
 
 	// Input area
 	PanelContainer *input_container = nullptr;
 	HBoxContainer *input_row = nullptr;
 	TextEdit *input = nullptr;
+	Button *capture_btn = nullptr;
 	Button *send_btn = nullptr;
 
 	// @ mention autocomplete
@@ -73,6 +77,7 @@ class AIChatDock : public VBoxContainer {
 	RichTextLabel *current_thinking_text = nullptr;
 	bool thinking_collapsed = false;
 	RichTextLabel *current_response_text = nullptr;
+	String current_response_buffer; // Accumulate raw markdown for re-rendering
 	VBoxContainer *current_tools_container = nullptr;
 	bool has_thinking = false;
 	bool has_response = false;
@@ -86,12 +91,23 @@ class AIChatDock : public VBoxContainer {
 	HashMap<String, PanelContainer *> active_tool_cards;
 	HashMap<String, uint64_t> tool_done_times;
 
+	struct PendingImage {
+		String id;
+		String label;
+		String mime;
+		String data_base64;
+		Ref<Texture2D> preview;
+	};
+	Vector<PendingImage> pending_images;
+	uint64_t image_sequence = 0;
+
 	// Internal UI builders
 	void _build_ui();
 	void _build_styles();
 	void _build_header();
 	void _build_messages_area();
 	void _build_input_area();
+	void _build_attachment_chips_area();
 
 	// Turn management - creates assistant turn container for streaming
 	void _ensure_assistant_turn();
@@ -116,9 +132,12 @@ class AIChatDock : public VBoxContainer {
 	// Context chip helpers
 	void _build_pinned_chips_area();
 	void _build_context_chips_area();
+	void _add_image_chip(const PendingImage &p_image);
 	void _add_context_chip(const String &p_path, const String &p_label);
 	void _remove_context_chip(const String &p_path);
 	void _clear_context_chips();
+	void _remove_image_attachment(const String &p_id);
+	void _clear_image_attachments();
 	void _add_pinned_chip(const String &p_item_id, const String &p_label);
 	void _clear_pinned_chips();
 	void _remove_pinned_chip(const String &p_item_id);
@@ -126,6 +145,10 @@ class AIChatDock : public VBoxContainer {
 
 	// Thinking block collapse
 	void _on_thinking_toggle();
+	void _on_capture_pressed();
+	bool _try_attach_clipboard_image();
+	void _add_image_attachment(const Ref<Image> &p_image, const String &p_label);
+	Ref<Image> _capture_viewport_image(String &r_label) const;
 
 	// Agent signal handlers
 	void _on_thinking(const String &p_text);
