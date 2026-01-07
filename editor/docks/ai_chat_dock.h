@@ -12,6 +12,7 @@
 
 class AIMentionPopup;
 class Button;
+class Control;
 class FlowContainer;
 class HBoxContainer;
 class Image;
@@ -89,7 +90,16 @@ class AIChatDock : public VBoxContainer {
 
 	// Active tool cards within current turn
 	HashMap<String, PanelContainer *> active_tool_cards;
+	HashMap<String, Label *> active_tool_icons;
+	HashMap<String, Label *> active_tool_labels;
+	HashMap<String, RichTextLabel *> active_tool_details;
+	HashMap<String, Control *> active_tool_detail_containers;
+	HashMap<String, Button *> active_tool_detail_toggles;
+	HashMap<String, Dictionary> active_tool_inputs;
+	HashMap<String, String> active_tool_names;
 	HashMap<String, uint64_t> tool_done_times;
+	uint64_t last_spinner_msec = 0;
+	int spinner_frame = 0;
 
 	struct PendingImage {
 		String id;
@@ -117,7 +127,13 @@ class AIChatDock : public VBoxContainer {
 
 	// Message bubble creation
 	PanelContainer *_create_user_bubble(const String &p_text);
-	PanelContainer *_create_tool_card(const String &p_name, const String &p_status);
+	PanelContainer *_create_tool_card(const String &p_id, const String &p_name, const String &p_status);
+	String _format_tool_status(const String &p_name, const Dictionary &p_input) const;
+	String _format_tool_progress(const String &p_name, const String &p_stage, const Dictionary &p_input) const;
+	String _format_tool_summary(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const;
+	String _format_tool_details(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const;
+	void _on_tool_details_toggle(Control *p_container, Button *p_toggle);
+	void _update_spinner_icons();
 
 	// Event handlers
 	void _on_send_pressed();
@@ -173,7 +189,7 @@ public:
 	void append_user_message(const String &p_text);
 	void append_thinking(const String &p_text);
 	void append_response(const String &p_text);
-	void add_tool_card(const String &p_id, const String &p_name, const String &p_status);
+	void add_tool_card(const String &p_id, const String &p_name, const Dictionary &p_input, const String &p_status);
 	void update_tool_card(const String &p_id, const String &p_status, bool p_done);
 	void update_usage(int64_t p_turn, int64_t p_session);
 	void cleanup_done_tools();

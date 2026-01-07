@@ -10,6 +10,7 @@
 
 #include "ai_mention_popup.h"
 #include "core/core_bind.h"
+#include "core/config/project_settings.h"
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
@@ -187,6 +188,23 @@ static String _markdown_to_bbcode(const String &p_markdown) {
 	return result;
 }
 
+
+static String _shorten_path(const String &p_path) {
+	String root = ProjectSettings::get_singleton()->get_resource_path();
+	if (root.is_empty()) {
+		return p_path;
+	}
+	if (p_path.begins_with(root)) {
+		String rel = p_path.substr(root.length());
+		if (rel.begins_with("/")) {
+			rel = rel.substr(1);
+		}
+		return "res://" + rel;
+	}
+	return p_path;
+}
+
+
 static void _count_scene_node_types(Node *p_node, Node *p_root, int &r_2d, int &r_3d) {
 	if (!p_node || !p_root) {
 		return;
@@ -258,6 +276,7 @@ void AIChatDock::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_PROCESS: {
+			_update_spinner_icons();
 			cleanup_done_tools();
 		} break;
 	}
@@ -543,8 +562,13 @@ void AIChatDock::_ensure_thinking_block() {
 	}
 	thinking_content->add_child(current_thinking_text);
 
-	// Add inline for proper interleaving (no move_child - keeps chronological order)
-	current_turn->add_child(current_thinking_block);
+	// Insert before response if it already started to keep thinking-first ordering.
+	if (current_response_text && current_response_text->get_parent() == current_turn) {
+		current_turn->add_child(current_thinking_block);
+		current_turn->move_child(current_thinking_block, current_response_text->get_index());
+	} else {
+		current_turn->add_child(current_thinking_block);
+	}
 
 	thinking_collapsed = false;
 	has_thinking = true;
@@ -628,28 +652,395 @@ PanelContainer *AIChatDock::_create_user_bubble(const String &p_text) {
 	return bubble;
 }
 
-PanelContainer *AIChatDock::_create_tool_card(const String &p_name, const String &p_status) {
+PanelContainer *AIChatDock::_create_tool_card(const String &p_id, const String &p_name, const String &p_status) {
 	PanelContainer *card = memnew(PanelContainer);
 	card->add_theme_style_override("panel", theme_cache.tool_card_bg);
 
+	VBoxContainer *content = memnew(VBoxContainer);
+	content->add_theme_constant_override("separation", 4 * EDSCALE);
+	card->add_child(content);
+
 	HBoxContainer *row = memnew(HBoxContainer);
 	row->add_theme_constant_override("separation", 8 * EDSCALE);
-	card->add_child(row);
+	content->add_child(row);
 
 	// Tool icon (spinner or checkmark)
 	Label *icon = memnew(Label);
-	icon->set_text(U"◐"); // Spinner
-	icon->set_meta("is_icon", true);
+	icon->set_text(U"◐");
 	row->add_child(icon);
 
 	// Tool name + status
 	Label *label = memnew(Label);
 	label->set_text(p_name + ": " + p_status);
 	label->add_theme_font_size_override("font_size", 12 * EDSCALE);
-	label->set_meta("is_label", true);
 	row->add_child(label);
 
+	Button *details_toggle = memnew(Button);
+	details_toggle->set_text(U"▶ Details");
+	details_toggle->set_flat(true);
+	details_toggle->add_theme_font_size_override("font_size", 10 * EDSCALE);
+	details_toggle->add_theme_color_override("font_color", theme_cache.text_muted);
+	details_toggle->set_visible(false);
+	row->add_child(details_toggle);
+
+	VBoxContainer *details_container = memnew(VBoxContainer);
+	details_container->set_visible(false);
+	content->add_child(details_container);
+
+	RichTextLabel *details_text = memnew(RichTextLabel);
+	details_text->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
+	details_text->set_fit_content(true);
+	details_text->set_selection_enabled(true);
+	details_text->add_theme_font_size_override("normal_font_size", 11 * EDSCALE);
+	details_container->add_child(details_text);
+
+	details_toggle->connect("pressed", callable_mp(this, &AIChatDock::_on_tool_details_toggle).bind(details_container, details_toggle));
+
+	active_tool_icons[p_id] = icon;
+	active_tool_labels[p_id] = label;
+	active_tool_details[p_id] = details_text;
+	active_tool_detail_containers[p_id] = details_container;
+	active_tool_detail_toggles[p_id] = details_toggle;
+
 	return card;
+}
+
+String AIChatDock::_format_tool_status(const String &p_name, const Dictionary &p_input) const {
+	if (p_name == "searchFiles") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		return query.is_empty() ? "searching..." : "searching \"" + query + "\"";
+	}
+	if (p_name == "readFile") {
+		String path = p_input.has("path") ? String(p_input["path"]) : String();
+		return path.is_empty() ? "reading..." : "reading " + _shorten_path(path);
+	}
+	if (p_name == "writeFile") {
+		String path = p_input.has("path") ? String(p_input["path"]) : String();
+		return path.is_empty() ? "writing..." : "writing " + _shorten_path(path);
+	}
+	if (p_name == "writePatch") {
+		return "applying patch...";
+	}
+	if (p_name == "applySceneEdits") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? "editing scene..." : "editing " + _shorten_path(scene);
+	}
+	if (p_name == "getSceneGraph") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? "parsing scene..." : "parsing " + _shorten_path(scene);
+	}
+	if (p_name == "verify" || p_name == "verifyVisually") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? "verifying..." : "verifying " + _shorten_path(scene);
+	}
+	if (p_name == "runHarness") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? "running harness..." : "running harness on " + _shorten_path(scene);
+	}
+	return "running...";
+}
+
+String AIChatDock::_format_tool_progress(const String &p_name, const String &p_stage, const Dictionary &p_input) const {
+	if (p_stage.is_empty()) {
+		return _format_tool_status(p_name, p_input);
+	}
+	if (p_name == "searchFiles") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		return query.is_empty() ? p_stage : p_stage + ": \"" + query + "\"";
+	}
+	if (p_name == "readFile") {
+		String path = p_input.has("path") ? String(p_input["path"]) : String();
+		return path.is_empty() ? p_stage : p_stage + " " + _shorten_path(path);
+	}
+	if (p_name == "writeFile") {
+		String path = p_input.has("path") ? String(p_input["path"]) : String();
+		return path.is_empty() ? p_stage : p_stage + " " + _shorten_path(path);
+	}
+	if (p_name == "applySceneEdits" || p_name == "getSceneGraph" || p_name == "verify" || p_name == "verifyVisually") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? p_stage : p_stage + " " + _shorten_path(scene);
+	}
+	return p_stage;
+}
+
+String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
+	if (!p_ok) {
+		return "failed";
+	}
+	if (p_name == "searchFiles") {
+		Array hits = p_output.has("hits") ? Array(p_output["hits"]) : Array();
+		return "done (" + itos(hits.size()) + " hits)";
+	}
+	if (p_name == "readFile") {
+		String content = p_output.has("content") ? String(p_output["content"]) : String();
+		int lines = content.is_empty() ? 0 : content.split("\n", false).size();
+		return "done (" + itos(lines) + " lines)";
+	}
+	if (p_name == "writeFile") {
+		Dictionary res = p_output.has("writeFileResult") ? Dictionary(p_output["writeFileResult"]) : Dictionary();
+		String path = res.has("path") ? String(res["path"]) : String();
+		return path.is_empty() ? "done" : "done (" + _shorten_path(path) + ")";
+	}
+	if (p_name == "writePatch") {
+		Dictionary res = p_output.has("applyResult") ? Dictionary(p_output["applyResult"]) : Dictionary();
+		Dictionary stats = res.has("stats") ? Dictionary(res["stats"]) : Dictionary();
+		int files = stats.has("files") ? int(stats["files"]) : 0;
+		return files > 0 ? "done (" + itos(files) + " files)" : "done";
+	}
+	if (p_name == "applySceneEdits") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? "done" : "done (" + _shorten_path(scene) + ")";
+	}
+	if (p_name == "verify" || p_name == "verifyVisually" || p_name == "runHarness") {
+		Array errors = p_output.has("errors") ? Array(p_output["errors"]) : Array();
+		Array warnings = p_output.has("warnings") ? Array(p_output["warnings"]) : Array();
+		if (errors.size() > 0) {
+			return "done (" + itos(errors.size()) + " errors)";
+		}
+		if (warnings.size() > 0) {
+			return "done (" + itos(warnings.size()) + " warnings)";
+		}
+		return "done (ok)";
+	}
+	return "done";
+}
+
+String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
+	String details;
+
+	if (p_name == "searchFiles") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		if (!query.is_empty()) {
+			details += "Query: " + query + "\n";
+		}
+		Array hits = p_output.has("hits") ? Array(p_output["hits"]) : Array();
+		details += "Hits: " + itos(hits.size()) + "\n";
+		int limit = hits.size() < 10 ? hits.size() : 10;
+		for (int i = 0; i < limit; i++) {
+			Dictionary hit = hits[i];
+			String path = hit.has("path") ? String(hit["path"]) : String();
+			int line = hit.has("line") ? int(hit["line"]) : 0;
+			String preview = hit.has("preview") ? String(hit["preview"]) : String();
+			if (!path.is_empty()) {
+				path = _shorten_path(path);
+			}
+			details += "- " + (path.is_empty() ? String("(unknown)") : path);
+			if (line > 0) {
+				details += ":" + itos(line);
+			}
+			if (!preview.is_empty()) {
+				details += "  " + preview;
+			}
+			details += "\n";
+		}
+		if (hits.size() > limit) {
+			details += "... +" + itos(hits.size() - limit) + " more\n";
+		}
+		return details.strip_edges();
+	}
+
+	if (p_name == "readFile") {
+		String path = p_output.has("path") ? String(p_output["path"]) : String();
+		String content = p_output.has("content") ? String(p_output["content"]) : String();
+		if (!path.is_empty()) {
+			path = _shorten_path(path);
+		}
+		int lines = content.is_empty() ? 0 : content.split("\n", false).size();
+		if (!path.is_empty()) {
+			details += "Path: " + path + "\n";
+		}
+		details += "Lines: " + itos(lines) + " | Chars: " + itos(content.length()) + "\n";
+		if (!content.is_empty()) {
+			const int max_chars = 1600;
+			String snippet = content;
+			bool truncated = false;
+			if (snippet.length() > max_chars) {
+				snippet = snippet.substr(0, max_chars);
+				truncated = true;
+			}
+			details += "\n" + snippet;
+			if (truncated) {
+				details += "\n... (truncated)";
+			}
+		}
+		return details.strip_edges();
+	}
+
+	if (p_name == "writeFile") {
+		if (p_output.has("writeFileResult")) {
+			Dictionary res = p_output["writeFileResult"];
+			bool ok = res.has("ok") ? bool(res["ok"]) : p_ok;
+			String path = res.has("path") ? String(res["path"]) : String();
+			if (!path.is_empty()) {
+				path = _shorten_path(path);
+			}
+			details += ok ? "Wrote: " : "Write failed: ";
+			details += path.is_empty() ? String("(unknown)") : path;
+			if (res.has("bytes")) {
+				details += " (" + itos(int(res["bytes"])) + " bytes)";
+			}
+			if (!ok && res.has("error")) {
+				details += "\n" + String(res["error"]);
+			}
+			return details.strip_edges();
+		}
+		if (p_output.has("preview")) {
+			Dictionary preview = p_output["preview"];
+			String path = preview.has("path") ? String(preview["path"]) : String();
+			if (!path.is_empty()) {
+				path = _shorten_path(path);
+			}
+			details = "Preview: " + (path.is_empty() ? String("(unknown)") : path);
+			if (preview.has("bytes")) {
+				details += " (" + itos(int(preview["bytes"])) + " bytes)";
+			}
+			return details.strip_edges();
+		}
+	}
+
+	if (p_name == "writePatch") {
+		if (p_output.has("applyResult")) {
+			Dictionary res = p_output["applyResult"];
+			Dictionary stats = res.has("stats") ? Dictionary(res["stats"]) : Dictionary();
+			int files = stats.has("files") ? int(stats["files"]) : 0;
+			int hunks = stats.has("hunks") ? int(stats["hunks"]) : 0;
+			int applied = stats.has("applied") ? int(stats["applied"]) : 0;
+			int skipped = stats.has("skipped") ? int(stats["skipped"]) : 0;
+			details += "Files: " + itos(files) + " | Hunks: " + itos(hunks) + " | Applied: " + itos(applied) + " | Skipped: " + itos(skipped) + "\n";
+			Array results = res.has("results") ? Array(res["results"]) : Array();
+			if (!results.is_empty()) {
+				details += "Files:\n";
+				for (int i = 0; i < results.size(); i++) {
+					Dictionary file_res = results[i];
+					String path = file_res.has("path") ? String(file_res["path"]) : String();
+					bool wrote = file_res.has("wrote") ? bool(file_res["wrote"]) : false;
+					if (!path.is_empty()) {
+						path = _shorten_path(path);
+					}
+					details += "- " + (path.is_empty() ? String("(unknown)") : path);
+					if (!wrote) {
+						details += " (no changes)";
+					}
+					details += "\n";
+				}
+			}
+			return details.strip_edges();
+		}
+		if (p_output.has("previewDiff")) {
+			Dictionary preview = p_output["previewDiff"];
+			Array files = preview.has("files") ? Array(preview["files"]) : Array();
+			details += "Preview files: " + itos(files.size()) + "\n";
+			int limit = files.size() < 5 ? files.size() : 5;
+			for (int i = 0; i < limit; i++) {
+				Dictionary file = files[i];
+				String path = file.has("path") ? String(file["path"]) : String();
+				if (!path.is_empty()) {
+					path = _shorten_path(path);
+				}
+				details += "- " + (path.is_empty() ? String("(unknown)") : path) + "\n";
+			}
+			if (files.size() > limit) {
+				details += "... +" + itos(files.size() - limit) + " more\n";
+			}
+			return details.strip_edges();
+		}
+	}
+
+	if (p_name == "applySceneEdits") {
+		Dictionary res = p_output.has("sceneEditResult") ? Dictionary(p_output["sceneEditResult"]) : Dictionary();
+		bool ok = res.has("ok") ? bool(res["ok"]) : p_ok;
+		String scene = res.has("scenePath") ? String(res["scenePath"]) : String();
+		if (scene.is_empty() && p_input.has("scenePath")) {
+			scene = String(p_input["scenePath"]);
+		}
+		if (!scene.is_empty()) {
+			scene = _shorten_path(scene);
+			details += "Scene: " + scene + "\n";
+		}
+		details += ok ? "Applied edits." : "Edit failed.";
+		if (p_input.has("edits")) {
+			Array edits = p_input["edits"];
+			details += "\nEdits: " + itos(edits.size());
+		}
+		return details.strip_edges();
+	}
+
+	if (p_name == "getSceneGraph") {
+		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
+		return scene.is_empty() ? String() : ("Parsed scene: " + _shorten_path(scene));
+	}
+
+	if (p_name == "verify" || p_name == "verifyVisually" || p_name == "runHarness") {
+		Dictionary vr = p_output.has("verifyResult") ? Dictionary(p_output["verifyResult"]) : Dictionary();
+		Array errors = vr.has("errors") ? Array(vr["errors"]) : (p_output.has("errors") ? Array(p_output["errors"]) : Array());
+		Array warnings = vr.has("warnings") ? Array(vr["warnings"]) : (p_output.has("warnings") ? Array(p_output["warnings"]) : Array());
+		String scene = vr.has("scenePath") ? String(vr["scenePath"]) : (p_input.has("scenePath") ? String(p_input["scenePath"]) : String());
+		if (!scene.is_empty()) {
+			details += "Scene: " + _shorten_path(scene) + "\n";
+		}
+		if (vr.has("screenshot")) {
+			details += "Screenshot: " + String(vr["screenshot"]) + "\n";
+		}
+		if (errors.is_empty() && warnings.is_empty()) {
+			details += "No diagnostics.";
+			return details.strip_edges();
+		}
+		if (!errors.is_empty()) {
+			details += "Errors (" + itos(errors.size()) + "):\n";
+			int limit = errors.size() < 5 ? errors.size() : 5;
+			for (int i = 0; i < limit; i++) {
+				details += "- " + String(errors[i]) + "\n";
+			}
+			if (errors.size() > limit) {
+				details += "... +" + itos(errors.size() - limit) + " more\n";
+			}
+		}
+		if (!warnings.is_empty()) {
+			details += "Warnings (" + itos(warnings.size()) + "):\n";
+			int limit = warnings.size() < 5 ? warnings.size() : 5;
+			for (int i = 0; i < limit; i++) {
+				details += "- " + String(warnings[i]) + "\n";
+			}
+			if (warnings.size() > limit) {
+				details += "... +" + itos(warnings.size() - limit) + " more\n";
+			}
+		}
+		return details.strip_edges();
+	}
+
+	if (!p_ok) {
+		return "Tool failed.";
+	}
+	return String();
+}
+
+void AIChatDock::_on_tool_details_toggle(Control *p_container, Button *p_toggle) {
+	if (!p_container || !p_toggle) {
+		return;
+	}
+	const bool show = !p_container->is_visible();
+	p_container->set_visible(show);
+	p_toggle->set_text(show ? U"▼ Details" : U"▶ Details");
+	_scroll_to_bottom();
+}
+
+void AIChatDock::_update_spinner_icons() {
+	if (active_tool_icons.is_empty()) {
+		return;
+	}
+	uint64_t now = OS::get_singleton()->get_ticks_msec();
+	if (now - last_spinner_msec < 120) {
+		return;
+	}
+	last_spinner_msec = now;
+	spinner_frame = (spinner_frame + 1) % 4;
+	static const String frames[] = { U"◐", U"◓", U"◑", U"◒" };
+	const String frame = frames[spinner_frame];
+	for (const KeyValue<String, Label *> &E : active_tool_icons) {
+		if (E.value) {
+			E.value->set_text(frame);
+		}
+	}
 }
 
 // === Event handlers ===
@@ -1261,17 +1652,48 @@ void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const D
 	// otherwise the next block re-renders prior text and looks duplicated/"combined".
 	current_response_buffer = "";
 
-	add_tool_card(p_id, p_name, "running...");
+	const String status = _format_tool_status(p_name, p_input);
+	add_tool_card(p_id, p_name, p_input, status);
 	_update_meter();
 }
 
+
 void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output) {
-	update_tool_card(p_id, p_ok ? "done" : "failed", true);
+	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
+	const Dictionary input = active_tool_inputs.has(p_id) ? active_tool_inputs[p_id] : Dictionary();
+	const String summary = _format_tool_summary(name, p_ok, p_output, input);
+	update_tool_card(p_id, summary.is_empty() ? (p_ok ? "done" : "failed") : summary, true);
+
+	const String details = _format_tool_details(name, p_ok, p_output, input);
+	if (!details.is_empty()) {
+		if (active_tool_details.has(p_id)) {
+			if (RichTextLabel *detail_text = active_tool_details[p_id]) {
+				detail_text->clear();
+				detail_text->append_text(details);
+			}
+		}
+		if (active_tool_detail_containers.has(p_id)) {
+			if (Control *container = active_tool_detail_containers[p_id]) {
+				container->set_visible(false);
+			}
+		}
+		if (active_tool_detail_toggles.has(p_id)) {
+			if (Button *toggle = active_tool_detail_toggles[p_id]) {
+				toggle->set_visible(true);
+				toggle->set_text(U"▶ Details");
+			}
+		}
+	}
 }
 
+
 void AIChatDock::_on_tool_progress(const String &p_id, const String &p_stage, float p_progress) {
-	update_tool_card(p_id, p_stage, false);
+	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
+	const Dictionary input = active_tool_inputs.has(p_id) ? active_tool_inputs[p_id] : Dictionary();
+	const String status = _format_tool_progress(name, p_stage, input);
+	update_tool_card(p_id, status, false);
 }
+
 
 void AIChatDock::_on_chat_message(const String &p_role, const String &p_text) {
 	if (p_role == "You" || p_role == "user") {
@@ -1339,15 +1761,18 @@ void AIChatDock::append_response(const String &p_text) {
 	_scroll_to_bottom();
 }
 
-void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const String &p_status) {
+void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const Dictionary &p_input, const String &p_status) {
 	_ensure_assistant_turn();
 
 	// Add tool card directly to turn for proper chronological ordering
-	PanelContainer *card = _create_tool_card(p_name, p_status);
+	PanelContainer *card = _create_tool_card(p_id, p_name, p_status);
 	current_turn->add_child(card);
 	active_tool_cards[p_id] = card;
+	active_tool_names[p_id] = p_name;
+	active_tool_inputs[p_id] = p_input;
 	_scroll_to_bottom();
 }
+
 
 void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bool p_done) {
 	if (!active_tool_cards.has(p_id)) {
@@ -1355,35 +1780,21 @@ void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bo
 	}
 
 	PanelContainer *card = active_tool_cards[p_id];
-	HBoxContainer *row = Object::cast_to<HBoxContainer>(card->get_child(0));
-	if (!row) {
-		return;
-	}
+	Label *icon = active_tool_icons.has(p_id) ? active_tool_icons[p_id] : nullptr;
+	Label *label = active_tool_labels.has(p_id) ? active_tool_labels[p_id] : nullptr;
+	String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
 
-	// Update icon and label
-	for (int i = 0; i < row->get_child_count(); i++) {
-		Node *child = row->get_child(i);
-		if (child->has_meta("is_icon")) {
-			Label *icon = Object::cast_to<Label>(child);
-			if (icon) {
-				icon->set_text(p_done ? U"✓" : U"◐");
-			}
-		}
-		if (child->has_meta("is_label")) {
-			Label *label = Object::cast_to<Label>(child);
-			if (label) {
-				// Extract tool name (before colon)
-				String current = label->get_text();
-				int colon_pos = current.find(":");
-				String name = colon_pos >= 0 ? current.substr(0, colon_pos) : current;
-				label->set_text(name + ": " + p_status);
-			}
-		}
+	if (label) {
+		const String display_name = name.is_empty() ? String("tool") : name;
+		label->set_text(display_name + ": " + p_status);
 	}
 
 	if (p_done) {
-		// Mark for cleanup
+		if (icon) {
+			icon->set_text(U"✓");
+		}
 		tool_done_times[p_id] = OS::get_singleton()->get_ticks_msec();
+		active_tool_icons.erase(p_id);
 
 		// Change border to green for success
 		Ref<StyleBoxFlat> done_style = theme_cache.tool_card_bg->duplicate();
@@ -1391,6 +1802,7 @@ void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bo
 		card->add_theme_style_override("panel", done_style);
 	}
 }
+
 
 void AIChatDock::update_usage(int64_t p_turn, int64_t p_session) {
 	turn_tokens = p_turn;
@@ -1420,9 +1832,19 @@ void AIChatDock::end_turn() {
 	turn_tokens = 0;
 	tool_call_count = 0;
 	active_tool_cards.clear();
+	active_tool_icons.clear();
+	active_tool_labels.clear();
+	active_tool_details.clear();
+	active_tool_detail_containers.clear();
+	active_tool_detail_toggles.clear();
+	active_tool_inputs.clear();
+	active_tool_names.clear();
 	tool_done_times.clear();
+	last_spinner_msec = 0;
+	spinner_frame = 0;
 	_update_meter();
 }
+
 
 void AIChatDock::clear_all() {
 	// Remove all messages
