@@ -269,6 +269,15 @@ void AIChatDock::_notification(int p_what) {
 					agent->connect("context_updated", context_updated_cb);
 				}
 			}
+
+			// Sticky autoscroll: only follow new content if the user is already at the bottom.
+			if (scroll && scroll->get_v_scroll_bar()) {
+				Callable scroll_cb = callable_mp(this, &AIChatDock::_on_scroll_value_changed);
+				if (!scroll->get_v_scroll_bar()->is_connected("value_changed", scroll_cb)) {
+					scroll->get_v_scroll_bar()->connect("value_changed", scroll_cb);
+				}
+				_on_scroll_value_changed(scroll->get_v_scroll_bar()->get_value());
+			}
 		} break;
 
 		case NOTIFICATION_THEME_CHANGED: {
@@ -1021,7 +1030,6 @@ void AIChatDock::_on_tool_details_toggle(Control *p_container, Button *p_toggle)
 	const bool show = !p_container->is_visible();
 	p_container->set_visible(show);
 	p_toggle->set_text(show ? U"▼ Details" : U"▶ Details");
-	_scroll_to_bottom();
 }
 
 void AIChatDock::_update_spinner_icons() {
@@ -1070,6 +1078,8 @@ void AIChatDock::_on_send_pressed() {
 	}
 
 	// Add user message
+	// Sending is explicit intent to follow the conversation; re-enable sticky autoscroll.
+	stick_to_bottom = true;
 	append_user_message(text);
 
 	// Send to agent
@@ -1724,11 +1734,33 @@ void AIChatDock::_update_meter() {
 	token_meter->set_text(text);
 }
 
+void AIChatDock::_on_scroll_value_changed(double p_value) {
+	if (!scroll || !scroll->get_v_scroll_bar()) {
+		stick_to_bottom = true;
+		return;
+	}
+
+	const double max = scroll->get_v_scroll_bar()->get_max();
+	if (max <= 0.0) {
+		stick_to_bottom = true;
+		return;
+	}
+
+	const double threshold = 8.0 * EDSCALE;
+	stick_to_bottom = p_value >= (max - threshold);
+}
+
 void AIChatDock::_scroll_to_bottom() {
+	if (!stick_to_bottom) {
+		return;
+	}
 	callable_mp(this, &AIChatDock::_do_scroll_to_bottom).call_deferred();
 }
 
 void AIChatDock::_do_scroll_to_bottom() {
+	if (!stick_to_bottom) {
+		return;
+	}
 	if (scroll && scroll->get_v_scroll_bar()) {
 		scroll->set_v_scroll(scroll->get_v_scroll_bar()->get_max());
 	}

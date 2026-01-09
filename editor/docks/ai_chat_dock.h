@@ -87,6 +87,7 @@ class AIChatDock : public VBoxContainer {
 	int64_t turn_tokens = 0;
 	int64_t session_tokens = 0;
 	int tool_call_count = 0;
+	bool stick_to_bottom = true; // Only auto-scroll when the user is already at the bottom.
 
 	// Active tool cards within current turn
 	HashMap<String, PanelContainer *> active_tool_cards;
@@ -175,6 +176,9 @@ class AIChatDock : public VBoxContainer {
 	void _on_tool_progress(const String &p_id, const String &p_stage, float p_progress);
 	void _on_chat_message(const String &p_role, const String &p_text);
 	void _on_context_updated(const Array &p_items);
+
+	// Scroll state
+	void _on_scroll_value_changed(double p_value);
 
 	void _update_meter();
 	void _scroll_to_bottom();

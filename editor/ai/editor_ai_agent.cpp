@@ -14,6 +14,8 @@
 #include "core/io/file_access.h"
 #include "core/io/json.h"
 #include "core/io/resource_loader.h"
+#include "core/io/resource_saver.h"
+#include "core/object/class_db.h"
 #include "core/object/script_language.h"
 #include "core/os/os.h"
 #include "core/string/char_utils.h"
@@ -33,7 +35,9 @@
 #include "scene/main/node.h"
 #include "scene/main/timer.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/material.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/shader.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
@@ -479,6 +483,73 @@ struct DiagnosticPrintCapture {
 	}
 };
 
+static Node *_find_node_for_path(Node *p_root, const String &p_node_path) {
+	if (!p_root) {
+		return nullptr;
+	}
+	if (p_node_path.is_empty() || p_node_path == "." || p_node_path == "/") {
+		return p_root;
+	}
+	return p_root->get_node_or_null(NodePath(p_node_path));
+}
+
+static Node *_get_scene_root_for_edit(const String &p_scene_path, Ref<PackedScene> &r_scene, bool &r_using_open, String &r_error) {
+	r_using_open = false;
+	r_scene = Ref<PackedScene>();
+	if (EditorNode::get_singleton()) {
+		Node *edited = EditorNode::get_singleton()->get_edited_scene();
+		if (edited && edited->get_scene_file_path() == p_scene_path) {
+			r_using_open = true;
+			return edited;
+		}
+	}
+
+	Error err = OK;
+	Ref<Resource> res = ResourceLoader::load(p_scene_path, "", ResourceFormatLoader::CACHE_MODE_REUSE, &err);
+	if (err != OK || res.is_null()) {
+		r_error = "Failed to load scene";
+		return nullptr;
+	}
+	r_scene = res;
+	if (r_scene.is_null()) {
+		r_error = "Scene is not a PackedScene";
+		return nullptr;
+	}
+	Node *root = r_scene->instantiate();
+	if (!root) {
+		r_error = "Failed to instantiate scene";
+		return nullptr;
+	}
+	return root;
+}
+
+static bool _save_scene_from_root(const String &p_scene_path, Ref<PackedScene> &p_scene, Node *p_root, bool p_using_open, String &r_error) {
+	if (p_using_open) {
+		if (!EditorNode::get_singleton()) {
+			r_error = "EditorNode unavailable";
+			return false;
+		}
+		EditorNode::get_singleton()->save_scene_to_path(p_scene_path, false);
+		return true;
+	}
+	if (p_scene.is_null()) {
+		r_error = "PackedScene missing";
+		return false;
+	}
+	Error pack_err = p_scene->pack(p_root);
+	if (pack_err != OK) {
+		r_error = "Failed to pack scene";
+		return false;
+	}
+	Error save_err = ResourceSaver::save(p_scene, p_scene_path, ResourceSaver::FLAG_CHANGE_PATH);
+	if (save_err != OK) {
+		r_error = "Failed to save scene";
+		return false;
+	}
+	memdelete(p_root);
+	return true;
+}
+
 static String _to_res_path(const String &p_path) {
 	if (p_path.begins_with("res://")) {
 		return p_path;
@@ -493,6 +564,532 @@ static String _to_res_path(const String &p_path) {
 	return p_path;
 }
 
+static bool _variant_is_number(const Variant &p_value) {
+	return p_value.get_type() == Variant::INT || p_value.get_type() == Variant::FLOAT;
+}
+
+static double _variant_to_double(const Variant &p_value) {
+	if (p_value.get_type() == Variant::INT) {
+		return (int64_t)p_value;
+	}
+	if (p_value.get_type() == Variant::FLOAT) {
+		return (double)p_value;
+	}
+	return 0.0;
+}
+
+static bool _try_parse_nodepath_literal(const String &p_value, NodePath &r_path) {
+	String trimmed = p_value.strip_edges();
+	if (!trimmed.begins_with("NodePath(") || !trimmed.ends_with(")")) {
+		return false;
+	}
+	String inner = trimmed.substr(9, trimmed.length() - 10).strip_edges();
+	if ((inner.begins_with("\"") && inner.ends_with("\"")) || (inner.begins_with("'") && inner.ends_with("'"))) {
+		inner = inner.substr(1, inner.length() - 2);
+	}
+	r_path = NodePath(inner);
+	return true;
+}
+
+static Variant _coerce_resource_value(const Variant &p_value) {
+	if (p_value.get_type() == Variant::STRING) {
+		String raw = p_value;
+		NodePath node_path;
+		if (_try_parse_nodepath_literal(raw, node_path)) {
+			return node_path;
+		}
+		return raw;
+	}
+	if (p_value.get_type() == Variant::ARRAY) {
+		Array arr = p_value;
+		const int size = arr.size();
+		bool all_numbers = size > 0;
+		for (int i = 0; i < size; i++) {
+			if (!_variant_is_number(arr[i])) {
+				all_numbers = false;
+				break;
+			}
+		}
+		if (all_numbers) {
+			if (size == 2) {
+				return Vector2((real_t)_variant_to_double(arr[0]), (real_t)_variant_to_double(arr[1]));
+			}
+			if (size == 3) {
+				return Vector3((real_t)_variant_to_double(arr[0]), (real_t)_variant_to_double(arr[1]), (real_t)_variant_to_double(arr[2]));
+			}
+			if (size == 4) {
+				return Color((real_t)_variant_to_double(arr[0]), (real_t)_variant_to_double(arr[1]), (real_t)_variant_to_double(arr[2]), (real_t)_variant_to_double(arr[3]));
+			}
+		}
+		Array out;
+		out.resize(size);
+		for (int i = 0; i < size; i++) {
+			out[i] = _coerce_resource_value(arr[i]);
+		}
+		return out;
+	}
+	if (p_value.get_type() == Variant::DICTIONARY) {
+		Dictionary dict = p_value;
+		Dictionary out;
+		Array keys = dict.keys();
+		for (int i = 0; i < keys.size(); i++) {
+			const Variant key = keys[i];
+			out[key] = _coerce_resource_value(dict[key]);
+		}
+		return out;
+	}
+	return p_value;
+}
+
+static String _shader_mode_to_string(Shader::Mode p_mode) {
+	switch (p_mode) {
+		case Shader::MODE_SPATIAL:
+			return "spatial";
+		case Shader::MODE_CANVAS_ITEM:
+			return "canvas_item";
+		case Shader::MODE_PARTICLES:
+			return "particles";
+		case Shader::MODE_SKY:
+			return "sky";
+		case Shader::MODE_FOG:
+			return "fog";
+		default:
+			return "unknown";
+	}
+}
+
+static Variant _variant_to_json(const Variant &p_value) {
+	switch (p_value.get_type()) {
+		case Variant::NIL:
+			return Variant();
+		case Variant::BOOL:
+		case Variant::INT:
+		case Variant::FLOAT:
+		case Variant::STRING:
+			return p_value;
+		case Variant::STRING_NAME:
+			return String(p_value);
+		case Variant::NODE_PATH: {
+			NodePath path = p_value;
+			return String("NodePath(\"") + String(path).c_escape() + "\")";
+		}
+		case Variant::VECTOR2: {
+			Vector2 v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			return out;
+		}
+		case Variant::VECTOR2I: {
+			Vector2i v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			return out;
+		}
+		case Variant::VECTOR3: {
+			Vector3 v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			out.push_back(v.z);
+			return out;
+		}
+		case Variant::VECTOR3I: {
+			Vector3i v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			out.push_back(v.z);
+			return out;
+		}
+		case Variant::VECTOR4: {
+			Vector4 v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			out.push_back(v.z);
+			out.push_back(v.w);
+			return out;
+		}
+		case Variant::VECTOR4I: {
+			Vector4i v = p_value;
+			Array out;
+			out.push_back(v.x);
+			out.push_back(v.y);
+			out.push_back(v.z);
+			out.push_back(v.w);
+			return out;
+		}
+		case Variant::RECT2: {
+			Rect2 r = p_value;
+			Array out;
+			out.push_back(r.position.x);
+			out.push_back(r.position.y);
+			out.push_back(r.size.x);
+			out.push_back(r.size.y);
+			return out;
+		}
+		case Variant::RECT2I: {
+			Rect2i r = p_value;
+			Array out;
+			out.push_back(r.position.x);
+			out.push_back(r.position.y);
+			out.push_back(r.size.x);
+			out.push_back(r.size.y);
+			return out;
+		}
+		case Variant::PLANE: {
+			Plane p = p_value;
+			Array out;
+			out.push_back(p.normal.x);
+			out.push_back(p.normal.y);
+			out.push_back(p.normal.z);
+			out.push_back(p.d);
+			return out;
+		}
+		case Variant::QUATERNION: {
+			Quaternion q = p_value;
+			Array out;
+			out.push_back(q.x);
+			out.push_back(q.y);
+			out.push_back(q.z);
+			out.push_back(q.w);
+			return out;
+		}
+		case Variant::COLOR: {
+			Color c = p_value;
+			Array out;
+			out.push_back(c.r);
+			out.push_back(c.g);
+			out.push_back(c.b);
+			out.push_back(c.a);
+			return out;
+		}
+		case Variant::ARRAY: {
+			Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = _variant_to_json(arr[i]);
+			}
+			return out;
+		}
+		case Variant::DICTIONARY: {
+			Dictionary dict = p_value;
+			Dictionary out;
+			Array keys = dict.keys();
+			for (int i = 0; i < keys.size(); i++) {
+				Variant key = keys[i];
+				out[key] = _variant_to_json(dict[key]);
+			}
+			return out;
+		}
+		case Variant::OBJECT: {
+			Object *obj = p_value;
+			if (!obj) {
+				return Variant();
+			}
+			if (Resource *res = Object::cast_to<Resource>(obj)) {
+				String res_path = res->get_path();
+				if (!res_path.is_empty()) {
+					return _to_res_path(res_path);
+				}
+				return String(res->get_class());
+			}
+			return String(obj->get_class());
+		}
+		case Variant::PACKED_INT32_ARRAY: {
+			PackedInt32Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = arr[i];
+			}
+			return out;
+		}
+		case Variant::PACKED_INT64_ARRAY: {
+			PackedInt64Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = arr[i];
+			}
+			return out;
+		}
+		case Variant::PACKED_FLOAT32_ARRAY: {
+			PackedFloat32Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = arr[i];
+			}
+			return out;
+		}
+		case Variant::PACKED_FLOAT64_ARRAY: {
+			PackedFloat64Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = arr[i];
+			}
+			return out;
+		}
+		case Variant::PACKED_STRING_ARRAY: {
+			PackedStringArray arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				out[i] = arr[i];
+			}
+			return out;
+		}
+		case Variant::PACKED_VECTOR2_ARRAY: {
+			PackedVector2Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				Vector2 v = arr[i];
+				Array row;
+				row.push_back(v.x);
+				row.push_back(v.y);
+				out[i] = row;
+			}
+			return out;
+		}
+		case Variant::PACKED_VECTOR3_ARRAY: {
+			PackedVector3Array arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				Vector3 v = arr[i];
+				Array row;
+				row.push_back(v.x);
+				row.push_back(v.y);
+				row.push_back(v.z);
+				out[i] = row;
+			}
+			return out;
+		}
+		case Variant::PACKED_COLOR_ARRAY: {
+			PackedColorArray arr = p_value;
+			Array out;
+			out.resize(arr.size());
+			for (int i = 0; i < arr.size(); i++) {
+				Color c = arr[i];
+				Array row;
+				row.push_back(c.r);
+				row.push_back(c.g);
+				row.push_back(c.b);
+				row.push_back(c.a);
+				out[i] = row;
+			}
+			return out;
+		}
+		default:
+			return String(p_value);
+	}
+}
+
+static bool _property_is_group(const PropertyInfo &p_info) {
+	return (p_info.usage & PROPERTY_USAGE_GROUP) || (p_info.usage & PROPERTY_USAGE_SUBGROUP) || (p_info.usage & PROPERTY_USAGE_CATEGORY);
+}
+
+static Dictionary _property_info_to_dict(const PropertyInfo &p_info, const Variant &p_value, bool p_include_value) {
+	Dictionary d;
+	d["name"] = p_info.name;
+	d["type"] = Variant::get_type_name(p_info.type);
+	d["typeId"] = int(p_info.type);
+	d["hint"] = int(p_info.hint);
+	d["hintString"] = p_info.hint_string;
+	d["usage"] = int(p_info.usage);
+	if (p_info.class_name != StringName()) {
+		d["className"] = String(p_info.class_name);
+	}
+	if (p_include_value) {
+		d["value"] = _variant_to_json(p_value);
+	}
+	return d;
+}
+
+static Array _build_property_list(Object *p_target, bool p_include_values) {
+	Array out;
+	if (!p_target) {
+		return out;
+	}
+	List<PropertyInfo> props;
+	p_target->get_property_list(&props);
+	for (const PropertyInfo &pi : props) {
+		bool include_value = p_include_values && !_property_is_group(pi);
+		Variant value;
+		if (include_value) {
+			bool valid = true;
+			value = p_target->get(pi.name, &valid);
+			if (!valid) {
+				include_value = false;
+			}
+		}
+		out.push_back(_property_info_to_dict(pi, value, include_value));
+	}
+	return out;
+}
+
+static Array _build_shader_uniforms(const Ref<Shader> &p_shader, ShaderMaterial *p_material, bool p_include_values) {
+	Array out;
+	if (!p_shader.is_valid()) {
+		return out;
+	}
+	List<PropertyInfo> uniforms;
+	p_shader->get_shader_uniform_list(&uniforms);
+	for (const PropertyInfo &pi : uniforms) {
+		bool include_value = p_include_values && p_material != nullptr && !_property_is_group(pi);
+		Variant value;
+		if (include_value) {
+			value = p_material->get_shader_parameter(pi.name);
+		}
+		out.push_back(_property_info_to_dict(pi, value, include_value));
+	}
+	return out;
+}
+
+static Array _build_shader_default_textures(const Ref<Shader> &p_shader) {
+	Array out;
+	if (!p_shader.is_valid()) {
+		return out;
+	}
+	List<StringName> textures;
+	p_shader->get_default_texture_parameter_list(&textures);
+	for (const StringName &name : textures) {
+		Dictionary entry;
+		entry["name"] = String(name);
+		Ref<Texture> tex = p_shader->get_default_texture_parameter(name, 0);
+		if (tex.is_valid()) {
+			String path = tex->get_path();
+			if (!path.is_empty()) {
+				entry["path"] = _to_res_path(path);
+			}
+		}
+		out.push_back(entry);
+	}
+	return out;
+}
+
+static bool _set_nested_variant(Variant &p_target, const PackedStringArray &p_segments, int p_index, const Variant &p_value, String &r_error) {
+	if (p_index >= p_segments.size()) {
+		p_target = p_value;
+		return true;
+	}
+
+	const String segment = p_segments[p_index];
+	if (segment.is_valid_int()) {
+		if (p_target.get_type() != Variant::ARRAY) {
+			r_error = "Expected Array for indexed access";
+			return false;
+		}
+		Array arr = p_target;
+		const int index = segment.to_int();
+		if (index < 0 || index >= arr.size()) {
+			r_error = "Index out of range";
+			return false;
+		}
+		Variant child = arr[index];
+		if (!_set_nested_variant(child, p_segments, p_index + 1, p_value, r_error)) {
+			return false;
+		}
+		arr[index] = child;
+		p_target = arr;
+		return true;
+	}
+
+	if (p_target.get_type() == Variant::DICTIONARY) {
+		Dictionary dict = p_target;
+		if (!dict.has(segment)) {
+			r_error = "Dictionary key not found";
+			return false;
+		}
+		Variant child = dict[segment];
+		if (!_set_nested_variant(child, p_segments, p_index + 1, p_value, r_error)) {
+			return false;
+		}
+		dict[segment] = child;
+		p_target = dict;
+		return true;
+	}
+
+	if (p_target.get_type() == Variant::OBJECT) {
+		Object *obj = p_target;
+		if (!obj) {
+			r_error = "Invalid object in property path";
+			return false;
+		}
+		if (p_index == p_segments.size() - 1) {
+			bool valid = true;
+			obj->set(segment, p_value, &valid);
+			if (!valid) {
+				r_error = "Invalid property path";
+				return false;
+			}
+			return true;
+		}
+		bool valid = true;
+		Variant child = obj->get(segment, &valid);
+		if (!valid) {
+			r_error = "Invalid property path";
+			return false;
+		}
+		if (!_set_nested_variant(child, p_segments, p_index + 1, p_value, r_error)) {
+			return false;
+		}
+		obj->set(segment, child, &valid);
+		if (!valid) {
+			r_error = "Invalid property path";
+			return false;
+		}
+		return true;
+	}
+
+	r_error = "Invalid property path";
+	return false;
+}
+
+static bool _set_resource_property_path(Object *p_target, const String &p_property, const Variant &p_value, String &r_error) {
+	if (!p_target) {
+		r_error = "Invalid resource";
+		return false;
+	}
+
+	bool valid = true;
+	p_target->set(StringName(p_property), p_value, &valid);
+	if (valid) {
+		return true;
+	}
+
+	if (p_property.find("/") < 0) {
+		r_error = "Invalid property path";
+		return false;
+	}
+
+	PackedStringArray segments = p_property.split("/", false);
+	if (segments.size() < 2) {
+		r_error = "Invalid property path";
+		return false;
+	}
+
+	Variant root_value = p_target->get(segments[0], &valid);
+	if (!valid) {
+		r_error = "Invalid property path";
+		return false;
+	}
+	if (!_set_nested_variant(root_value, segments, 1, p_value, r_error)) {
+		return false;
+	}
+	p_target->set(StringName(segments[0]), root_value, &valid);
+	if (!valid) {
+		r_error = "Invalid property path";
+		return false;
+	}
+	return true;
+}
 static String _find_csproj_path(const String &p_project_root) {
 	Ref<DirAccess> dir = DirAccess::open(p_project_root);
 	if (dir.is_null()) {
@@ -692,6 +1289,57 @@ static void _append_print_diagnostics(Array &r_diags, const String &p_fallback_p
 	}
 }
 
+// Collect script paths from a node tree (for validating scripts attached to scene nodes)
+static void _collect_node_script_paths(Node *p_root, HashSet<String> &r_scripts) {
+	if (!p_root) {
+		return;
+	}
+	Vector<Node *> stack;
+	stack.push_back(p_root);
+	while (!stack.is_empty()) {
+		Node *node = stack[stack.size() - 1];
+		stack.remove_at(stack.size() - 1);
+		if (!node) {
+			continue;
+		}
+		Ref<Script> script = node->get_script();
+		if (script.is_valid()) {
+			String script_path = script->get_path();
+			if (!script_path.is_empty() && script_path.begins_with("res://")) {
+				r_scripts.insert(script_path);
+			}
+		}
+		const int child_count = node->get_child_count();
+		for (int i = 0; i < child_count; i++) {
+			stack.push_back(node->get_child(i));
+		}
+	}
+}
+
+// Validate a GDScript file and add diagnostics
+static void _validate_gdscript_file(const String &p_res_path, Array &r_diags) {
+	const String ext = p_res_path.get_extension().to_lower();
+	if (ext != "gd") {
+		return;
+	}
+	String text = FileAccess::get_file_as_string(p_res_path);
+	ScriptLanguage *lang = _find_language_for_extension(ext);
+	if (!lang) {
+		return;
+	}
+	List<ScriptLanguage::ScriptError> errors;
+	List<ScriptLanguage::Warning> warnings;
+	lang->validate(text, p_res_path, nullptr, &errors, &warnings, nullptr);
+	for (const ScriptLanguage::ScriptError &e : errors) {
+		const String err_path = e.path.is_empty() ? p_res_path : _to_res_path(e.path);
+		_add_diagnostic(r_diags, err_path, e.line, e.column, "error", e.message, "gdscript");
+	}
+	for (const ScriptLanguage::Warning &w : warnings) {
+		const int line = w.start_line > 0 ? w.start_line : 1;
+		_add_diagnostic(r_diags, p_res_path, line, 1, "warning", w.message, "gdscript");
+	}
+}
+
 static void _collect_scene_configuration_warnings(Node *p_root, const String &p_scene_path, Array &r_diags) {
 	if (!p_root) {
 		return;
@@ -827,6 +1475,12 @@ void EditorAIAgent::_handle_request(const String &p_method, const Dictionary &p_
 						_add_diagnostic(diagnostics, res_path, 1, 1, "error", "Failed to instantiate scene", "scene");
 					} else {
 						_collect_scene_configuration_warnings(inst, res_path, diagnostics);
+						// Collect and validate scripts attached to scene nodes
+						HashSet<String> script_paths;
+						_collect_node_script_paths(inst, script_paths);
+						for (const String &script_path : script_paths) {
+							_validate_gdscript_file(script_path, diagnostics);
+						}
 						memdelete(inst);
 					}
 				}
@@ -953,6 +1607,491 @@ void EditorAIAgent::_handle_request(const String &p_method, const Dictionary &p_
 		return;
 	}
 
+	if (p_method == "resource.inspect") {
+		String res_path = p_params.has("path") ? String(p_params["path"]) : String();
+		bool include_properties = true;
+		bool include_values = true;
+		bool include_shader_uniforms = true;
+		bool include_shader_code = false;
+
+		if (p_params.has("includeProperties")) {
+			include_properties = bool(p_params["includeProperties"]);
+		}
+		if (p_params.has("includeValues")) {
+			include_values = bool(p_params["includeValues"]);
+		}
+		if (p_params.has("includeShaderUniforms")) {
+			include_shader_uniforms = bool(p_params["includeShaderUniforms"]);
+		}
+		if (p_params.has("includeShaderCode")) {
+			include_shader_code = bool(p_params["includeShaderCode"]);
+		}
+
+		Dictionary result;
+		if (res_path.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "Missing path";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		res_path = _to_res_path(res_path);
+
+		Error load_err = OK;
+		Ref<Resource> resource = ResourceLoader::load(res_path, "", ResourceFormatLoader::CACHE_MODE_REUSE, &load_err);
+		if (load_err != OK || resource.is_null()) {
+			result["ok"] = false;
+			result["error"] = "Failed to load resource";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["path"] = res_path;
+		result["class"] = resource->get_class();
+
+		if (include_properties) {
+			result["properties"] = _build_property_list(resource.ptr(), include_values);
+		}
+
+		if (include_shader_uniforms || include_shader_code) {
+			Ref<Shader> shader;
+			ShaderMaterial *shader_material = Object::cast_to<ShaderMaterial>(resource.ptr());
+			if (shader_material) {
+				shader = shader_material->get_shader();
+			}
+			if (!shader.is_valid()) {
+				Ref<Shader> as_shader = resource;
+				if (as_shader.is_valid()) {
+					shader = as_shader;
+				}
+			}
+			if (shader.is_valid()) {
+				Dictionary shader_info;
+				shader_info["class"] = shader->get_class();
+				String shader_path = shader->get_path();
+				if (!shader_path.is_empty()) {
+					shader_info["path"] = _to_res_path(shader_path);
+				}
+				shader_info["mode"] = _shader_mode_to_string(shader->get_mode());
+
+				if (include_shader_uniforms) {
+					Array uniforms = _build_shader_uniforms(shader, shader_material, include_values);
+					if (!uniforms.is_empty()) {
+						shader_info["uniforms"] = uniforms;
+					}
+					Array defaults = _build_shader_default_textures(shader);
+					if (!defaults.is_empty()) {
+						shader_info["defaultTextures"] = defaults;
+					}
+				}
+
+				if (include_shader_code && shader->is_text_shader()) {
+					shader_info["code"] = shader->get_code();
+				}
+
+				result["shader"] = shader_info;
+			}
+		}
+
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	if (p_method == "resource.setProperties") {
+		String res_path = p_params.has("path") ? String(p_params["path"]) : String();
+		Array updates = p_params.has("updates") ? Array(p_params["updates"]) : Array();
+
+		Dictionary result;
+		if (res_path.is_empty() || updates.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "Missing path/updates";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		res_path = _to_res_path(res_path);
+
+		Error load_err = OK;
+		Ref<Resource> resource = ResourceLoader::load(res_path, "", ResourceFormatLoader::CACHE_MODE_REUSE, &load_err);
+		if (load_err != OK || resource.is_null()) {
+			result["ok"] = false;
+			result["error"] = "Failed to load resource";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		for (int i = 0; i < updates.size(); i++) {
+			if (updates[i].get_type() != Variant::DICTIONARY) {
+				result["ok"] = false;
+				result["error"] = "Invalid updates payload";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+			Dictionary update = updates[i];
+			if (!update.has("property") || !update.has("value")) {
+				result["ok"] = false;
+				result["error"] = "Missing property/value";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+			String property = update["property"];
+			Variant value = _coerce_resource_value(update["value"]);
+			String error;
+			if (!_set_resource_property_path(resource.ptr(), property, value, error)) {
+				result["ok"] = false;
+				result["error"] = error.is_empty() ? String("Invalid property path: ") + property : error;
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+		}
+
+		Error save_err = ResourceSaver::save(resource, res_path, ResourceSaver::FLAG_CHANGE_PATH);
+		if (save_err != OK) {
+			result["ok"] = false;
+			result["error"] = "Failed to save resource";
+			result["errorCode"] = int(save_err);
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["path"] = res_path;
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	if (p_method == "scene.create") {
+		String scene_path = p_params.has("path") ? String(p_params["path"]) : String();
+		String root_type = p_params.has("rootType") ? String(p_params["rootType"]) : String();
+		String root_name = p_params.has("rootName") ? String(p_params["rootName"]) : String();
+
+		Dictionary result;
+		if (scene_path.is_empty() || root_type.is_empty() || root_name.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "Missing path/rootType/rootName";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		scene_path = _to_res_path(scene_path);
+		if (FileAccess::exists(scene_path)) {
+			result["ok"] = false;
+			result["error"] = "Scene already exists";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		StringName root_type_name = StringName(root_type);
+		if (!ClassDB::can_instantiate(root_type_name) || !ClassDB::is_parent_class(root_type_name, StringName("Node"))) {
+			result["ok"] = false;
+			result["error"] = "Invalid rootType (not a Node)";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		if (ProjectSettings::get_singleton()) {
+			String global_path = ProjectSettings::get_singleton()->globalize_path(scene_path);
+			String dir_path = global_path.get_base_dir();
+			Error dir_err = DirAccess::make_dir_recursive_absolute(dir_path);
+			if (dir_err != OK) {
+				result["ok"] = false;
+				result["error"] = "Failed to create scene directory";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+		}
+
+		Object *obj = ClassDB::instantiate(root_type_name);
+		Node *root = Object::cast_to<Node>(obj);
+		if (!root) {
+			if (obj) {
+				memdelete(obj);
+			}
+			result["ok"] = false;
+			result["error"] = "Failed to instantiate root node";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		root->set_name(root_name);
+
+		Ref<PackedScene> packed_scene;
+		packed_scene.instantiate();
+
+		String err_msg;
+		if (!_save_scene_from_root(scene_path, packed_scene, root, false, err_msg)) {
+			if (root) {
+				memdelete(root);
+			}
+			result["ok"] = false;
+			result["error"] = err_msg.is_empty() ? String("Failed to save scene") : err_msg;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["path"] = scene_path;
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	if (p_method == "asset.reimport") {
+		Dictionary result;
+		if (!p_params.has("paths")) {
+			result["ok"] = false;
+			result["error"] = "Missing paths";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Variant v = p_params["paths"];
+		if (v.get_type() != Variant::ARRAY) {
+			result["ok"] = false;
+			result["error"] = "Invalid paths payload";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Array arr = v;
+		Vector<String> paths;
+		Vector<String> missing;
+		for (int i = 0; i < arr.size(); i++) {
+			if (arr[i].get_type() != Variant::STRING) {
+				continue;
+			}
+			String res_path = _to_res_path(arr[i]);
+			if (res_path.is_empty()) {
+				continue;
+			}
+			if (!FileAccess::exists(res_path)) {
+				missing.push_back(res_path);
+				continue;
+			}
+			paths.push_back(res_path);
+		}
+
+		if (paths.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "No valid paths to reimport";
+			if (!missing.is_empty()) {
+				Array missing_arr;
+				for (int i = 0; i < missing.size(); i++) {
+					missing_arr.push_back(missing[i]);
+				}
+				result["missing"] = missing_arr;
+			}
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		EditorFileSystem *fs = EditorFileSystem::get_singleton();
+		if (!fs) {
+			result["ok"] = false;
+			result["error"] = "EditorFileSystem unavailable";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		fs->scan();
+		fs->reimport_files(paths);
+
+		result["ok"] = missing.is_empty();
+		Array out_paths;
+		for (int i = 0; i < paths.size(); i++) {
+			out_paths.push_back(paths[i]);
+		}
+		result["paths"] = out_paths;
+		if (!missing.is_empty()) {
+			Array missing_arr;
+			for (int i = 0; i < missing.size(); i++) {
+				missing_arr.push_back(missing[i]);
+			}
+			result["missing"] = missing_arr;
+		}
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	if (p_method == "scene.attachScript") {
+		String scene_path = p_params.has("scenePath") ? String(p_params["scenePath"]) : String();
+		String node_path = p_params.has("nodePath") ? String(p_params["nodePath"]) : String();
+		String script_path = p_params.has("scriptPath") ? String(p_params["scriptPath"]) : String();
+		String language = p_params.has("language") ? String(p_params["language"]) : String();
+
+		Dictionary result;
+		if (scene_path.is_empty() || node_path.is_empty() || script_path.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "Missing scenePath/nodePath/scriptPath";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		scene_path = _to_res_path(scene_path);
+		script_path = _to_res_path(script_path);
+
+		Ref<PackedScene> packed;
+		bool using_open = false;
+		String err_msg;
+		Node *root = _get_scene_root_for_edit(scene_path, packed, using_open, err_msg);
+		if (!root) {
+			result["ok"] = false;
+			result["error"] = err_msg;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Node *target = _find_node_for_path(root, node_path);
+		if (!target) {
+			if (!using_open) {
+				memdelete(root);
+			}
+			result["ok"] = false;
+			result["error"] = "Node not found";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		ScriptLanguage *lang = nullptr;
+		if (!language.is_empty()) {
+			if (language == "gdscript") {
+				lang = ScriptServer::get_language_for_extension("gd");
+			} else if (language == "csharp") {
+				lang = ScriptServer::get_language_for_extension("cs");
+			}
+		}
+		if (!lang) {
+			lang = ScriptServer::get_language_for_extension(script_path.get_extension());
+		}
+		if (!lang) {
+			if (!using_open) {
+				memdelete(root);
+			}
+			result["ok"] = false;
+			result["error"] = "Script language not found";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Ref<Script> script;
+		if (!FileAccess::exists(script_path)) {
+			String class_name = script_path.get_basename().get_file();
+			String base_type = target->get_class();
+			Vector<ScriptLanguage::ScriptTemplate> templates = lang->get_built_in_templates(base_type);
+			String template_content;
+			if (!templates.is_empty()) {
+				template_content = templates[0].content;
+			}
+			script = lang->make_template(template_content, class_name, base_type);
+			script->set_path(script_path, true);
+			Error save_err = ResourceSaver::save(script, script_path, ResourceSaver::FLAG_CHANGE_PATH);
+			if (save_err != OK) {
+				if (!using_open) {
+					memdelete(root);
+				}
+				result["ok"] = false;
+				result["error"] = "Failed to create script";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+		} else {
+			Error load_err = OK;
+			script = ResourceLoader::load(script_path, "", ResourceFormatLoader::CACHE_MODE_REUSE, &load_err);
+			if (load_err != OK || script.is_null()) {
+				if (!using_open) {
+					memdelete(root);
+				}
+				result["ok"] = false;
+				result["error"] = "Failed to load script";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+		}
+
+		target->set_script(script);
+
+		if (!_save_scene_from_root(scene_path, packed, root, using_open, err_msg)) {
+			result["ok"] = false;
+			result["error"] = err_msg;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["scenePath"] = scene_path;
+		result["scriptPath"] = script_path;
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
+	if (p_method == "scene.connectSignal") {
+		String scene_path = p_params.has("scenePath") ? String(p_params["scenePath"]) : String();
+		String from_path = p_params.has("fromNodePath") ? String(p_params["fromNodePath"]) : String();
+		String to_path = p_params.has("toNodePath") ? String(p_params["toNodePath"]) : String();
+		String signal_name = p_params.has("signal") ? String(p_params["signal"]) : String();
+		String method = p_params.has("method") ? String(p_params["method"]) : String();
+
+		Dictionary result;
+		if (scene_path.is_empty() || from_path.is_empty() || to_path.is_empty() || signal_name.is_empty() || method.is_empty()) {
+			result["ok"] = false;
+			result["error"] = "Missing scenePath/fromNodePath/toNodePath/signal/method";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		scene_path = _to_res_path(scene_path);
+
+		Ref<PackedScene> packed;
+		bool using_open = false;
+		String err_msg;
+		Node *root = _get_scene_root_for_edit(scene_path, packed, using_open, err_msg);
+		if (!root) {
+			result["ok"] = false;
+			result["error"] = err_msg;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Node *from = _find_node_for_path(root, from_path);
+		Node *to = _find_node_for_path(root, to_path);
+		if (!from || !to) {
+			if (!using_open) {
+				memdelete(root);
+			}
+			result["ok"] = false;
+			result["error"] = "Node not found";
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		Callable callable = Callable(to, method);
+		StringName signal = StringName(signal_name);
+		if (!from->is_connected(signal, callable)) {
+			Error connect_err = from->connect(signal, callable, Object::CONNECT_PERSIST);
+			if (connect_err != OK) {
+				if (!using_open) {
+					memdelete(root);
+				}
+				result["ok"] = false;
+				result["error"] = "Failed to connect signal";
+				_send_jsonrpc_response(p_id, result);
+				return;
+			}
+		}
+
+		if (!_save_scene_from_root(scene_path, packed, root, using_open, err_msg)) {
+			result["ok"] = false;
+			result["error"] = err_msg;
+			_send_jsonrpc_response(p_id, result);
+			return;
+		}
+
+		result["ok"] = true;
+		result["scenePath"] = scene_path;
+		_send_jsonrpc_response(p_id, result);
+		return;
+	}
+
 	_send_jsonrpc_error(p_id, -32601, "Method not found");
 }
 
@@ -1047,7 +2186,7 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 			Dictionary output = p_params.has("output") ? Dictionary(p_params["output"]) : Dictionary();
 			emit_signal("runtime_tool_result", id, ok, output);
 
-			if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch")) {
+			if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch" || name == "createScene")) {
 				_handle_file_written(name, output);
 			}
 			return;
@@ -1069,6 +2208,15 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		}
 
 		if (p_method == "usage") {
+			int64_t turn = 0;
+			if (p_params.has("turn")) {
+				Dictionary t = p_params["turn"];
+				turn = t.has("totalTokens") ? int64_t(t["totalTokens"]) : 0;
+			}
+			if (p_params.has("session")) {
+				session_usage = AITokenUsage::from_dict(p_params["session"]);
+			}
+			emit_signal("usage_updated", turn, session_usage.total_tokens);
 			return;
 		}
 	}
@@ -1115,7 +2263,7 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		emit_signal("tool_result", id, ok, output);
 
 		// Auto-reload files after successful write operations
-		if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch")) {
+		if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch" || name == "createScene")) {
 			_handle_file_written(name, output);
 		}
 		return;
@@ -1248,13 +2396,14 @@ void EditorAIAgent::_request_runtime_fix_internal(bool p_manual) {
 		return;
 	}
 
+	// Only proceed if there are actual runtime issues to fix
+	if (runtime_errors.is_empty() && runtime_warnings.is_empty()) {
+		return;
+	}
+
 	PackedStringArray lines;
-	lines.push_back("Fix runtime issues from the last Play run.");
+	lines.push_back("Fix runtime errors from the last Play run.");
 	lines.push_back("Scene: " + runtime_scene_path);
-	lines.push_back("Always check play readiness:");
-	lines.push_back("- 2D: ensure Camera2D exists and is current.");
-	lines.push_back("- 3D: ensure Camera3D exists and is current, and add a DirectionalLight3D if missing.");
-	lines.push_back("If you add nodes, parent them under a \"GameableRuntime\" node (create if missing).");
 	if (p_manual) {
 		lines.push_back("This was manually triggered from the Live tab.");
 	}
@@ -1270,9 +2419,7 @@ void EditorAIAgent::_request_runtime_fix_internal(bool p_manual) {
 			lines.push_back("- " + warn);
 		}
 	}
-	if (runtime_errors.is_empty() && runtime_warnings.is_empty()) {
-		lines.push_back("No explicit errors captured; still fix missing camera/light if present.");
-	}
+	lines.push_back("Focus ONLY on fixing these specific runtime errors.");
 	lines.push_back("After changes, run verify on touched paths.");
 
 	String prompt = String("\n").join(lines);
@@ -1299,6 +2446,14 @@ void EditorAIAgent::_handle_file_written(const String &p_tool_name, const Dictio
 		if (p_output.has("writeFileResult")) {
 			Dictionary result = p_output["writeFileResult"];
 			if (result.has("path") && result.has("ok") && bool(result["ok"])) {
+				written_paths.push_back(String(result["path"]));
+			}
+		}
+	} else if (p_tool_name == "createScene") {
+		// createScene output: { createSceneResult: { ok: true, path: "..." } }
+		if (p_output.has("createSceneResult")) {
+			Dictionary result = p_output["createSceneResult"];
+			if (result.has("ok") && bool(result["ok"]) && result.has("path")) {
 				written_paths.push_back(String(result["path"]));
 			}
 		}
