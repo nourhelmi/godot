@@ -9,8 +9,8 @@
 #include "ai_chat_dock.h"
 
 #include "ai_mention_popup.h"
-#include "core/core_bind.h"
 #include "core/config/project_settings.h"
+#include "core/core_bind.h"
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
@@ -188,7 +188,6 @@ static String _markdown_to_bbcode(const String &p_markdown) {
 	return result;
 }
 
-
 static String _shorten_path(const String &p_path) {
 	String root = ProjectSettings::get_singleton()->get_resource_path();
 	if (root.is_empty()) {
@@ -203,7 +202,6 @@ static String _shorten_path(const String &p_path) {
 	}
 	return p_path;
 }
-
 
 static void _count_scene_node_types(Node *p_node, Node *p_root, int &r_2d, int &r_3d) {
 	if (!p_node || !p_root) {
@@ -1641,6 +1639,11 @@ void AIChatDock::_on_thinking(const String &p_text) {
 void AIChatDock::_on_status(const String &p_level, const String &p_message) {
 	if (p_message == "chat:done") {
 		end_turn();
+		return;
+	}
+	// Show skill loading as thinking text
+	if (p_message.begins_with("Loading internal skill:")) {
+		append_thinking(p_message + "\n");
 	}
 }
 
@@ -1666,7 +1669,6 @@ void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const D
 	add_tool_card(p_id, p_name, p_input, status);
 	_update_meter();
 }
-
 
 void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output) {
 	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
@@ -1696,14 +1698,12 @@ void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary
 	}
 }
 
-
 void AIChatDock::_on_tool_progress(const String &p_id, const String &p_stage, float p_progress) {
 	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
 	const Dictionary input = active_tool_inputs.has(p_id) ? active_tool_inputs[p_id] : Dictionary();
 	const String status = _format_tool_progress(name, p_stage, input);
 	update_tool_card(p_id, status, false);
 }
-
 
 void AIChatDock::_on_chat_message(const String &p_role, const String &p_text) {
 	if (p_role == "You" || p_role == "user") {
@@ -1805,7 +1805,6 @@ void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const D
 	_scroll_to_bottom();
 }
 
-
 void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bool p_done) {
 	if (!active_tool_cards.has(p_id)) {
 		return;
@@ -1834,7 +1833,6 @@ void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bo
 		card->add_theme_style_override("panel", done_style);
 	}
 }
-
 
 void AIChatDock::update_usage(int64_t p_turn, int64_t p_session) {
 	turn_tokens = p_turn;
@@ -1876,7 +1874,6 @@ void AIChatDock::end_turn() {
 	spinner_frame = 0;
 	_update_meter();
 }
-
 
 void AIChatDock::clear_all() {
 	// Remove all messages
