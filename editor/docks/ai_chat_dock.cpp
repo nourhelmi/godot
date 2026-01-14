@@ -713,6 +713,24 @@ PanelContainer *AIChatDock::_create_tool_card(const String &p_id, const String &
 }
 
 String AIChatDock::_format_tool_status(const String &p_name, const Dictionary &p_input) const {
+	if (p_name == "search") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		return query.is_empty() ? "searching..." : "searching \"" + query + "\"";
+	}
+	if (p_name == "read") {
+		// Unified read supports string or array target
+		if (p_input.has("target")) {
+			Variant t = p_input["target"];
+			if (t.get_type() == Variant::STRING) {
+				String target = t;
+				return target.is_empty() ? "reading..." : "reading " + _shorten_path(target);
+			} else if (t.get_type() == Variant::ARRAY) {
+				Array targets = t;
+				return "reading " + itos(targets.size()) + " targets...";
+			}
+		}
+		return "reading...";
+	}
 	if (p_name == "searchFiles") {
 		String query = p_input.has("query") ? String(p_input["query"]) : String();
 		return query.is_empty() ? "searching..." : "searching \"" + query + "\"";
@@ -751,6 +769,23 @@ String AIChatDock::_format_tool_progress(const String &p_name, const String &p_s
 	if (p_stage.is_empty()) {
 		return _format_tool_status(p_name, p_input);
 	}
+	if (p_name == "search") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		// Show which search type is running based on stage
+		String search_type;
+		if (p_stage.contains("keyword")) {
+			search_type = "Keyword search";
+		} else if (p_stage.contains("symbol")) {
+			search_type = "Index search";
+		} else {
+			search_type = "Searching";
+		}
+		return query.is_empty() ? search_type + "..." : search_type + ": \"" + query + "\"";
+	}
+	if (p_name == "read") {
+		// Progress stage often looks like "read:res://path.gd"
+		return p_stage;
+	}
 	if (p_name == "searchFiles") {
 		String query = p_input.has("query") ? String(p_input["query"]) : String();
 		return query.is_empty() ? p_stage : p_stage + ": \"" + query + "\"";
@@ -773,6 +808,56 @@ String AIChatDock::_format_tool_progress(const String &p_name, const String &p_s
 String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
 	if (!p_ok) {
 		return "failed";
+	}
+	if (p_name == "search") {
+		// Unified search: uses "results" array and "totalMatches"
+		Array results = p_output.has("results") ? Array(p_output["results"]) : Array();
+		int total = p_output.has("totalMatches") ? int(p_output["totalMatches"]) : results.size();
+		Array methods = p_output.has("searchMethods") ? Array(p_output["searchMethods"]) : Array();
+
+		// Format methods nicely: "keyword" → "Keyword", "symbol_index" → "Index"
+		String method_str;
+		for (int i = 0; i < methods.size(); i++) {
+			String m = String(methods[i]);
+			if (i > 0) {
+				method_str += " + ";
+			}
+			if (m == "keyword") {
+				method_str += "Keyword";
+			} else if (m == "symbol_index") {
+				method_str += "Index";
+			} else {
+				method_str += m;
+			}
+		}
+		if (method_str.is_empty()) {
+			method_str = "Search";
+		}
+
+		return method_str + " (" + itos(total) + (total == 1 ? " match)" : " matches)");
+	}
+	if (p_name == "read") {
+		// Unified read: single or batch result
+		String status = p_output.has("status") ? String(p_output["status"]) : String();
+		if (status == "in_context") {
+			return "in context";
+		}
+		if (status == "error") {
+			return "failed";
+		}
+		// Single read with content
+		if (p_output.has("content")) {
+			String content = String(p_output["content"]);
+			int lines = p_output.has("linesLoaded") ? int(p_output["linesLoaded"]) : content.split("\n", false).size();
+			bool outlined = p_output.has("outlined") ? bool(p_output["outlined"]) : false;
+			return outlined ? "done (outline, " + itos(lines) + " lines)" : "done (" + itos(lines) + " lines)";
+		}
+		// Batch read
+		if (p_output.has("results")) {
+			Array results = p_output["results"];
+			return "done (" + itos(results.size()) + " files)";
+		}
+		return "done";
 	}
 	if (p_name == "searchFiles") {
 		Array hits = p_output.has("hits") ? Array(p_output["hits"]) : Array();
@@ -815,6 +900,179 @@ String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const D
 String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
 	String details;
 
+	// Unified search tool (primary)
+	if (p_name == "search") {
+		String query = p_input.has("query") ? String(p_input["query"]) : String();
+		String scope = p_input.has("scope") ? String(p_input["scope"]) : String();
+		if (!query.is_empty()) {
+			details += "Query: " + query + "\n";
+		}
+		if (!scope.is_empty()) {
+			details += "Scope: " + scope + "\n";
+		}
+		Array results = p_output.has("results") ? Array(p_output["results"]) : Array();
+		int total = p_output.has("totalMatches") ? int(p_output["totalMatches"]) : results.size();
+		Array methods = p_output.has("searchMethods") ? Array(p_output["searchMethods"]) : Array();
+		String methods_str;
+		for (int i = 0; i < methods.size(); i++) {
+			if (i > 0) {
+				methods_str += ", ";
+			}
+			methods_str += String(methods[i]);
+		}
+		details += "Matches: " + itos(total);
+		if (!methods_str.is_empty()) {
+			details += " (via " + methods_str + ")";
+		}
+		details += "\n";
+		int limit = results.size() < 10 ? results.size() : 10;
+		for (int i = 0; i < limit; i++) {
+			Dictionary hit = results[i];
+			String path = hit.has("path") ? String(hit["path"]) : String();
+			int line = hit.has("line") ? int(hit["line"]) : 0;
+			String preview = hit.has("preview") ? String(hit["preview"]) : String();
+			String symbol = hit.has("symbol") ? String(hit["symbol"]) : String();
+			String source = hit.has("source") ? String(hit["source"]) : String();
+			if (!path.is_empty()) {
+				path = _shorten_path(path);
+			}
+			details += "- " + (path.is_empty() ? String("(unknown)") : path);
+			if (line > 0) {
+				details += ":" + itos(line);
+			}
+			if (!symbol.is_empty()) {
+				details += " [" + symbol + "]";
+			}
+			if (!preview.is_empty()) {
+				details += "  " + preview;
+			}
+			details += "\n";
+		}
+		if (results.size() > limit) {
+			details += "... +" + itos(results.size() - limit) + " more\n";
+		}
+		return details.strip_edges();
+	}
+
+	// Unified read tool
+	if (p_name == "read") {
+		String status = p_output.has("status") ? String(p_output["status"]) : String();
+		String target_str;
+		if (p_input.has("target")) {
+			Variant t = p_input["target"];
+			if (t.get_type() == Variant::STRING) {
+				target_str = _shorten_path(t);
+			} else if (t.get_type() == Variant::ARRAY) {
+				Array targets = t;
+				for (int i = 0; i < targets.size() && i < 5; i++) {
+					if (i > 0) {
+						target_str += ", ";
+					}
+					target_str += _shorten_path(String(targets[i]));
+				}
+				if (targets.size() > 5) {
+					target_str += "... +" + itos(targets.size() - 5) + " more";
+				}
+			}
+		}
+		if (!target_str.is_empty()) {
+			details += "Target: " + target_str + "\n";
+		}
+		// Handle in_context status
+		if (status == "in_context") {
+			String msg = p_output.has("message") ? String(p_output["message"]) : String("Already in context");
+			details += msg;
+			return details.strip_edges();
+		}
+		// Handle error status
+		if (status == "error") {
+			String msg = p_output.has("message") ? String(p_output["message"]) : String("Read failed");
+			details += "Error: " + msg;
+			if (p_output.has("available")) {
+				Array available = p_output["available"];
+				if (!available.is_empty()) {
+					details += "\nAvailable symbols:\n";
+					for (int i = 0; i < available.size() && i < 10; i++) {
+						details += "- " + String(available[i]) + "\n";
+					}
+				}
+			}
+			return details.strip_edges();
+		}
+		// Handle single read with content
+		if (p_output.has("content")) {
+			String target = p_output.has("target") ? _shorten_path(String(p_output["target"])) : target_str;
+			String content = String(p_output["content"]);
+			int lines = p_output.has("linesLoaded") ? int(p_output["linesLoaded"]) : content.split("\n", false).size();
+			bool outlined = p_output.has("outlined") ? bool(p_output["outlined"]) : false;
+			if (!target.is_empty()) {
+				details += "Path: " + target + "\n";
+			}
+			details += "Lines: " + itos(lines);
+			if (outlined) {
+				details += " (outlined)";
+			}
+			details += "\n";
+			if (p_output.has("symbols")) {
+				Array symbols = p_output["symbols"];
+				if (!symbols.is_empty()) {
+					details += "Symbols: ";
+					for (int i = 0; i < symbols.size() && i < 8; i++) {
+						if (i > 0) {
+							details += ", ";
+						}
+						details += String(symbols[i]);
+					}
+					if (symbols.size() > 8) {
+						details += "... +" + itos(symbols.size() - 8);
+					}
+					details += "\n";
+				}
+			}
+			// Show content snippet
+			if (!content.is_empty()) {
+				const int max_chars = 1600;
+				String snippet = content;
+				bool truncated = false;
+				if (snippet.length() > max_chars) {
+					snippet = snippet.substr(0, max_chars);
+					truncated = true;
+				}
+				details += "\n" + snippet;
+				if (truncated) {
+					details += "\n... (truncated)";
+				}
+			}
+			return details.strip_edges();
+		}
+		// Handle batch results
+		if (p_output.has("results")) {
+			Array results = p_output["results"];
+			details += "Read " + itos(results.size()) + " files:\n";
+			for (int i = 0; i < results.size() && i < 10; i++) {
+				Dictionary res = results[i];
+				String tgt = res.has("target") ? _shorten_path(String(res["target"])) : String();
+				String st = res.has("status") ? String(res["status"]) : String("ok");
+				int lns = res.has("linesLoaded") ? int(res["linesLoaded"]) : 0;
+				details += "- " + (tgt.is_empty() ? String("(unknown)") : tgt);
+				if (st == "in_context") {
+					details += " [in context]";
+				} else if (st == "error") {
+					details += " [error]";
+				} else if (lns > 0) {
+					details += " (" + itos(lns) + " lines)";
+				}
+				details += "\n";
+			}
+			if (results.size() > 10) {
+				details += "... +" + itos(results.size() - 10) + " more\n";
+			}
+			return details.strip_edges();
+		}
+		return details.strip_edges();
+	}
+
+	// Legacy searchFiles tool
 	if (p_name == "searchFiles") {
 		String query = p_input.has("query") ? String(p_input["query"]) : String();
 		if (!query.is_empty()) {
