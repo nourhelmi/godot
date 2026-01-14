@@ -241,6 +241,7 @@ void AIChatDock::_notification(int p_what) {
 				Callable tool_progress_cb = callable_mp(this, &AIChatDock::_on_tool_progress);
 				Callable chat_message_cb = callable_mp(this, &AIChatDock::_on_chat_message);
 				Callable context_updated_cb = callable_mp(this, &AIChatDock::_on_context_updated);
+				Callable processing_cb = callable_mp(this, &AIChatDock::_on_processing_state_changed);
 
 				if (!agent->is_connected("thinking", thinking_cb)) {
 					agent->connect("thinking", thinking_cb);
@@ -266,6 +267,12 @@ void AIChatDock::_notification(int p_what) {
 				if (!agent->is_connected("context_updated", context_updated_cb)) {
 					agent->connect("context_updated", context_updated_cb);
 				}
+				if (!agent->is_connected("processing_state_changed", processing_cb)) {
+					agent->connect("processing_state_changed", processing_cb);
+				}
+
+				// Initialize button state based on current processing state
+				_on_processing_state_changed(agent->get_is_processing());
 			}
 
 			// Sticky autoscroll: only follow new content if the user is already at the bottom.
@@ -462,14 +469,23 @@ void AIChatDock::_build_input_area() {
 			ED_SHORTCUT("gameable/capture_viewport", TTRC("Capture Viewport Screenshot"),
 					KeyModifierMask::CMD_OR_CTRL | KeyModifierMask::SHIFT | Key::P));
 
-	// Send button
+	// Send button (shown when not processing)
 	send_btn = memnew(Button);
 	send_btn->set_text(U"→");
 	send_btn->set_tooltip_text("Send message (Enter)");
 	send_btn->set_custom_minimum_size(Size2(36 * EDSCALE, 36 * EDSCALE));
 	input_row->add_child(send_btn);
-
 	send_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_send_pressed));
+
+	// Stop button (shown when processing)
+	stop_btn = memnew(Button);
+	stop_btn->set_text(U"■");
+	stop_btn->set_tooltip_text("Stop generation");
+	stop_btn->set_custom_minimum_size(Size2(36 * EDSCALE, 36 * EDSCALE));
+	stop_btn->set_visible(false); // Hidden initially
+	input_row->add_child(stop_btn);
+	stop_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_stop_pressed));
+
 	input->connect("gui_input", callable_mp(this, &AIChatDock::_on_input_gui_input));
 	input->connect("text_changed", callable_mp(this, &AIChatDock::_on_input_text_changed));
 }
@@ -1358,6 +1374,21 @@ void AIChatDock::_on_send_pressed() {
 	_clear_context_chips();
 	_clear_pinned_chips();
 	_clear_image_attachments();
+}
+
+void AIChatDock::_on_stop_pressed() {
+	if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
+		agent->abort_chat();
+	}
+}
+
+void AIChatDock::_on_processing_state_changed(bool p_is_processing) {
+	if (send_btn) {
+		send_btn->set_visible(!p_is_processing);
+	}
+	if (stop_btn) {
+		stop_btn->set_visible(p_is_processing);
+	}
 }
 
 void AIChatDock::_on_input_gui_input(const Ref<InputEvent> &p_event) {

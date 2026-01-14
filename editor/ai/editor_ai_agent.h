@@ -62,6 +62,9 @@ class EditorAIAgent : public Object {
 	Vector<AIContextItem> pinned_items;
 	Vector<String> bundle_names;
 
+	// Processing state (for stop button)
+	bool is_processing = false;
+
 	// Internal methods
 	void _reconnect();
 	void _on_poll();
@@ -104,7 +107,11 @@ public:
 
 	// High-level requests (fire and emit signals)
 	void request_chat(const String &p_prompt, const Array &p_images = Array());
+	void abort_chat();
 	void clear_session();
+
+	// Processing state
+	bool get_is_processing() const { return is_processing; }
 
 	// Context management
 	void add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label = String(), const Dictionary &p_metadata = Dictionary());

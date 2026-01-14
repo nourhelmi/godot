@@ -66,6 +66,7 @@ class AIChatDock : public VBoxContainer {
 	TextEdit *input = nullptr;
 	Button *capture_btn = nullptr;
 	Button *send_btn = nullptr;
+	Button *stop_btn = nullptr;
 
 	// @ mention autocomplete
 	AIMentionPopup *mention_popup = nullptr;
@@ -138,10 +139,12 @@ class AIChatDock : public VBoxContainer {
 
 	// Event handlers
 	void _on_send_pressed();
+	void _on_stop_pressed();
 	void _on_input_gui_input(const Ref<InputEvent> &p_event);
 	void _on_input_text_changed();
 	void _on_new_conversation();
 	void _on_meta_clicked(const Variant &p_meta);
+	void _on_processing_state_changed(bool p_is_processing);
 
 	// @ mention handler
 	void _on_mention_selected(const String &p_path, const String &p_label, int p_start_col);

@@ -162,6 +162,7 @@ static Ref<Image> _capture_editor_viewport_image(const String &p_mode, String &r
 void EditorAIAgent::_bind_methods() {
 	// Signals for UI binding
 	ADD_SIGNAL(MethodInfo("connection_state_changed", PropertyInfo(Variant::INT, "state")));
+	ADD_SIGNAL(MethodInfo("processing_state_changed", PropertyInfo(Variant::BOOL, "is_processing")));
 	ADD_SIGNAL(MethodInfo("thinking", PropertyInfo(Variant::STRING, "text")));
 	ADD_SIGNAL(MethodInfo("status", PropertyInfo(Variant::STRING, "level"), PropertyInfo(Variant::STRING, "message")));
 	ADD_SIGNAL(MethodInfo("usage_updated", PropertyInfo(Variant::INT, "turn_tokens"), PropertyInfo(Variant::INT, "session_tokens")));
@@ -2225,6 +2226,14 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		String level = p_params.has("level") ? String(p_params["level"]) : "info";
 		String msg = p_params.has("message") ? String(p_params["message"]) : String();
 		emit_signal("status", level, msg);
+
+		// Update processing state when chat finishes
+		if (msg == "chat:done" || msg == "chat:aborted") {
+			if (is_processing) {
+				is_processing = false;
+				emit_signal("processing_state_changed", false);
+			}
+		}
 		return;
 	}
 
@@ -2646,6 +2655,18 @@ void EditorAIAgent::request_chat(const String &p_prompt, const Array &p_images) 
 	}
 	send_jsonrpc("chat", params);
 	emit_signal("chat_message", "You", p_prompt);
+
+	// Update processing state
+	is_processing = true;
+	emit_signal("processing_state_changed", true);
+}
+
+void EditorAIAgent::abort_chat() {
+	if (!is_processing) {
+		return;
+	}
+	Dictionary params;
+	send_jsonrpc("abortChat", params);
 }
 
 void EditorAIAgent::clear_session() {
