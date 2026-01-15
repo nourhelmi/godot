@@ -1253,37 +1253,89 @@ String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const D
 
 	if (p_name == "verify" || p_name == "verifyVisually" || p_name == "runHarness") {
 		Dictionary vr = p_output.has("verifyResult") ? Dictionary(p_output["verifyResult"]) : Dictionary();
+		String kind = vr.has("kind") ? String(vr["kind"]) : (p_output.has("kind") ? String(p_output["kind"]) : String());
 		Array errors = vr.has("errors") ? Array(vr["errors"]) : (p_output.has("errors") ? Array(p_output["errors"]) : Array());
 		Array warnings = vr.has("warnings") ? Array(vr["warnings"]) : (p_output.has("warnings") ? Array(p_output["warnings"]) : Array());
+		Array logs = vr.has("logs") ? Array(vr["logs"]) : (p_output.has("logs") ? Array(p_output["logs"]) : Array());
 		String scene = vr.has("scenePath") ? String(vr["scenePath"]) : (p_input.has("scenePath") ? String(p_input["scenePath"]) : String());
+		int frames = vr.has("frames") ? int(vr["frames"]) : (p_output.has("frames") ? int(p_output["frames"]) : 0);
+
+		// Mode indicator
+		if (kind == "harness") {
+			details += "Mode: headless runtime";
+			if (frames > 0) {
+				details += " (" + itos(frames) + " frames)";
+			}
+			details += "\n";
+		} else if (kind == "diagnostics") {
+			details += "Mode: static analysis\n";
+		}
+
 		if (!scene.is_empty()) {
 			details += "Scene: " + _shorten_path(scene) + "\n";
 		}
 		if (vr.has("screenshot")) {
 			details += "Screenshot: " + String(vr["screenshot"]) + "\n";
 		}
-		if (errors.is_empty() && warnings.is_empty()) {
-			details += "No diagnostics.";
-			return details.strip_edges();
-		}
+
+		// Errors
 		if (!errors.is_empty()) {
 			details += "Errors (" + itos(errors.size()) + "):\n";
 			int limit = errors.size() < 5 ? errors.size() : 5;
 			for (int i = 0; i < limit; i++) {
-				details += "- " + String(errors[i]) + "\n";
+				details += "  - " + String(errors[i]) + "\n";
 			}
 			if (errors.size() > limit) {
-				details += "... +" + itos(errors.size() - limit) + " more\n";
+				details += "  ... +" + itos(errors.size() - limit) + " more\n";
 			}
 		}
+
+		// Warnings
 		if (!warnings.is_empty()) {
 			details += "Warnings (" + itos(warnings.size()) + "):\n";
 			int limit = warnings.size() < 5 ? warnings.size() : 5;
 			for (int i = 0; i < limit; i++) {
-				details += "- " + String(warnings[i]) + "\n";
+				details += "  - " + String(warnings[i]) + "\n";
 			}
 			if (warnings.size() > limit) {
-				details += "... +" + itos(warnings.size() - limit) + " more\n";
+				details += "  ... +" + itos(warnings.size() - limit) + " more\n";
+			}
+		}
+
+		// Logs (harness mode stdout/stderr including print() statements)
+		if (!logs.is_empty()) {
+			// Filter out internal harness meta-lines for cleaner display
+			Array user_logs;
+			for (int i = 0; i < logs.size(); i++) {
+				String line = String(logs[i]);
+				// Skip harness spawn info and exit codes
+				if (line.begins_with("spawn:") || line.begins_with("scene:") ||
+						line.begins_with("frames:") || line.begins_with("exit:") ||
+						line.begins_with("timeout")) {
+					continue;
+				}
+				user_logs.push_back(line);
+			}
+			if (!user_logs.is_empty()) {
+				details += "Output (" + itos(user_logs.size()) + " lines):\n";
+				int limit = user_logs.size() < 8 ? user_logs.size() : 8;
+				for (int i = 0; i < limit; i++) {
+					details += "  " + String(user_logs[i]) + "\n";
+				}
+				if (user_logs.size() > limit) {
+					details += "  ... +" + itos(user_logs.size() - limit) + " more\n";
+				}
+			}
+		}
+
+		// Success summary if no issues
+		if (errors.is_empty() && warnings.is_empty()) {
+			if (kind == "harness") {
+				details += "No runtime errors.";
+			} else if (kind == "diagnostics") {
+				details += "No static errors.";
+			} else {
+				details += "No issues found.";
 			}
 		}
 		return details.strip_edges();
