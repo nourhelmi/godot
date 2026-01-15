@@ -165,7 +165,7 @@ void EditorAIAgent::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("processing_state_changed", PropertyInfo(Variant::BOOL, "is_processing")));
 	ADD_SIGNAL(MethodInfo("thinking", PropertyInfo(Variant::STRING, "text")));
 	ADD_SIGNAL(MethodInfo("status", PropertyInfo(Variant::STRING, "level"), PropertyInfo(Variant::STRING, "message")));
-	ADD_SIGNAL(MethodInfo("usage_updated", PropertyInfo(Variant::INT, "turn_tokens"), PropertyInfo(Variant::INT, "session_tokens")));
+	ADD_SIGNAL(MethodInfo("usage_updated", PropertyInfo(Variant::INT, "turn_tokens"), PropertyInfo(Variant::INT, "session_tokens"), PropertyInfo(Variant::INT, "cache_rate")));
 	ADD_SIGNAL(MethodInfo("tool_call", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::DICTIONARY, "input")));
 	ADD_SIGNAL(MethodInfo("tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output")));
 	ADD_SIGNAL(MethodInfo("tool_progress", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "stage"), PropertyInfo(Variant::FLOAT, "progress")));
@@ -2210,6 +2210,7 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 
 		if (p_method == "usage") {
 			int64_t turn = 0;
+			int cache_rate = 0;
 			if (p_params.has("turn")) {
 				Dictionary t = p_params["turn"];
 				turn = t.has("totalTokens") ? int64_t(t["totalTokens"]) : 0;
@@ -2217,7 +2218,11 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 			if (p_params.has("session")) {
 				session_usage = AITokenUsage::from_dict(p_params["session"]);
 			}
-			emit_signal("usage_updated", turn, session_usage.total_tokens);
+			if (p_params.has("cache")) {
+				Dictionary c = p_params["cache"];
+				cache_rate = c.has("cacheRate") ? int(c["cacheRate"]) : 0;
+			}
+			emit_signal("usage_updated", turn, session_usage.total_tokens, cache_rate);
 			return;
 		}
 	}
@@ -2245,6 +2250,7 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 
 	if (p_method == "usage") {
 		int64_t turn = 0;
+		int cache_rate = 0;
 		if (p_params.has("turn")) {
 			Dictionary t = p_params["turn"];
 			turn = t.has("totalTokens") ? int64_t(t["totalTokens"]) : 0;
@@ -2252,7 +2258,11 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		if (p_params.has("session")) {
 			session_usage = AITokenUsage::from_dict(p_params["session"]);
 		}
-		emit_signal("usage_updated", turn, session_usage.total_tokens);
+		if (p_params.has("cache")) {
+			Dictionary c = p_params["cache"];
+			cache_rate = c.has("cacheRate") ? int(c["cacheRate"]) : 0;
+		}
+		emit_signal("usage_updated", turn, session_usage.total_tokens, cache_rate);
 		return;
 	}
 
@@ -2673,7 +2683,7 @@ void EditorAIAgent::clear_session() {
 	Dictionary params;
 	send_jsonrpc("clearSession", params);
 	session_usage = AITokenUsage();
-	emit_signal("usage_updated", 0, 0);
+	emit_signal("usage_updated", 0, 0, 0);
 }
 
 void EditorAIAgent::add_context_item(AIContextItemKind p_kind, const String &p_path, const String &p_label, const Dictionary &p_metadata) {

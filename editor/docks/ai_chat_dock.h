@@ -87,6 +87,7 @@ class AIChatDock : public VBoxContainer {
 	// State tracking
 	int64_t turn_tokens = 0;
 	int64_t session_tokens = 0;
+	int cache_rate = 0; // 0-100 percentage of prompt tokens from cache
 	int tool_call_count = 0;
 	bool stick_to_bottom = true; // Only auto-scroll when the user is already at the bottom.
 
@@ -173,7 +174,7 @@ class AIChatDock : public VBoxContainer {
 	// Agent signal handlers
 	void _on_thinking(const String &p_text);
 	void _on_status(const String &p_level, const String &p_message);
-	void _on_usage_updated(int64_t p_turn, int64_t p_session);
+	void _on_usage_updated(int64_t p_turn, int64_t p_session, int p_cache_rate);
 	void _on_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input);
 	void _on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output);
 	void _on_tool_progress(const String &p_id, const String &p_stage, float p_progress);
@@ -198,7 +199,7 @@ public:
 	void append_response(const String &p_text);
 	void add_tool_card(const String &p_id, const String &p_name, const Dictionary &p_input, const String &p_status);
 	void update_tool_card(const String &p_id, const String &p_status, bool p_done);
-	void update_usage(int64_t p_turn, int64_t p_session);
+	void update_usage(int64_t p_turn, int64_t p_session, int p_cache_rate);
 	void cleanup_done_tools();
 	void end_turn(); // Finalizes current turn, clears streaming state
 	void clear_all();

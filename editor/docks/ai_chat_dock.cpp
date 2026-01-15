@@ -1988,8 +1988,8 @@ void AIChatDock::_on_status(const String &p_level, const String &p_message) {
 	}
 }
 
-void AIChatDock::_on_usage_updated(int64_t p_turn, int64_t p_session) {
-	update_usage(p_turn, p_session);
+void AIChatDock::_on_usage_updated(int64_t p_turn, int64_t p_session, int p_cache_rate) {
+	update_usage(p_turn, p_session, p_cache_rate);
 }
 
 void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input) {
@@ -2065,6 +2065,9 @@ void AIChatDock::_update_meter() {
 		text = "Turn: " + itos(turn_tokens);
 		if (session_tokens > 0) {
 			text += " | Session: " + itos(session_tokens);
+		}
+		if (cache_rate > 0) {
+			text += " | Cache: " + itos(cache_rate) + "%";
 		}
 		if (tool_call_count > 0) {
 			text += " | Tools: " + itos(tool_call_count);
@@ -2175,9 +2178,10 @@ void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bo
 	}
 }
 
-void AIChatDock::update_usage(int64_t p_turn, int64_t p_session) {
+void AIChatDock::update_usage(int64_t p_turn, int64_t p_session, int p_cache_rate) {
 	turn_tokens = p_turn;
 	session_tokens = p_session;
+	cache_rate = p_cache_rate;
 	_update_meter();
 }
 
@@ -2201,6 +2205,7 @@ void AIChatDock::end_turn() {
 
 	// Reset per-turn tracking
 	turn_tokens = 0;
+	cache_rate = 0;
 	tool_call_count = 0;
 	active_tool_cards.clear();
 	active_tool_icons.clear();

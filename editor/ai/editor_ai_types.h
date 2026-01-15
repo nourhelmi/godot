@@ -147,6 +147,21 @@ struct AITokenUsage {
 	}
 };
 
+// Cache stats from Anthropic via OpenRouter
+struct AICacheStats {
+	int64_t cached_tokens = 0;
+	int cache_rate = 0; // 0-100 percentage
+	double cost = 0.0;
+
+	static AICacheStats from_dict(const Dictionary &p_dict) {
+		AICacheStats stats;
+		stats.cached_tokens = p_dict.has("cachedTokens") ? int64_t(p_dict["cachedTokens"]) : 0;
+		stats.cache_rate = p_dict.has("cacheRate") ? int(p_dict["cacheRate"]) : 0;
+		stats.cost = p_dict.has("cost") ? double(p_dict["cost"]) : 0.0;
+		return stats;
+	}
+};
+
 // Connection states for UI feedback
 enum AIConnectionState {
 	AI_CONNECTION_DISCONNECTED,
