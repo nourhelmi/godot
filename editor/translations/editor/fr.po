@@ -187,13 +187,28 @@
 # xpeuvr327 <phucbaodomi@gmail.com>, 2025.
 # Alastair L <alockepublic+weblate@proton.me>, 2025.
 # Marc-Daniel DALEBA <marcodxv10@gmail.com>, 2025.
+# Azurian <clement.tomera.smb@gmail.com>, 2025.
+# Project 00 <flognintendo@gmail.com>, 2025.
+# Myeongjin <aranet100@gmail.com>, 2025.
+# Pierre K <pierrekouyoumdjian@hotmail.fr>, 2025.
+# mbenrubi <maxime.benrubi@gmail.com>, 2025.
+# MaxiMaxdu59 <max.miroux@gmail.com>, 2025.
+# Omgeta <anooptiger@hotmail.com>, 2025.
+# Dario Le Hy <dario.lehy@gmail.com>, 2025.
+# Cacathoes <etnatrabuc@gmail.com>, 2025.
+# "A Thousand Ships (she/her)" <over999ships@gmail.com>, 2025.
+# Mvsqu3 <paulkevinb.22@gmail.com>, 2025.
+# czepyga <maxime.czepyga@gmail.com>, 2025.
+# itsaboon <jackdgrabina@gmail.com>, 2025.
+# Bamowen <mathieu.monsauret@gmail.com>, 2025.
+# Korimi <hmvg2007@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-03-25 03:08+0000\n"
-"Last-Translator: Marc-Daniel DALEBA <marcodxv10@gmail.com>\n"
+"PO-Revision-Date: 2025-12-13 20:00+0000\n"
+"Last-Translator: Korimi <hmvg2007@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/godot-engine/godot/"
 "fr/>\n"
 "Language: fr\n"
@@ -201,10 +216,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
-
-msgid "Main Thread"
-msgstr "Fil principal"
+"X-Generator: Weblate 5.15-dev\n"
 
 msgid "Unset"
 msgstr "Non défini"
@@ -558,10 +570,10 @@ msgid "Delete Nodes"
 msgstr "Supprimer le(s) nœud(s)"
 
 msgid "Follow Input Port Connection"
-msgstr "Suivre le port d'entrée de la connexion"
+msgstr "Suivre la connexion du port d'entrée"
 
 msgid "Follow Output Port Connection"
-msgstr "Suivre le port de sortie de la connexion"
+msgstr "Suivre la connexion du port de sortie"
 
 msgid "Go Up One Level"
 msgstr "Monter d’un niveau"
@@ -853,6 +865,9 @@ msgstr "Pas en Y de la grille"
 msgid "Blend X Value"
 msgstr "Valeur en X de mélange"
 
+msgid "Blend Y Value"
+msgstr "Valeur en Y de mélange"
+
 msgid "Max Y"
 msgstr "Max Y"
 
@@ -867,6 +882,9 @@ msgstr "Min X"
 
 msgid "X Value"
 msgstr "Valeur en X"
+
+msgid "Max X"
+msgstr "Max X"
 
 msgid "Parameter Changed: %s"
 msgstr "Paramètre modifié : %s"
@@ -1003,11 +1021,8 @@ msgstr ""
 msgid "Library with the same name already exists."
 msgstr "Une librairie du même nom existe déjà."
 
-msgid "Nearest FPS: %d"
-msgstr "FPS le plus proche : %d"
-
-msgid "Change Animation Step"
-msgstr "Modifier l’étape d’animation"
+msgid "Animation name is valid."
+msgstr "Le nom de l’animation est valide."
 
 msgid "Global library will be created."
 msgstr "Une bibliothèque globale va être créée."
@@ -1211,11 +1226,8 @@ msgstr "Charger une bibliothèque d’animation"
 msgid "Load animation library from disk."
 msgstr "Charger une bibliothèque d’animations à partir du disque."
 
-msgid "Apply snapping to the nearest integer FPS."
-msgstr "Appliquer la magnétisation au FPS entier le plus proche."
-
-msgid "Animation step value."
-msgstr "Valeur du pas d'animation."
+msgid "Resource"
+msgstr "Ressource"
 
 msgid "Storage"
 msgstr "Stockage"
@@ -1418,6 +1430,9 @@ msgstr "Aucune ressource de lecture définie au chemin : %s."
 msgid "Node Removed"
 msgstr "Nœud supprimé"
 
+msgid "Transition Removed"
+msgstr "Transition supprimée"
+
 msgid ""
 "Select and move nodes.\n"
 "RMB: Add node at position clicked.\n"
@@ -1429,8 +1444,8 @@ msgstr ""
 "Shift + Clic gauche + Glisser : Connecter le nœud sélectionné avec un autre "
 "nœud ou créer un nouveau nœud si la sélection n’en présente pas un."
 
-msgid "Rename Marker"
-msgstr "Renommer la clé"
+msgid "Select and move nodes."
+msgstr "Sélectionner et déplacer des nœuds."
 
 msgid "Create new nodes."
 msgstr "Créer de nouveaux nœuds."
@@ -3586,9 +3601,6 @@ msgstr ""
 msgid "Text File"
 msgstr "Fichier texte"
 
-msgid "TextFile"
-msgstr "Fichier texte"
-
 msgid "File"
 msgstr "Fichier"
 
@@ -3759,7 +3771,7 @@ msgid "Favorites"
 msgstr "Favoris"
 
 msgid "View items as a grid of thumbnails."
-msgstr "Afficher les éléments sous forme de grille de vignettes."
+msgstr "Afficher les éléments sous forme de grille d'aperçus."
 
 msgid "View items as a list."
 msgstr "Afficher les éléments sous forme de liste."
@@ -3937,29 +3949,8 @@ msgstr "Déplacer/Dupliquer vers…"
 msgid "Add to Favorites"
 msgstr "Ajouter aux favoris"
 
-msgid ""
-"The Android build template is already installed in this project and it won't "
-"be overwritten.\n"
-"Remove the \"%s\" directory manually before attempting this operation again."
-msgstr ""
-"Le modèle de compilation Android est déjà installé dans ce projet et ne sera "
-"pas remplacé.\n"
-"Retirez le dossier \"%s\" manuellement avant de réessayer l'opération."
-
-msgid ""
-"This will set up your project for gradle Android builds by installing the "
-"source template to \"%s\".\n"
-"Note that in order to make gradle builds instead of using pre-built APKs, the "
-"\"Use Gradle Build\" option should be enabled in the Android export preset."
-msgstr ""
-"Ceci va configurer votre projet pour les compilation Android gradle en "
-"installant le modèle source dans \"%s\".\n"
-"Notez qu'afin de faire des compilations gradle au lieu des APKs précompilées, "
-"l'option \"Utiliser une compilation gradle\" doit être activé dans les "
-"préreglages d'export Android."
-
-msgid "Unnamed Project"
-msgstr "Projet sans titre"
+msgid "Remove from Favorites"
+msgstr "Supprimer des favoris"
 
 msgid "Convert to..."
 msgstr "Convertir en…"
@@ -4245,17 +4236,8 @@ msgstr "Impossible de charger la ressource."
 msgid "(Current)"
 msgstr "(actuel)"
 
-msgid ""
-"No main scene has ever been defined. Select one?\n"
-"You can change it later in \"Project Settings\" under the 'application' "
-"category."
-msgstr ""
-"Aucune scène principale n'a été définie, en sélectionner une ?\n"
-"Vous pouvez la modifier ultérieurement dans les 'Paramètres du projet' sous "
-"la catégorie 'application'."
-
-msgid "Save Layout..."
-msgstr "Enregistrer la disposition..."
+msgid "Expand Non-Default"
+msgstr "Dévoiler non-défaut"
 
 msgid "Property Name Style"
 msgstr "Style des noms de propriétés"
@@ -5310,11 +5292,11 @@ msgstr "Effacer la liste des scènes récentes"
 msgid "There is no defined scene to run."
 msgstr "Il n’y a pas de scène définie à exécuter."
 
-msgid "Can't create encrypted file."
-msgstr "Impossible de créer le fichier chiffré."
+msgid "Loading editor"
+msgstr "Chargement de l’éditeur"
 
-msgid "Can't open encrypted file to write."
-msgstr "Impossible d'ouvrir le fichier chiffré pour écriture."
+msgid "Loading editor layout..."
+msgstr "Chargement de la disposition de l’éditeur…"
 
 msgid "Loading docks..."
 msgstr "Chargement des docks…"
@@ -5744,8 +5726,8 @@ msgstr "Ouvrir le dock Nœud"
 msgid "History"
 msgstr "Historique"
 
-msgid "Encrypt Exported PCK"
-msgstr "Chiffrer le PCK exporté"
+msgid "Open History Dock"
+msgstr "Ouvrir le dock de l'historique"
 
 msgid "Output"
 msgstr "Sortie"
@@ -6311,17 +6293,8 @@ msgstr "Téléchargement"
 msgid "Connection Error"
 msgstr "Erreur de connexion"
 
-msgid ""
-"Scroll Right\n"
-"Hold Ctrl to scroll to the end.\n"
-"Hold Shift to scroll one page."
-msgstr ""
-"Faire défiler vers la droite\n"
-"Maintenez Ctrl pour défiler jusqu'à la fin.\n"
-"Maintenez Shift pour défiler d'une page."
-
-msgid "Expand Bottom Panel"
-msgstr "Développer le panneau inférieur"
+msgid "TLS Handshake Error"
+msgstr "Erreur TLS Handshake"
 
 msgid "Can't open the export templates file."
 msgstr "Impossible d’ouvrir le fichier contenant les modèles d’exportation."
@@ -6517,9 +6490,8 @@ msgstr "Exporter avec debug"
 msgid "Export As Patch"
 msgstr "Exporter en tant que patch"
 
-msgid "Recovery Mode is enabled. Disable it to run the project."
-msgstr ""
-"Le mode de récupération est activé. Désactivez-le pour exécuter le projet."
+msgid "%s Export"
+msgstr "Export %s"
 
 msgid "Release"
 msgstr "Publication"
@@ -6527,26 +6499,11 @@ msgstr "Publication"
 msgid "Exporting All"
 msgstr "Tout exporter"
 
-msgid "Click to open the first profiler for which autostart is enabled."
-msgstr ""
-"Cliquez pour ouvrir le premier profileur pour lequel le démarrage automatique "
-"est activé."
+msgid "Presets"
+msgstr "Préréglages"
 
-msgid ""
-"Godot opened the project in Recovery Mode, which is a special mode that can "
-"help recover projects that crash the engine upon initialization. The "
-"following features have been temporarily disabled:"
-msgstr ""
-"Godot a ouvert le projet en Mode Récupération, qui est un mode spécial qui "
-"peut aider à récupérer des projets qui plantent le moteur lors de "
-"l'initialisation. Les fonctionnalités suivantes ont été temporairements "
-"désactivées :"
-
-msgid "GDExtension addons"
-msgstr "Addons GDExtension"
-
-msgid "Automatic scene restoring"
-msgstr "Récupération de scène automatique"
+msgid "Add..."
+msgstr "Ajouter…"
 
 msgid ""
 "If checked, the preset will be available for use in one-click deploy.\n"
@@ -7300,7 +7257,7 @@ msgid "Refresh files."
 msgstr "Rafraîchir les fichiers."
 
 msgid "(Un)favorite current folder."
-msgstr "Ajouter ou supprimer aux favoris le dossier courant."
+msgstr "(Dé)favoriser le dossier courant."
 
 msgid "Current Drive"
 msgstr "Profil actuel"
@@ -8709,7 +8666,7 @@ msgid "Project Installation Path:"
 msgstr "Chemin d'installation du projet :"
 
 msgid "Renderer:"
-msgstr "Moteur de rendu :"
+msgstr "Moteur de rendu :"
 
 msgid ""
 "RenderingDevice-based methods not available on this GPU:\n"
@@ -10043,7 +10000,7 @@ msgid "Create Rest Pose from Bones"
 msgstr "Créer la position de repos d'après les os"
 
 msgid "Skeleton2D"
-msgstr "Squelette 2D"
+msgstr "Skeleton2D"
 
 msgid "Reset to Rest Pose"
 msgstr "Remettre à la position de repos"
@@ -12223,6 +12180,9 @@ msgstr "Définir la couleur du soleil de prévisualisation"
 msgid "Set Preview Sun Energy"
 msgstr "Définir l'énergie du soleil de prévisualisation"
 
+msgid "Set Preview Sun Max Shadow Distance"
+msgstr "Définir la distance maximale des ombres du soleil de pré-visualisation"
+
 msgid "Set Preview Environment Sky Color"
 msgstr "Définir la couleur du ciel de l'environnement de prévisualisation"
 
@@ -12591,7 +12551,7 @@ msgid "Generate Visibility AABB"
 msgstr "Générer AABB de Visibilité"
 
 msgid "\"%s\" doesn't inherit from Node3D."
-msgstr "\"%s\" n'hérite pas de Node2D."
+msgstr "\"%s\" n'hérite pas de Node3D."
 
 msgid "\"%s\" doesn't contain geometry."
 msgstr "\"%s\" ne contient pas de géométrie."
@@ -12774,7 +12734,7 @@ msgid "Revert"
 msgstr "Réinitialiser"
 
 msgid "Skeleton3D"
-msgstr "Squelette 3D"
+msgstr "Skeleton3D"
 
 msgid "Reset All Bone Poses"
 msgstr "Réinitialiser toutes les poses de l'os"
@@ -15286,11 +15246,8 @@ msgstr "JSON"
 msgid "Markdown"
 msgstr "Markdown"
 
-msgid "Line Tool"
-msgstr "Outil Ligne"
-
-msgid "TileMap"
-msgstr "TileMap"
+msgid "ConfigFile"
+msgstr "ConfigFile"
 
 msgid "Script"
 msgstr "Script"
@@ -15675,11 +15632,11 @@ msgstr "Affichage Wayland (Linux seulement)."
 msgid "X11 display (Linux only)."
 msgstr "Affichage X11 (Linux seulement)."
 
-msgid "Edit Preview Parameter: %s"
-msgstr "Modifier les paramètres de l'aperçu : %s"
-
-msgid "Duplicate VisualShader Node(s)"
-msgstr "Dupliquer le(s) nœud(s) VisualShader"
+msgid ""
+"RenderingDevice based rendering (if disabled, the OpenGL backend is required)."
+msgstr ""
+"Rendu basé sur RenderingDevice (si désactivé, le backend OpenGL est "
+"nécessaire)."
 
 msgid "Forward+ renderer for advanced 3D graphics."
 msgstr "Moteur de rendu Forward+ pour des graphiques 3D avancés."
@@ -16752,13 +16709,13 @@ msgid "Grayscale function."
 msgstr "Fonction niveau de gris."
 
 msgid "Converts HSV vector to RGB equivalent."
-msgstr "Convertit le vecteur HSV en équivalent RGB."
+msgstr "Convertit le vecteur TSV en équivalent RGB."
 
 msgid "Converts color from linear to sRGB color space."
 msgstr "Convertit la couleur de l'espace linéaire à sRGB."
 
 msgid "Converts RGB vector to HSV equivalent."
-msgstr "Convertit le vecteur RGB en équivalent HSV."
+msgstr "Convertit le vecteur RGB en équivalent TSV."
 
 msgid "Sepia function."
 msgstr "Fonction Sepia."
@@ -17872,7 +17829,7 @@ msgid "Generate POT"
 msgstr "Générer POT"
 
 msgid "Add Built-in Strings to POT"
-msgstr "Ajouter des chaînes intégrées au POT"
+msgstr "Ajouter des chaînes intégrées au TOP"
 
 msgid "Add strings from built-in components such as certain Control nodes."
 msgstr ""
@@ -18826,7 +18783,7 @@ msgstr ""
 "correspondants."
 
 msgid "Clear NavigationMesh"
-msgstr "Suppression du maillage de navigation"
+msgstr "Vider le NavigationMesh"
 
 msgid "Clears the internal NavigationMesh vertices and polygons."
 msgstr "Réinitialise le NavigationMesh interne."
@@ -18889,7 +18846,7 @@ msgid "Error saving file %s: %s"
 msgstr "Erreur lors de l'enregistrement du fichier %s : %s"
 
 msgid "OpenXR Action map:"
-msgstr "Tableau des actions OpenXR :"
+msgstr "Tableau des actions OpenXR :"
 
 msgid "Remove interaction profile"
 msgstr "Suppression du profil d'interaction"
@@ -19103,6 +19060,13 @@ msgstr ""
 msgid "\"Use Gradle Build\" must be enabled to use the plugins."
 msgstr ""
 "\"Utiliser la compilation Gradle\" doit être activé pour utiliser les plugins."
+
+msgid ""
+"\"Compress Native Libraries\" is only valid when \"Use Gradle Build\" is "
+"enabled."
+msgstr ""
+"\"Compresser les bibliothèques natives\" est valide uniquement lorsque "
+"« Utiliser la compilation Gradle » est activé."
 
 msgid "\"Export AAB\" is only valid when \"Use Gradle Build\" is enabled."
 msgstr ""
@@ -19320,14 +19284,17 @@ msgstr ""
 msgid "AAB signing is not supported"
 msgstr "La signature AAB n'est pas prise en charge"
 
-msgid "AAB signing is not supported"
-msgstr "La signature AAB n'est pas prise en charge"
-
 msgid "Signing debug APK..."
 msgstr "Signature de l'APK debug..."
 
-msgid "Could not find keystore, unable to export."
-msgstr "Impossible de trouver le keystore, impossible d'exporter."
+msgid "Signing release APK..."
+msgstr "Signature de l'APK de déploiement..."
+
+msgid "Could not find debug keystore, unable to export."
+msgstr "Impossible de trouver le keystore de débogage, impossible d'exporter."
+
+msgid "Could not find release keystore, unable to export."
+msgstr "Impossible de trouver le keystore de release, impossible d'exporter."
 
 msgid "Unable to sign apk."
 msgstr "Impossible de signer l'apk."
@@ -19340,6 +19307,14 @@ msgstr ""
 "Tous les outils 'apksigner' situés dans le répertoire 'build-tools' du SDK "
 "d'Android n'ont pas pu s'exécuter. Veuillez vérifier que vous avez la version "
 "correcte pour votre version cible du SDR. L'APK final n'est pas signé."
+
+msgid ""
+"'apksigner' could not be found. Please check that the command is available in "
+"the Android SDK build-tools directory. The resulting APK is unsigned."
+msgstr ""
+"Impossible de trouver 'apksigner'. Veuillez vérifier que la commande est "
+"disponible dans le dossier build-tools du SDK Android. L'APK résultante n'est "
+"pas signée."
 
 msgid "Could not start apksigner executable."
 msgstr "Impossible de le programme apksigner."
@@ -19682,7 +19657,7 @@ msgid "The notarization process generally takes less than an hour."
 msgstr "Le processus de certification prend généralement moins d'une heure."
 
 msgid ""
-"You can check progress manually by opening a Terminal and running the "
+"You can check the progress manually by opening a Terminal and running the "
 "following command:"
 msgstr ""
 "Vous pouvez contrôler la progression manuellement en ouvrant un Terminal et "
@@ -19700,6 +19675,13 @@ msgstr "Les outils en ligne de commande Xcode ne sont pas installés."
 
 msgid "Could not start xcrun executable."
 msgstr "Impossible de démarrer le sous-processus."
+
+msgid ""
+"See instructions on finding your team ID: https://developer.apple.com/help/"
+"glossary/team-id"
+msgstr ""
+"Voir les instructions pour trouver l'ID de votre équipe : https://"
+"developer.apple.com/help/glossary/team-id"
 
 msgid "Built-in CodeSign failed with error \"%s\"."
 msgstr "CodeSign intégré a échoué avec l'erreur : \"%s\"."
@@ -20290,9 +20272,9 @@ msgid ""
 "SceneTree.\n"
 "Check the node's inherited physics_interpolation_mode."
 msgstr ""
-"PhysiqueBody2D ne fonctionnera pas correctement sur une branche non "
-"interpolée du SceneTree.\n"
-"Vérifiez le mode physics_interpolation_mode hérité du nœud."
+"PhysicsBody2D ne fonctionnera pas correctement sur une branche non interpolée "
+"du SceneTree.\n"
+"Vérifiez le mode de physics_interpolation_mode hérité du nœud."
 
 msgid ""
 "Size changes to RigidBody2D will be overridden by the physics engine when "
@@ -20601,8 +20583,8 @@ msgstr ""
 msgid ""
 "The NavigationAgent3D can be used only under a Node3D inheriting parent node."
 msgstr ""
-"Le NavigationAgent3D peut être utilisé uniquement sous un nœud 3D hérité d'un "
-"nœud parent."
+"Le NavigationAgent3D peut être utilisé uniquement sous un nœud parent "
+"héritant de Node3D."
 
 msgid ""
 "NavigationLink3D start position should be different than the end position to "
@@ -20864,8 +20846,8 @@ msgid ""
 "The \"Remote Path\" property must point to a valid Node3D or Node3D-derived "
 "node to work."
 msgstr ""
-"La propriété \"Remote Path\" doit pointer vers un nœud 3D valide ou un nœud "
-"3D dérivé d'un nœud pour fonctionner."
+"La propriété \"Remote Path\" doit pointer vers un Node3D valide ou un nœud "
+"dérivé de Node3D pour fonctionner."
 
 msgid "There is no child Skeleton3D!"
 msgstr "Il n'y a pas d'enfant Skeleton3D !"
@@ -21730,6 +21712,18 @@ msgstr "Type de shader non valide. Les types valides sont : %s"
 msgid "Unexpected token: '%s'."
 msgstr "Jeton inattendu : «  %s  »."
 
+msgid "Duplicated stencil mode reference value: '%s'."
+msgstr "Valeur de référence du mode de pochoir dupliqué : '%s'."
+
+msgid "Stencil mode reference value cannot be negative: '%s'."
+msgstr ""
+"La valeur de référence du mode Pochoir ne peut pas être négative : '%s'."
+
+msgid "Stencil mode reference value cannot be greater than 255: '%s'."
+msgstr ""
+"La valeur de référence du mode Pochoir ne peut pas être supérieure à 255 : "
+"'%s'."
+
 msgid "Expected a struct identifier."
 msgstr "Un identifiant struct est attendu."
 
@@ -21982,8 +21976,14 @@ msgstr ""
 msgid "uniform buffer"
 msgstr "tampon uniforme"
 
+msgid "Expected an identifier for stencil mode."
+msgstr "Un identifiant pour le mode pochoir était attendu."
+
 msgid "Expected an identifier for render mode."
 msgstr "Un identifiant est attendu pour le mode de rendu."
+
+msgid "Duplicated stencil mode: '%s'."
+msgstr "Mode de pochoir dupliqué : '%s'."
 
 msgid "Duplicated render mode: '%s'."
 msgstr "Mode de rendu dupliqué : '%s'."
@@ -21993,6 +21993,9 @@ msgid ""
 msgstr ""
 "Redéfinition du mode de rendu : « %s ». Le mode « %s » a déjà été défini sur "
 "« %s »."
+
+msgid "Invalid stencil mode: '%s'."
+msgstr "Mode pochoir invalide : '%s'."
 
 msgid "Invalid render mode: '%s'."
 msgstr "Mode de rendu non valide : « %s »."

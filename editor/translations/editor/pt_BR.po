@@ -206,13 +206,17 @@
 # Gustavo Ramires <gustavo.nramires@gmail.com>, 2025.
 # Antonio Igor Carvalho <antonioigorcarvalho@gmail.com>, 2025.
 # Caio Dumont <caiodumontfer@gmail.com>, 2025.
+# Joanderson Alves <jndrsn.08@gmail.com>, 2025.
+# "A Thousand Ships (she/her)" <over999ships@gmail.com>, 2025.
+# ickyDev <lunavicpotato@protonmail.com>, 2025.
+# Uriel Barbosa Pinheiro <urielbp@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: 2016-05-30\n"
-"PO-Revision-Date: 2025-03-24 12:23+0000\n"
-"Last-Translator: Gabriel Rauta Zanette <fupicat@gmail.com>\n"
+"PO-Revision-Date: 2025-11-22 11:51+0000\n"
+"Last-Translator: Caio Dumont <caiodumontfer@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/godot-"
 "engine/godot/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -220,70 +224,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
-
-msgid "Main Thread"
-msgstr "Thread Principal"
+"X-Generator: Weblate 5.15-dev\n"
 
 msgid "Unset"
-msgstr "Restaurar"
+msgstr "Desativar"
 
 msgid "Physical"
 msgstr "Físico"
 
 msgid "Left Mouse Button"
-msgstr "Botão Esquerdo do Mouse"
+msgstr "Botão esquerdo do mouse"
 
 msgid "Right Mouse Button"
-msgstr "Botão Direito do Mouse"
+msgstr "Botão direito do mouse"
 
 msgid "Middle Mouse Button"
-msgstr "Botão do Meio do Mouse"
+msgstr "Botão do meio do mouse"
 
 msgid "Mouse Wheel Up"
-msgstr "Roda do Mouse para Cima"
+msgstr "Roda do mouse para cima"
 
 msgid "Mouse Wheel Down"
-msgstr "Roda do Mouse para Baixo"
+msgstr "Roda do mouse para baixo"
 
 msgid "Mouse Wheel Left"
-msgstr "Roda do Mouse para Esquerda"
+msgstr "Roda do mouse para a esquerda"
 
 msgid "Mouse Wheel Right"
-msgstr "Roda do Mouse para Direita"
+msgstr "Roda do mouse para a direita"
 
 msgid "Mouse Thumb Button 1"
-msgstr "Botão de Polegar do Mouse 1"
+msgstr "Botão lateral do mouse 1"
 
 msgid "Mouse Thumb Button 2"
-msgstr "Botão de Polegar do Mouse 2"
+msgstr "Botão lateral do mouse 2"
 
 msgid "Button"
 msgstr "Botão"
 
 msgid "Double Click"
-msgstr "Clique Duplo"
+msgstr "Clique duplo"
 
 msgid "Mouse motion at position (%s) with velocity (%s)"
 msgstr "Movimento do mouse na posição (%s) com velocidade (%s)"
 
 msgid "Left Stick X-Axis, Joystick 0 X-Axis"
-msgstr "Eixo-X Analógico Esquerdo, Eixo-X Joystick 0"
+msgstr "Eixo-X Analógico esquerdo, Eixo-X Joystick 0"
 
 msgid "Left Stick Y-Axis, Joystick 0 Y-Axis"
-msgstr "Eixo-Y Analógico Esquerdo, Eixo-Y Joystick 0"
+msgstr "Eixo-Y Analógico esquerdo, Eixo-Y Joystick 0"
 
 msgid "Right Stick X-Axis, Joystick 1 X-Axis"
-msgstr "Eixo-X Analógico Direito, Eixo-X Joystick 1"
+msgstr "Eixo-X Analógico direito, Eixo-X Joystick 1"
 
 msgid "Right Stick Y-Axis, Joystick 1 Y-Axis"
-msgstr "Eixo-Y Analógico Direito, Eixo-Y Joystick 1"
+msgstr "Eixo-Y Analógico direito, Eixo-Y Joystick 1"
 
 msgid "Joystick 2 X-Axis, Left Trigger, Sony L2, Xbox LT"
-msgstr "Eixo-X Joystick 2, Gatilho Esquerdo, Sony L2, Xbox LT"
+msgstr "Eixo-X Joystick 2, Gatilho esquerdo, Sony L2, Xbox LT"
 
 msgid "Joystick 2 Y-Axis, Right Trigger, Sony R2, Xbox RT"
-msgstr "Eixo-Y Joystick 2, Gatilho Direito, Sony R2, Xbox RT"
+msgstr "Eixo-Y Joystick 2, Gatilho direito, Sony R2, Xbox RT"
 
 msgid "Joystick 3 X-Axis"
 msgstr "Eixo-X Joystick 3"
@@ -298,22 +299,22 @@ msgid "Joystick 4 Y-Axis"
 msgstr "Eixo-Y Joystick 4"
 
 msgid "Unknown Joypad Axis"
-msgstr "Eixo Desconhecido do Joypad"
+msgstr "Eixo desconhecido do Joypad"
 
 msgid "Joypad Motion on Axis %d (%s) with Value %.2f"
-msgstr "Movimento do Joypad no Eixo %d (%s) com Valor %.2f"
+msgstr "Movimento do Joypad no Eixo %d (%s) com valor %.2f"
 
 msgid "Bottom Action, Sony Cross, Xbox A, Nintendo B"
-msgstr "Botão de Ação Inferior, Sony X, Xbox A, Nintendo B"
+msgstr "Botão de Ação inferior, Sony X, Xbox A, Nintendo B"
 
 msgid "Right Action, Sony Circle, Xbox B, Nintendo A"
-msgstr "Botão de Ação Direito, Sony Círculo, Xbox B, Nintendo A"
+msgstr "Botão de Ação direito, Sony Círculo, Xbox B, Nintendo A"
 
 msgid "Left Action, Sony Square, Xbox X, Nintendo Y"
-msgstr "Botão de Ação Esquerdo, Sony Quadrado, Xbox X, Nintendo Y"
+msgstr "Botão de Ação esquerdo, Sony Quadrado, Xbox X, Nintendo Y"
 
 msgid "Top Action, Sony Triangle, Xbox Y, Nintendo X"
-msgstr "Botão de Ação Superior, Sony Triângulo, Xbox Y, Nintendo X"
+msgstr "Botão de Ação superior, Sony Triângulo, Xbox Y, Nintendo X"
 
 msgid "Back, Sony Select, Xbox Back, Nintendo -"
 msgstr "Voltar, Sony Select, Xbox Back, Nintendo -"
@@ -325,28 +326,28 @@ msgid "Start, Xbox Menu, Nintendo +"
 msgstr "Iniciar, Xbox Menu, Nintendo +"
 
 msgid "Left Stick, Sony L3, Xbox L/LS"
-msgstr "Analógico Esquerdo, Sony L3, Xbox L/LS"
+msgstr "Analógico esquerdo, Sony L3, Xbox L/LS"
 
 msgid "Right Stick, Sony R3, Xbox R/RS"
-msgstr "Analógico Direito, Sony R3, Xbox R/RS"
+msgstr "Analógico direito, Sony R3, Xbox R/RS"
 
 msgid "Left Shoulder, Sony L1, Xbox LB"
-msgstr "Ombro Esquerdo, Sony L1, Xbox LB"
+msgstr "Ombro esquerdo, Sony L1, Xbox LB"
 
 msgid "Right Shoulder, Sony R1, Xbox RB"
-msgstr "Ombro Direito, Sony R1, Xbox RB"
+msgstr "Ombro direito, Sony R1, Xbox RB"
 
 msgid "D-pad Up"
-msgstr "Botão Direcional para Cima"
+msgstr "D-pad para cima"
 
 msgid "D-pad Down"
-msgstr "Botão Direcional para Baixo"
+msgstr "D-pad para baixo"
 
 msgid "D-pad Left"
-msgstr "Botão Direcional para Esquerda"
+msgstr "D-pad para esquerda"
 
 msgid "D-pad Right"
-msgstr "Botão Direcional para Direita"
+msgstr "D-pad para direita"
 
 msgid "Xbox Share, PS5 Microphone, Nintendo Capture"
 msgstr "Xbox Share, PS5 Microfone, Nintendo Capture"
@@ -390,10 +391,10 @@ msgstr ""
 "Tela arrastada com %s pontos de toque na posição (%s) com velocidade de (%s)"
 
 msgid "Magnify Gesture at (%s) with factor %s"
-msgstr "Gesto de Ampliar em (%s) com fator %s"
+msgstr "Gesto de ampliar em (%s) com fator %s"
 
 msgid "Pan Gesture at (%s) with delta (%s)"
-msgstr "Gesto de Arrastar em (%s) com delta (%s)"
+msgstr "Gesto de arrastar em (%s) com delta (%s)"
 
 msgid "MIDI Input on Channel=%s Message=%s"
 msgstr "Entrada MIDI no Canal=%s Mensagem=%s"
@@ -417,10 +418,10 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 msgid "Focus Next"
-msgstr "Selecionar Próximo"
+msgstr "Selecionar próximo"
 
 msgid "Focus Prev"
-msgstr "Selecionar Anterior"
+msgstr "Selecionar anterior"
 
 msgid "Left"
 msgstr "Esquerda"
@@ -435,10 +436,10 @@ msgid "Down"
 msgstr "Baixo"
 
 msgid "Page Up"
-msgstr "Subir Página"
+msgstr "Subir página"
 
 msgid "Page Down"
-msgstr "Descer Página"
+msgstr "Descer página"
 
 msgid "Home"
 msgstr "Início"
@@ -456,7 +457,7 @@ msgid "Paste"
 msgstr "Colar"
 
 msgid "Toggle Tab Focus Mode"
-msgstr "Alternar Modo de Foco de Aba"
+msgstr "Alternar modo de foco de aba"
 
 msgid "Undo"
 msgstr "Desfazer"
@@ -468,13 +469,13 @@ msgid "Completion Query"
 msgstr "Autocompletar"
 
 msgid "New Line"
-msgstr "Nova Linha"
+msgstr "Nova linha"
 
 msgid "New Blank Line"
-msgstr "Nova Linha em Branco"
+msgstr "Nova linha em branco"
 
 msgid "New Line Above"
-msgstr "Nova Linha Acima"
+msgstr "Nova linha acima"
 
 msgid "Indent"
 msgstr "Indentar"
@@ -483,22 +484,22 @@ msgid "Dedent"
 msgstr "Desindentar"
 
 msgid "Backspace"
-msgstr "Apagar à Esquerda"
+msgstr "Apagar"
 
 msgid "Backspace Word"
-msgstr "Apagar Palavra à Esquerda"
+msgstr "Apagar palavra"
 
 msgid "Backspace all to Left"
-msgstr "Apagar tudo à Esquerda"
+msgstr "Apagar tudo para a esquerda"
 
 msgid "Delete"
 msgstr "Excluir"
 
 msgid "Delete Word"
-msgstr "Apagar Palavra à Direita"
+msgstr "Apagar palavra"
 
 msgid "Delete all to Right"
-msgstr "Apagar tudo à Direita"
+msgstr "Apagar tudo para a direita"
 
 msgid "Caret Left"
 msgstr "Cursor para a Esquerda"
@@ -1003,11 +1004,8 @@ msgstr "O nome da animação contém caracteres inválidos: '/', ':', ',' ou '['
 msgid "Animation with the same name already exists."
 msgstr "Já existe uma animação com esse nome."
 
-msgid "Nearest FPS: %d"
-msgstr "FPS mais próximo: %d"
-
-msgid "Change Animation Step"
-msgstr "Alterar Andamento da Animação"
+msgid "Enter a library name."
+msgstr "Digite o nome da biblioteca."
 
 msgid "Library name contains invalid characters: '/', ':', ',' or '['."
 msgstr "O nome da biblioteca contém caracteres inválidos: '/', ':', ',' or '['."
@@ -3916,29 +3914,8 @@ msgstr "Converter para..."
 msgid "Reimport"
 msgstr "Reimportar"
 
-msgid ""
-"The Android build template is already installed in this project and it won't "
-"be overwritten.\n"
-"Remove the \"%s\" directory manually before attempting this operation again."
-msgstr ""
-"O modelo de build do Android já foi instalado neste projeto e não será "
-"substituido.\n"
-"Remova a pasta \"%s\" manualmente antes de tentar essa operação novamente."
-
-msgid ""
-"This will set up your project for gradle Android builds by installing the "
-"source template to \"%s\".\n"
-"Note that in order to make gradle builds instead of using pre-built APKs, the "
-"\"Use Gradle Build\" option should be enabled in the Android export preset."
-msgstr ""
-"Isto irá configurar o seu projeto para compilação para Android com gradle "
-"instalando o modelo fonte para \"%s\".\n"
-"Observe que para compilar utilizando gradle ao invés de APKs pré-compilados, "
-"você deve ativar a opção \"Usar Compilador Gradle\" na predefinição de "
-"exportação para Android."
-
-msgid "Unnamed Project"
-msgstr "Projeto Sem Nome"
+msgid "Open in Terminal"
+msgstr "Abrir no Terminal"
 
 msgid "Open Folder in Terminal"
 msgstr "Abrir Pasta no Terminal"
@@ -5571,11 +5548,8 @@ msgstr "Abrir Pasta de Configurações do Editor"
 msgid "Manage Editor Features..."
 msgstr "Gerenciar Recursos do Editor..."
 
-msgid "Online mode is needed to download the templates."
-msgstr "Acesso online necessário para baixar modelos."
-
-msgid "Go Online"
-msgstr "Ativar Acesso Online"
+msgid "Manage Export Templates..."
+msgstr "Gerenciar Modelos de Exportação..."
 
 msgid "Configure FBX Importer..."
 msgstr "Configurar Importador FBX..."
@@ -8208,6 +8182,9 @@ msgstr "Duração: %0.3fs"
 msgid "Advanced settings are always shown when searching."
 msgstr "Configurações avançadas sempre aparecem ao pesquisar."
 
+msgid "Event Configured"
+msgstr "Evento Configurado"
+
 msgid "Configure"
 msgstr "Configurar"
 
@@ -8896,6 +8873,12 @@ msgid "Tag name can't be empty."
 msgstr "O nome da tag não pode estar vazio."
 
 msgid "Tag name can't contain spaces."
+msgstr "O nome da tag não pode conter espaços."
+
+msgid "Tag name can't begin or end with underscore."
+msgstr "O nome da tag não pode começar ou terminar com um sublinhado."
+
+msgid "Tag name can't contain consecutive underscores."
 msgstr "O nome da tag não pode conter espaços."
 
 msgid "These characters are not allowed in tags: %s."
@@ -9878,10 +9861,10 @@ msgid "MeshInstance2D Preview"
 msgstr "Visualizar MeshInstance2D"
 
 msgid "Create Polygon2D"
-msgstr "Criar Polígono2D"
+msgstr "Criar Polygon2D"
 
 msgid "Polygon2D Preview"
-msgstr "Visualizar Polígono2D"
+msgstr "Pré-visualizar Polygon2D"
 
 msgid "Create CollisionPolygon2D"
 msgstr "Criar CollisionPolygon2D"
@@ -9911,7 +9894,7 @@ msgid "Invalid geometry, can't create polygon."
 msgstr "Geometria inválida, não é possível criar o polígono."
 
 msgid "Convert to Polygon2D"
-msgstr "Converter para Polígono2D"
+msgstr "Converter para Polygon2D"
 
 msgid "Invalid geometry, can't create collision polygon."
 msgstr "Geometria inválida, não é possível criar o polígono de colisão."
@@ -10916,6 +10899,12 @@ msgstr "Alterar a Altura da Forma do Cilindro"
 
 msgid "Change Separation Ray Shape Length"
 msgstr "Alterar Comprimento da Forma do Raio de Separação"
+
+msgid "Remove SoftBody3D pinned point %d"
+msgstr "Remover ponto fixado %d do SoftBody3D"
+
+msgid "Add SoftBody3D pinned point %d"
+msgstr "Adicionar ponto fixado SoftBody3D %d"
 
 msgid "Change Probe Size"
 msgstr "Alterar o Tamanho da Sonda"
@@ -16328,11 +16317,8 @@ msgstr "Excluir Nó VisualShader"
 msgid "Delete VisualShader Node(s)"
 msgstr "Excluir Nó(s) VisualShader"
 
-msgid "[None]"
-msgstr "[Nenhum]"
-
-msgid "Edit Visual Property: %s"
-msgstr "Editar Propriedade Visual: %s"
+msgid "Float Constants"
+msgstr "Constantes Float"
 
 msgid "Convert Constant(s) to Parameter(s)"
 msgstr "Converter Constante(s) para Parâmetro(s)"
@@ -16375,6 +16361,9 @@ msgstr "Definir Constante: %s"
 
 msgid "Invalid name for varying."
 msgstr "Nome Inválido para varying."
+
+msgid "Varying with that name already exists."
+msgstr "Varying com esse nome já existe."
 
 msgid "Boolean type cannot be used with `%s` varying mode."
 msgstr "O tipo booleano não pode ser usado com o modo varying `%s`."
@@ -17746,26 +17735,8 @@ msgstr "Opções extra"
 msgid "Force Push"
 msgstr "Forçar Envio"
 
-msgid ""
-"As of Godot 4.4, scenes and resources use UIDs to reference scripts and "
-"shaders. Upgrades apply on the next save of each scene/resource.\n"
-"\n"
-"To save time, this tool can open and save each of these files. Depending on "
-"the project size, it may take several minutes."
-msgstr ""
-"A partir do Godot 4.4, cenas e recursos utilizam UIDs para referenciar "
-"scripts e shaders. Eles serão criados da próxima vez que você salvar cada "
-"cena/recurso.\n"
-"\n"
-"Para economizar tempo, você pode usar esta ferramenta que abre e salva cada "
-"um desses arquivos. Dependendo do tamanho do projeto, esta operação pode "
-"levar vários minutos."
-
-msgid "Re-save all scenes and resources to use UIDs"
-msgstr "Re-salvar todas as cenas e recursos para utilizar UIDs"
-
-msgid "Learn More"
-msgstr "Saiba Mais"
+msgid "Modified"
+msgstr "Modificado"
 
 msgid "Renamed"
 msgstr "Renomeado"
@@ -17868,6 +17839,9 @@ msgstr "Esperava um número inteiro entre 0 e 2^32 - 1."
 
 msgid "Expected a string of length 1 (a character)."
 msgstr "Esperava uma de string de tamanho 1 (um caractere)."
+
+msgid "Range too big."
+msgstr "Alcance muito grande."
 
 msgid "Cannot resize array."
 msgstr "Não foi possível redimensionar a array."
@@ -18795,6 +18769,13 @@ msgstr ""
 msgid "\"Use Gradle Build\" must be enabled to use the plugins."
 msgstr "\"Usar Compilador Gradle\" deve estar ativado para usar os plug-ins."
 
+msgid ""
+"\"Compress Native Libraries\" is only valid when \"Use Gradle Build\" is "
+"enabled."
+msgstr ""
+"\"Comprimir Bibliotecas Nativas\" só é válido quando \"Usar Compilador "
+"Gradle\" está ativado."
+
 msgid "\"Export AAB\" is only valid when \"Use Gradle Build\" is enabled."
 msgstr ""
 "\"Exportar AAB\" só é válido quando \"Usar Compilador Gradle\" está ativado."
@@ -19362,13 +19343,6 @@ msgid "The notarization process generally takes less than an hour."
 msgstr "O processo de notarização geralmente leva menos de uma hora."
 
 msgid ""
-"You can check progress manually by opening a Terminal and running the "
-"following command:"
-msgstr ""
-"Você pode verificar o progresso manualmente abrindo um Terminal e rodando o "
-"seguinte comando:"
-
-msgid ""
 "Run the following command to staple the notarization ticket to the exported "
 "application (optional):"
 msgstr ""
@@ -19847,7 +19821,7 @@ msgid ""
 "A NavigationPolygon resource must be set or created for this node to work. "
 "Please set a property or draw a polygon."
 msgstr ""
-"Um recurso NavigationMesh deve ser definido ou criado para que este nó "
+"Um recurso NavigationPolygon deve ser definido ou criado para que este nó "
 "funcione. Por favor defina uma propriedade ou desenhe um polígono."
 
 msgid ""
@@ -21037,6 +21011,15 @@ msgstr "Recursão não é permitida."
 
 msgid "Function '%s' can't be called from source code."
 msgstr "A função '%s' não pode ser chamada a partir do código-fonte."
+
+msgid "No matching function for \"%s\" call:"
+msgstr "Nenhuma função correspondente encontrada para: '%s':"
+
+msgid ""
+"candidate function \"%s(%s)\" not viable, argument %d should be %s but is %s."
+msgstr ""
+"função candidata \"%s(%s)\" não é viável: o argumento %d deveria ser %s, mas "
+"é %s."
 
 msgid ""
 "Too few arguments for \"%s(%s)\" call. Expected at least %d but received %d."
