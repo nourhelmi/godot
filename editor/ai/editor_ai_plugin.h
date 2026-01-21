@@ -28,8 +28,6 @@ class EditorAIPlugin : public EditorPlugin {
 	Ref<EditorAIMenuHandler> filesystem_menu_handler;
 	Ref<EditorAIMenuHandler> scene_tree_menu_handler;
 
-	void _ensure_dock_first();
-
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "scene/gui/panel_container.h"
+#include "editor/docks/editor_dock.h"
 
 class AIChatDock;
 class AIContextDock; // kept for bundle/settings UI later
@@ -23,8 +23,8 @@ class VBoxContainer;
 
 // Main AI dock container with TabContainer (Chat/Live),
 // connection status bar, and integrated bottom logs panel.
-class AIMainDock : public PanelContainer {
-	GDCLASS(AIMainDock, PanelContainer);
+class AIMainDock : public EditorDock {
+	GDCLASS(AIMainDock, EditorDock);
 
 	// Theme cache
 	struct ThemeCache {

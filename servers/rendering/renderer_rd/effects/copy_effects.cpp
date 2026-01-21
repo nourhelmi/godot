@@ -473,8 +473,6 @@ void CopyEffects::copy_octmap_to_panorama(RID p_source_octmap, RID p_dest_panora
 	// TODO, if this is needed at the copy stage, then we need to pass in the multiplier.
 	copy.push_constant.luminance_multiplier = raster_effects.has_flag(RASTER_EFFECT_COPY) ? 2.0 : 1.0;
 
-	copy.push_constant.luminance_multiplier = prefer_raster_effects ? 2.0 : 1.0;
-
 	// setup our uniforms
 	RID default_sampler = material_storage->sampler_rd_get_default(RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR, RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED);
 

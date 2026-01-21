@@ -36,8 +36,7 @@ void EditorAIPlugin::_notification(int p_what) {
 
 			// Create main dock
 			main_dock = memnew(AIMainDock);
-			add_control_to_dock(DOCK_SLOT_RIGHT_UL, main_dock);
-			_ensure_dock_first();
+			add_dock(main_dock);
 			EditorDockManager::get_singleton()->focus_dock(main_dock);
 
 			// Create bottom panel logs
@@ -82,7 +81,7 @@ void EditorAIPlugin::_notification(int p_what) {
 			}
 
 			if (main_dock) {
-				remove_control_from_docks(main_dock);
+				remove_dock(main_dock);
 				main_dock->queue_free();
 				main_dock = nullptr;
 			}
@@ -93,23 +92,6 @@ void EditorAIPlugin::_notification(int p_what) {
 			}
 			bottom_toggle_btn = nullptr;
 		} break;
-	}
-}
-
-void EditorAIPlugin::_ensure_dock_first() {
-	if (!main_dock) {
-		return;
-	}
-
-	// Move dock to first position in its tab container
-	Node *parent = main_dock->get_parent();
-	while (parent && Object::cast_to<TabContainer>(parent) == nullptr) {
-		parent = parent->get_parent();
-	}
-	if (TabContainer *tabs = Object::cast_to<TabContainer>(parent)) {
-		if (tabs->get_child_count() > 0 && tabs->get_child(0) != main_dock) {
-			tabs->move_child(main_dock, 0);
-		}
 	}
 }
 

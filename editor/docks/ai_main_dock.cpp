@@ -51,6 +51,9 @@ void AIMainDock::_notification(int p_what) {
 
 AIMainDock::AIMainDock() {
 	set_name("Gameable");
+	set_title("Gameable");
+	set_icon_name("Node");
+	set_default_slot(DOCK_SLOT_RIGHT_UL);
 	_build_ui();
 }
 

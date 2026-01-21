@@ -36,7 +36,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/image_texture.h"
 #include "scene/resources/style_box_flat.h"
-#include "servers/display_server.h"
+#include "servers/display/display_server.h"
 
 using CoreBind::Marshalls;
 

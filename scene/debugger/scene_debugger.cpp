@@ -2777,9 +2777,6 @@ void RuntimeNodeSelect::_find_3d_items_at_rect(const Rect2 &p_rect, Vector<Selec
 	shape.instantiate();
 	shape->set_points(points);
 
-	// Keep track of the currently listed nodes, so repeats can be ignored.
-	HashSet<Node *> node_list;
-
 	// Start with physical objects.
 	PhysicsDirectSpaceState3D *ss = root->get_world_3d()->get_direct_space_state();
 	PhysicsDirectSpaceState3D::ShapeResult results[32];

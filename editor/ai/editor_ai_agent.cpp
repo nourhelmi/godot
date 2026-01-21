@@ -41,7 +41,7 @@
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
-#include "servers/rendering_server.h"
+#include "servers/rendering/rendering_server.h"
 
 EditorAIAgent *EditorAIAgent::singleton = nullptr;
 
