@@ -21,8 +21,14 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.14-dev\n"
 
-msgid "Unset"
-msgstr "அமைக்கப்படாதது"
+msgid "OK"
+msgstr "சரி"
+
+msgid "Locked"
+msgstr "பூட்டப்பட்டுள்ளது"
+
+msgid "Help"
+msgstr "உதவி"
 
 msgid "Physical"
 msgstr "உடல்"
@@ -385,6 +391,12 @@ msgstr "புதுப்பிப்பு"
 msgid "Show Hidden"
 msgstr "மறைக்கப்பட்டதைக் காட்டு"
 
+msgid "Find"
+msgstr "கண்டுபிடி"
+
+msgid "Focus Path"
+msgstr "கவனம் பாதை"
+
 msgid "Swap Input Direction"
 msgstr "உள்ளீட்டு திசையை மாற்றவும்"
 
@@ -562,20 +574,6 @@ msgstr "தனித்துவமான"
 
 msgid "Capture"
 msgstr "பிடிப்பு"
-
-msgid ""
-"AnimationTree is inactive.\n"
-"Activate to enable playback, check node warnings if activation fails."
-msgstr ""
-"அனிமேசன் ட்ரீ செயலற்றது. \n"
-"பிளேபேக்கை இயக்க செயல்படுத்தவும், செயல்படுத்தல் தோல்வியுற்றால் முனை எச்சரிக்கைகளை "
-"சரிபார்க்கவும்."
-
-msgid "Set the blending position within the space"
-msgstr "கலப்பு நிலையை விண்வெளியில் அமைக்கவும்"
-
-msgid "Select and move points, create points with RMB."
-msgstr "புள்ளிகளைத் தேர்ந்தெடுத்து நகர்த்தவும், RMB உடன் புள்ளிகளை உருவாக்கவும்."
 
 msgid "Create points."
 msgstr "புள்ளிகளை உருவாக்கவும்."
@@ -1008,18 +1006,6 @@ msgstr "கலப்பு நேரத்தை மாற்றவும்"
 msgid "[Global] (create)"
 msgstr "[உலகளாவிய] (உருவாக்கு)"
 
-msgid "Duplicated Animation Name:"
-msgstr "நகல் அனிமேசன் பெயர்:"
-
-msgid "Onion skinning requires a RESET animation."
-msgstr "வெங்காய ச்கின்னருக்கு மீட்டமை அனிமேசன் தேவை."
-
-msgid "Play Animation Backwards"
-msgstr "அனிமேசனை பின்னோக்கி விளையாடுங்கள்"
-
-msgid "Play Animation Backwards from End"
-msgstr "அனிமேசனை முடிவில் இருந்து பின்னோக்கி விளையாடுங்கள்"
-
 msgid "Pause/Stop Animation"
 msgstr "இடைநிறுத்தம்/அனிமேசன் நிறுத்தவும்"
 
@@ -1029,6 +1015,21 @@ msgstr "தொடக்கத்திலிருந்து அனிமே�
 msgid "Play Animation"
 msgstr "அனிமேசன் விளையாடுங்கள்"
 
+msgid "Play Animation Backwards"
+msgstr "அனிமேசனை பின்னோக்கி விளையாடுங்கள்"
+
+msgid "Play Animation Backwards from End"
+msgstr "அனிமேசனை முடிவில் இருந்து பின்னோக்கி விளையாடுங்கள்"
+
+msgid "Duplicated Animation Name:"
+msgstr "நகல் அனிமேசன் பெயர்:"
+
+msgid "Onion skinning requires a RESET animation."
+msgstr "வெங்காய ச்கின்னருக்கு மீட்டமை அனிமேசன் தேவை."
+
+msgid "Animation"
+msgstr "அனிமேசன்"
+
 msgid "Animation position (in seconds)."
 msgstr "அனிமேசன் நிலை (நொடிகளில்)."
 
@@ -1037,9 +1038,6 @@ msgstr "முனைக்கு உலகளவில் அனிமேசன�
 
 msgid "Animation Tools"
 msgstr "அனிமேசன் கருவிகள்"
-
-msgid "Animation"
-msgstr "அனிமேசன்"
 
 msgid "New..."
 msgstr "புதியது ..."
@@ -1118,15 +1116,6 @@ msgstr "கலப்பு நேரங்கள்:"
 
 msgid "Next (Auto Queue):"
 msgstr "அடுத்து (ஆட்டோ வரிசை):"
-
-msgid "Go to Next Keyframe"
-msgstr "அடுத்த கீஃப்ரேமுக்குச் செல்லவும்"
-
-msgid "Go to Previous Keyframe"
-msgstr "முந்தைய கீஃப்ரேமுக்குச் செல்லவும்"
-
-msgid "Toggle Animation Bottom Panel"
-msgstr "அனிமேசன் கீழ் பேனலை மாற்றவும்"
 
 msgid "Move Node"
 msgstr "முனை நகர்த்தவும்"
@@ -1378,18 +1367,6 @@ msgstr "கையால்:"
 msgid "Out-Handle:"
 msgstr "அவுட்-ஏண்டில்:"
 
-msgid "Handle mode: Free\n"
-msgstr "கைப்பிடி பயன்முறை: இலவசம்\n"
-
-msgid "Handle mode: Linear\n"
-msgstr "கைப்பிடி பயன்முறை: நேரியல்\n"
-
-msgid "Handle mode: Balanced\n"
-msgstr "கைப்பிடி பயன்முறை: சீரானது\n"
-
-msgid "Handle mode: Mirrored\n"
-msgstr "கைப்பிடி பயன்முறை: பிரதிபலித்தது\n"
-
 msgid "Stream:"
 msgstr "ச்ட்ரீம்:"
 
@@ -1443,9 +1420,6 @@ msgstr "வெட்டு விசை (கள்)"
 
 msgid "Copy Key(s)"
 msgstr "விசை (களை) நகலெடுக்கவும்"
-
-msgid "Add RESET Value(s)"
-msgstr "மீட்டமை மதிப்பு (களை) சேர்க்கவும்"
 
 msgid "Delete Key(s)"
 msgstr "விசையை நீக்கு (கள்)"
@@ -1594,6 +1568,9 @@ msgstr "அனிமேசன் மீட்டமை விசைகளைச�
 msgid "Bake Animation as Linear Keys"
 msgstr "நேரியல் விசைகளாக அனிமேசனை சுட்டுக்கொள்ளுங்கள்"
 
+msgid "Create Node"
+msgstr "முனை உருவாக்கவும்"
+
 msgid ""
 "This animation belongs to an imported scene, so changes to imported tracks "
 "will not be saved.\n"
@@ -1632,9 +1609,6 @@ msgstr "அனிமேசன் பிளேயர் செயலற்றத�
 msgid "Select an AnimationPlayer node to create and edit animations."
 msgstr "அனிமேசன்களை உருவாக்க மற்றும் திருத்த அனிமேசன் பிளேயர் முனையைத் தேர்ந்தெடுக்கவும்."
 
-msgid "Imported Scene"
-msgstr "இறக்குமதி செய்யப்பட்ட காட்சி"
-
 msgid "Warning: Editing imported animation"
 msgstr "எச்சரிக்கை: இறக்குமதி செய்யப்பட்ட அனிமேசனைத் திருத்துதல்"
 
@@ -1649,21 +1623,6 @@ msgstr "செயலற்ற பிளேயர்"
 
 msgid "Warning: AnimationPlayer is inactive"
 msgstr "எச்சரிக்கை: அனிமேசன் பிளேயர் செயலற்றது"
-
-msgid "Bezier Default Mode:"
-msgstr "பெசியர் இயல்புநிலை பயன்முறை:"
-
-msgid "Free"
-msgstr "இலவசம்"
-
-msgid "Balanced"
-msgstr "சமநிலையானது"
-
-msgid "Mirrored"
-msgstr "பிரதிபலித்தது"
-
-msgid "Set the default behavior of new bezier keys."
-msgstr "புதிய பெசியர் விசைகளின் இயல்புநிலை நடத்தை அமைக்கவும்."
 
 msgid "Toggle between the bezier curve editor and track editor."
 msgstr "பெசியர் வளைவு எடிட்டர் மற்றும் டிராக் எடிட்டருக்கு இடையில் மாற்றவும்."
@@ -1773,8 +1732,11 @@ msgstr "அடுத்த கட்டத்திற்குச் செல�
 msgid "Go to Previous Step"
 msgstr "முந்தைய படிக்குச் செல்லுங்கள்"
 
-msgid "Apply Reset"
-msgstr "மீட்டமைப்பைப் பயன்படுத்துங்கள்"
+msgid "Go to Next Keyframe"
+msgstr "அடுத்த கீஃப்ரேமுக்குச் செல்லவும்"
+
+msgid "Go to Previous Keyframe"
+msgstr "முந்தைய கீஃப்ரேமுக்குச் செல்லவும்"
 
 msgid "Bake Animation..."
 msgstr "சுட்டுக்கொள்ள அனிமேசன் ..."
@@ -1899,22 +1861,6 @@ msgstr "வேனில்"
 msgid "Ease Type:"
 msgstr "எளிதான வகை:"
 
-msgctxt "Ease Type"
-msgid "In"
-msgstr "இல்"
-
-msgctxt "Ease Type"
-msgid "Out"
-msgstr "வெளியே"
-
-msgctxt "Ease Type"
-msgid "InOut"
-msgstr "Inout"
-
-msgctxt "Ease Type"
-msgid "OutIn"
-msgstr "வெளியே"
-
 msgid "FPS:"
 msgstr "Fps:"
 
@@ -2017,14 +1963,11 @@ msgstr "ஆடியோ டிராக் கிளிப் எண்ட் �
 msgid "Root"
 msgstr "மூலம்"
 
-msgid "Path:"
-msgstr "பாதை:"
-
 msgid "AnimationTree"
 msgstr "அனிமேசன் ட்ரீ"
 
-msgid "Toggle AnimationTree Bottom Panel"
-msgstr "அனிமேசன் ட்ரீ பாட்டம் பேனலை மாற்றவும்"
+msgid "Path:"
+msgstr "பாதை:"
 
 msgid "Open asset details"
 msgstr "திறந்த சொத்து விவரங்கள்"
@@ -2417,9 +2360,6 @@ msgstr "அளவை மீட்டமை"
 msgid "Delete Effect"
 msgstr "விளைவு நீக்கு"
 
-msgid "Toggle Audio Bottom Panel"
-msgstr "ஆடியோ பாட்டம் பேனலை மாற்றவும்"
-
 msgid "Add Audio Bus"
 msgstr "ஆடியோ பச் சேர்க்கவும்"
 
@@ -2494,12 +2434,6 @@ msgstr "தொடரவும்"
 
 msgid "Debug with External Editor"
 msgstr "வெளிப்புற எடிட்டருடன் பிழைத்திருத்தம்"
-
-msgid "Debugger"
-msgstr "பிழைத்திருத்தம்"
-
-msgid "Toggle Debugger Bottom Panel"
-msgstr "பிழைத்திருத்த கீழே உள்ள பேனலை மாற்றவும்"
 
 msgid "Deploy with Remote Debug"
 msgstr "தொலை பிழைத்திருத்தத்துடன் வரிசைப்படுத்தவும்"
@@ -2640,6 +2574,9 @@ msgstr "தொலை %s: %d"
 
 msgid "Remote %s (%d Selected)"
 msgstr "தொலை %s ( %d தேர்ந்தெடுக்கப்பட்டது)"
+
+msgid "Debugger"
+msgstr "பிழைத்திருத்தம்"
 
 msgid "Session %d"
 msgstr "அமர்வு %d"
@@ -2833,14 +2770,14 @@ msgstr "ச்டாக் சுவடு"
 msgid "Stack Trace:"
 msgstr "அடுக்கு ட்ரேச்:"
 
+msgid "Line %d"
+msgstr "வரி %d"
+
 msgid "Debug session started."
 msgstr "பிழைத்திருத்த அமர்வு தொடங்கியது."
 
 msgid "Debug session closed."
 msgstr "பிழைத்திருத்த அமர்வு மூடப்பட்டது."
-
-msgid "Line %d"
-msgstr "வரி %d"
 
 msgid "Delete Breakpoint"
 msgstr "பிரேக் பாயிண்ட்டை நீக்கு"
@@ -2859,9 +2796,6 @@ msgstr "கிட்அப்பில் சி ++ மூலத்தைத் 
 
 msgid "C++ Source"
 msgstr "சி ++ மூல"
-
-msgid "Video RAM"
-msgstr "வீடியோ ரேம்"
 
 msgid "Skip Breakpoints"
 msgstr "பிரேக் பாயிண்டுகளைத் தவிர்க்கவும்"
@@ -2910,6 +2844,9 @@ msgstr "வீடியோ ரேம் புதுப்பிக்கவு�
 
 msgid "Export list to a CSV file"
 msgstr "காபிம கோப்பிற்கு ஏற்றுமதி"
+
+msgid "Video RAM"
+msgstr "வீடியோ ரேம்"
 
 msgid "Resource Path"
 msgstr "வள பாதை"
@@ -3411,6 +3348,12 @@ msgstr "இந்த கப்பல்துறையை வலது ஒரு
 msgid "Move this dock left one tab."
 msgstr "இந்த கப்பல்துறை இடது ஒரு தாவலை நகர்த்தவும்."
 
+msgid "Close this dock."
+msgstr "இந்த கப்பல்துறையை மூடு."
+
+msgid "Make this dock floating."
+msgstr "இந்த கப்பல்துறை மிதக்கச் செய்யுங்கள்."
+
 msgid "Move Tab Left"
 msgstr "தாவலை நகர்த்தவும்"
 
@@ -3422,18 +3365,6 @@ msgstr "தாவலை சரியாக நகர்த்தவும்"
 
 msgid "Make Floating"
 msgstr "மிதக்கும்"
-
-msgid "Make this dock floating."
-msgstr "இந்த கப்பல்துறை மிதக்கச் செய்யுங்கள்."
-
-msgid "Move to Bottom"
-msgstr "கீழே செல்லுங்கள்"
-
-msgid "Move this dock to the bottom panel."
-msgstr "இந்த கப்பல்துறையை கீழ் பேனலுக்கு நகர்த்தவும்."
-
-msgid "Close this dock."
-msgstr "இந்த கப்பல்துறையை மூடு."
 
 msgid "Link to: %s"
 msgstr "இணைப்பு: %s"
@@ -3668,6 +3599,12 @@ msgstr "கடைசியாக மாற்றியமைக்கப்ப�
 msgid "Sort by First Modified"
 msgstr "முதலில் மாற்றியமைக்கப்பட்டதன் மூலம் வரிசைப்படுத்தவும்"
 
+msgid "FileSystem"
+msgstr "கோப்பு முறைமை"
+
+msgid "Open FileSystem Dock"
+msgstr "கோப்பு முறைமை கப்பல்துறை திறக்கவும்"
+
 msgid "Copy Path"
 msgstr "நகல் பாதை"
 
@@ -3716,9 +3653,6 @@ msgstr "அடுத்த தேர்ந்தெடுக்கப்பட�
 msgid "Change Split Mode"
 msgstr "பிளவு பயன்முறையை மாற்றவும்"
 
-msgid "Dock Placement"
-msgstr "கப்பல்துறை வேலை வாய்ப்பு"
-
 msgid "Filter Files"
 msgstr "கோப்புகளை வடிகட்டவும்"
 
@@ -3752,6 +3686,9 @@ msgstr "ச்கிரிப்டை உருவாக்கவும்"
 
 msgid "Convert"
 msgstr "மாற்றவும்"
+
+msgid "Groups"
+msgstr "குழுக்கள்"
 
 msgid "Scene Groups"
 msgstr "காட்சி குழுக்கள்"
@@ -3822,6 +3759,12 @@ msgstr "வடிகட்டி குழுக்கள்"
 msgid "The Beginning"
 msgstr "துவக்கம்"
 
+msgid "History"
+msgstr "வரலாறு"
+
+msgid "Open History Dock"
+msgstr "திறந்த வரலாற்று கப்பல்துறை"
+
 msgid "Scene"
 msgstr "காட்சி"
 
@@ -3853,6 +3796,12 @@ msgstr ""
 "மாற்றங்களைப் பயன்படுத்த மறுசீரமைப்பு என்பதைக் சொடுக்கு செய்க. \n"
 "முதலில் ரீமேல்போர்ட்டைக் சொடுக்கு செய்யாமல் கோப்பு முறைமை கப்பல்துறையில் மற்றொரு வளத்தைத் "
 "தேர்ந்தெடுப்பது இறக்குமதி கப்பல்துறையில் செய்யப்பட்ட மாற்றங்களை நிராகரிக்கும்."
+
+msgid "Import"
+msgstr "இறக்குமதி"
+
+msgid "Open Import Dock"
+msgstr "திறந்த இறக்குமதி கப்பல்துறை"
 
 msgid "Import As:"
 msgstr "இறக்குமதி:"
@@ -3889,9 +3838,6 @@ msgid ""
 "object."
 msgstr "பின்வரும் வளங்கள் நகல் செய்யப்பட்டு இந்த வள/பொருளுக்குள் உட்பொதிக்கப்படும்."
 
-msgid "This object has no resources."
-msgstr "இந்த பொருளுக்கு ஆதாரங்கள் இல்லை."
-
 msgid "Failed to load resource."
 msgstr "வளத்தை ஏற்றுவதில் தோல்வி."
 
@@ -3924,6 +3870,12 @@ msgstr "பண்புகளை ஒட்டவும்"
 
 msgid "Make Sub-Resources Unique"
 msgstr "துணை வளங்களை தனித்துவமாக்குங்கள்"
+
+msgid "Inspector"
+msgstr "இன்ச்பெக்டர்"
+
+msgid "Open Inspector Dock"
+msgstr "திறந்த இன்ச்பெக்டர் கப்பல்துறை"
 
 msgid "Create a new resource in memory and edit it."
 msgstr "நினைவகத்தில் புதிய ஆதாரத்தை உருவாக்கி அதைத் திருத்தவும்."
@@ -3975,12 +3927,6 @@ msgstr "தகவல்"
 
 msgid "This cannot be undone. Are you sure?"
 msgstr "இதை செயல்தவிர்க்க முடியாது. நீங்கள் உறுதியாக இருக்கிறீர்களா?"
-
-msgid "Groups"
-msgstr "குழுக்கள்"
-
-msgid "Select a single node to edit its signals and groups."
-msgstr "அதன் சமிக்ஞைகள் மற்றும் குழுக்களைத் திருத்த ஒரு முனையைத் தேர்ந்தெடுக்கவும்."
 
 msgid "No parent to instantiate a child at."
 msgstr "ஒரு குழந்தையை உடனடிப்படுத்த பெற்றோர் இல்லை."
@@ -4109,12 +4055,6 @@ msgid "Save New Scene As..."
 msgstr "புதிய காட்சியை சேமிக்கவும் ..."
 
 msgid ""
-"Disabling \"editable_instance\" will cause all properties of the node to be "
-"reverted to their default."
-msgstr ""
-"\"எடிட்டபிள்_இன்ச்டன்ச்\" ஐ முடக்குவது முனையின் அனைத்து பண்புகளையும் இயல்புநிலைக்கு மாற்றும்."
-
-msgid ""
 "Enabling \"Load as Placeholder\" will disable \"Editable Children\" and cause "
 "all properties of the node to be reverted to their default."
 msgstr ""
@@ -4163,9 +4103,6 @@ msgstr "மற்ற முனை"
 msgid "Paste From Clipboard"
 msgstr "கிளிப்போர்டிலிருந்து ஒட்டவும்"
 
-msgid "Filters"
-msgstr "வடிப்பான்கள்"
-
 msgid "Can't operate on nodes from a foreign scene!"
 msgstr "ஒரு வெளிநாட்டு காட்சியில் இருந்து முனைகளில் செயல்பட முடியாது!"
 
@@ -4192,9 +4129,6 @@ msgstr "வெட்டு முனை (கள்)"
 
 msgid "Remove Node(s)"
 msgstr "முனை (களை) அகற்று"
-
-msgid "Create Node"
-msgstr "முனை உருவாக்கவும்"
 
 msgid "Change type of node(s)"
 msgstr "முனை (களை) மாற்றவும்"
@@ -4292,16 +4226,6 @@ msgstr "வகை மூலம் வடிகட்டவும்"
 msgid "Filter by Group"
 msgstr "குழு மூலம் வடிகட்டவும்"
 
-msgid "Selects all Nodes of the given type."
-msgstr "கொடுக்கப்பட்ட வகையின் அனைத்து முனைகளையும் தேர்ந்தெடுக்கிறது."
-
-msgid ""
-"Selects all Nodes belonging to the given group.\n"
-"If empty, selects any Node belonging to any group."
-msgstr ""
-"கொடுக்கப்பட்ட குழுவிற்கு சொந்தமான அனைத்து முனைகளையும் தேர்ந்தெடுக்கிறது. \n"
-"காலியாக இருந்தால், எந்த குழுவிற்கும் சொந்தமான எந்த முனையையும் தேர்ந்தெடுக்கிறது."
-
 msgid ""
 "Cannot attach a script: there are no languages registered.\n"
 "This is probably because this editor was built with all language modules "
@@ -4331,6 +4255,9 @@ msgstr "(பயன்படுத்தப்பட்ட %d முறை)"
 
 msgid "None"
 msgstr "எதுவுமில்லை"
+
+msgid "Open Scene Dock"
+msgstr "திறந்த காட்சி கப்பல்துறை"
 
 msgid "Batch Rename..."
 msgstr "தொகுதி மறுபெயரிட ..."
@@ -4386,9 +4313,6 @@ msgid ""
 msgstr ""
 "ஒரு காட்சி கோப்பை ஒரு முனையாக நிறுவவும். ரூட் முனை எதுவும் இல்லை என்றால் பரம்பரை "
 "காட்சியை உருவாக்குகிறது."
-
-msgid "Filter: name, t:type, g:group"
-msgstr "வடிகட்டி: பெயர், டி: வகை, சி: குழு"
 
 msgid "Filter Nodes"
 msgstr "முனைகளை வடிகட்டவும்"
@@ -4452,6 +4376,9 @@ msgstr "சிறுபடம் ..."
 
 msgid "Create New %s"
 msgstr "புதிய %s ஐ உருவாக்கவும்"
+
+msgid "Output"
+msgstr "வெளியீடு"
 
 msgid "Filter Messages"
 msgstr "செய்திகளை வடிகட்டவும்"
@@ -4536,18 +4463,8 @@ msgstr "எடிட்டர் சாளரம் மீண்டும் வ
 msgid "Imported resources can't be saved."
 msgstr "இறக்குமதி செய்யப்பட்ட வளங்களை சேமிக்க முடியாது."
 
-msgid "OK"
-msgstr "சரி"
-
 msgid "Error saving resource!"
 msgstr "ஆதாரத்தை சேமிப்பதில் பிழை!"
-
-msgid ""
-"This resource can't be saved because it does not belong to the edited scene. "
-"Make it unique first."
-msgstr ""
-"இந்த வளத்தை சேமிக்க முடியாது, ஏனெனில் இது திருத்தப்பட்ட காட்சிக்கு சொந்தமானது அல்ல. "
-"முதலில் அதை தனித்துவமாக்குங்கள்."
 
 msgid ""
 "This resource can't be saved because it was imported from another file. Make "
@@ -4555,6 +4472,13 @@ msgid ""
 msgstr ""
 "இந்த வளத்தை மற்றொரு கோப்பிலிருந்து இறக்குமதி செய்ததால் சேமிக்க முடியாது. முதலில் அதை "
 "தனித்துவமாக்குங்கள்."
+
+msgid ""
+"This resource can't be saved because it does not belong to the edited scene. "
+"Make it unique first."
+msgstr ""
+"இந்த வளத்தை சேமிக்க முடியாது, ஏனெனில் இது திருத்தப்பட்ட காட்சிக்கு சொந்தமானது அல்ல. "
+"முதலில் அதை தனித்துவமாக்குங்கள்."
 
 msgid "Save Resource As..."
 msgstr "வளத்தை சேமிக்கவும் ..."
@@ -5039,20 +4963,8 @@ msgstr "மீண்டும் ஏற்றுதல் ..."
 msgid "Reloading done."
 msgstr "மீண்டும் ஏற்றுதல் முடிந்தது."
 
-msgid ""
-"Changing the renderer requires restarting the editor.\n"
-"\n"
-"Choosing Save & Restart will change the rendering method to:\n"
-"- Desktop platforms: %s\n"
-"- Mobile platforms: %s\n"
-"- Web platform: gl_compatibility"
-msgstr ""
-"ரெண்டரரை மாற்ற எடிட்டரை மறுதொடக்கம் செய்ய வேண்டும். \n"
-"\n"
-"சேமி மற்றும் மறுதொடக்கத்தைத் தேர்ந்தெடுப்பது வழங்குதல் முறையை மாற்றும்: \n"
-"- டெச்க்டாப் இயங்குதளங்கள்: %s \n"
-"- மொபைல் தளங்கள்: %s \n"
-"- வலை தளம்: GL_COMPATITIAL"
+msgid "Save & Restart"
+msgstr "சேமித்து மறுதொடக்கம் செய்யுங்கள்"
 
 msgid "Forward+"
 msgstr "முன்னோக்கி+"
@@ -5062,6 +4974,63 @@ msgstr "மொபைல்"
 
 msgid "Compatibility"
 msgstr "பொருந்தக்கூடிய தன்மை"
+
+msgid "Open Recent"
+msgstr "அண்மைக் கால திறப்பு"
+
+msgid "Export As..."
+msgstr "ஏற்றுமதி ..."
+
+msgid "Version Control"
+msgstr "பதிப்பு கட்டுப்பாடு"
+
+msgid "Create/Override Version Control Metadata..."
+msgstr "பதிப்பு கட்டுப்பாட்டு மெட்டாடேட்டாவை உருவாக்க/மேலெழுதவும் ..."
+
+msgid "Version Control Settings..."
+msgstr "பதிப்பு கட்டுப்பாட்டு அமைப்புகள் ..."
+
+msgid "Pack Project as ZIP..."
+msgstr "பேக் திட்டத்தை சிப் ..."
+
+msgid "Install Android Build Template..."
+msgstr "ஆண்ட்ராய்டு உருவாக்க வார்ப்புருவை நிறுவவும் ..."
+
+msgid "Open User Data Folder"
+msgstr "பயனர் தரவு கோப்புறையைத் திறக்கவும்"
+
+msgid "Tools"
+msgstr "கருவிகள்"
+
+msgid "Editor Docks"
+msgstr "ஆசிரியர் கப்பல்துறைகள்"
+
+msgid "Editor Layout"
+msgstr "ஆசிரியர் தளவமைப்பு"
+
+msgid "Screenshots are stored in the user data folder (\"user://\")."
+msgstr "திரை சாட்கள் பயனர் தரவு கோப்புறையில் சேமிக்கப்படுகின்றன (\"பயனர்: //\")."
+
+msgid "Open Editor Data/Settings Folder"
+msgstr "திறந்த எடிட்டர் தரவு/அமைப்புகள் கோப்புறை"
+
+msgid "Open Editor Data Folder"
+msgstr "திறந்த எடிட்டர் தரவு கோப்புறை"
+
+msgid "Open Editor Settings Folder"
+msgstr "திறந்த ஆசிரியர் அமைப்புகள் கோப்புறை"
+
+msgid "Manage Editor Features..."
+msgstr "ஆசிரியர் அம்சங்களை நிர்வகிக்கவும் ..."
+
+msgid "Manage Export Templates..."
+msgstr "ஏற்றுமதி வார்ப்புருக்களை நிர்வகிக்கவும் ..."
+
+msgid "Configure FBX Importer..."
+msgstr "FBX இறக்குமதியாளரை உள்ளமைக்கவும் ..."
+
+msgid "Copies the system info as a single-line text into the clipboard."
+msgstr "கணினி தகவலை ஒற்றை வரி உரையாக கிளிப்போர்டில் நகலெடுக்கிறது."
 
 msgid "Main Menu"
 msgstr "பட்டியல் விளையாடுங்கள்"
@@ -5093,6 +5062,9 @@ msgstr "கவனச்சிதறல் இல்லாத பயன்மு�
 msgid "Copy Text"
 msgstr "உரையை நகலெடுக்கவும்"
 
+msgid "Command Palette"
+msgstr "கட்டளை தட்டு"
+
 msgid "Next Scene Tab"
 msgstr "அடுத்த காட்சி தாவல்"
 
@@ -5101,9 +5073,6 @@ msgstr "முந்தைய காட்சி தாவல்"
 
 msgid "Focus FileSystem Filter"
 msgstr "கோப்பு முறைமை வடிகட்டியை மையப்படுத்தவும்"
-
-msgid "Command Palette"
-msgstr "கட்டளை தட்டு"
 
 msgid "New Scene"
 msgstr "புதிய காட்சி"
@@ -5116,9 +5085,6 @@ msgstr "திறந்த காட்சி ..."
 
 msgid "Reopen Closed Scene"
 msgstr "மூடிய காட்சியை மீண்டும் திறக்கவும்"
-
-msgid "Open Recent"
-msgstr "அண்மைக் கால திறப்பு"
 
 msgid "Save Scene"
 msgstr "காட்சியை சேமிக்கவும்"
@@ -5135,9 +5101,6 @@ msgstr "விரைவான திறந்த காட்சி ..."
 msgid "Quick Open Script..."
 msgstr "விரைவான திறந்த ச்கிரிப்ட் ..."
 
-msgid "Export As..."
-msgstr "ஏற்றுமதி ..."
-
 msgid "MeshLibrary..."
 msgstr "மெச்லிபிரரி ..."
 
@@ -5147,14 +5110,11 @@ msgstr "சேமித்த காட்சியை மீண்டும் 
 msgid "Close Scene"
 msgstr "காட்சி மூடு"
 
-msgid "Quit"
-msgstr "வெளியேறு"
-
 msgid "Editor Settings..."
 msgstr "ஆசிரியர் அமைப்புகள் ..."
 
-msgid "Project"
-msgstr "திட்டம்"
+msgid "Quit"
+msgstr "வெளியேறு"
 
 msgid "Project Settings..."
 msgstr "திட்ட அமைப்புகள் ..."
@@ -5165,26 +5125,11 @@ msgstr "திட்ட அமைப்புகள்"
 msgid "Find in Files..."
 msgstr "கோப்புகளில் காண்க ..."
 
-msgid "Version Control"
-msgstr "பதிப்பு கட்டுப்பாடு"
-
 msgid "Export..."
 msgstr "ஏற்றுமதி ..."
 
 msgid "Export"
 msgstr "ஏற்றுமதி"
-
-msgid "Pack Project as ZIP..."
-msgstr "பேக் திட்டத்தை சிப் ..."
-
-msgid "Install Android Build Template..."
-msgstr "ஆண்ட்ராய்டு உருவாக்க வார்ப்புருவை நிறுவவும் ..."
-
-msgid "Open User Data Folder"
-msgstr "பயனர் தரவு கோப்புறையைத் திறக்கவும்"
-
-msgid "Tools"
-msgstr "கருவிகள்"
 
 msgid "Orphan Resource Explorer..."
 msgstr "அனாதை வள எக்ச்ப்ளோரர் ..."
@@ -5204,41 +5149,11 @@ msgstr "திட்ட பட்டியலுக்கு வெளியே�
 msgid "Command Palette..."
 msgstr "கட்டளை தட்டு ..."
 
-msgid "Editor Docks"
-msgstr "ஆசிரியர் கப்பல்துறைகள்"
-
-msgid "Editor Layout"
-msgstr "ஆசிரியர் தளவமைப்பு"
-
 msgid "Take Screenshot"
 msgstr "திரைக்காட்சி எடுத்துக் கொள்ளுங்கள்"
 
-msgid "Screenshots are stored in the user data folder (\"user://\")."
-msgstr "திரை சாட்கள் பயனர் தரவு கோப்புறையில் சேமிக்கப்படுகின்றன (\"பயனர்: //\")."
-
 msgid "Toggle Fullscreen"
 msgstr "மாற்று முழுத்திரை"
-
-msgid "Open Editor Data/Settings Folder"
-msgstr "திறந்த எடிட்டர் தரவு/அமைப்புகள் கோப்புறை"
-
-msgid "Open Editor Data Folder"
-msgstr "திறந்த எடிட்டர் தரவு கோப்புறை"
-
-msgid "Open Editor Settings Folder"
-msgstr "திறந்த ஆசிரியர் அமைப்புகள் கோப்புறை"
-
-msgid "Manage Editor Features..."
-msgstr "ஆசிரியர் அம்சங்களை நிர்வகிக்கவும் ..."
-
-msgid "Manage Export Templates..."
-msgstr "ஏற்றுமதி வார்ப்புருக்களை நிர்வகிக்கவும் ..."
-
-msgid "Configure FBX Importer..."
-msgstr "FBX இறக்குமதியாளரை உள்ளமைக்கவும் ..."
-
-msgid "Help"
-msgstr "உதவி"
 
 msgid "Search Help..."
 msgstr "தேடல் உதவி ..."
@@ -5251,9 +5166,6 @@ msgstr "மன்றம்"
 
 msgid "Copy System Info"
 msgstr "கணினி தகவலை நகலெடுக்கவும்"
-
-msgid "Copies the system info as a single-line text into the clipboard."
-msgstr "கணினி தகவலை ஒற்றை வரி உரையாக கிளிப்போர்டில் நகலெடுக்கிறது."
 
 msgid "Report a Bug"
 msgstr "ஒரு பிழையைப் புகாரளிக்கவும்"
@@ -5270,26 +5182,23 @@ msgstr "கோடோட் பற்றி ..."
 msgid "Support Godot Development"
 msgstr "கோடோட் வளர்ச்சியை ஆதரிக்கவும்"
 
-msgid ""
-"Choose a rendering method.\n"
-"\n"
-"Notes:\n"
-"- On mobile platforms, the Mobile rendering method is used if Forward+ is "
-"selected here.\n"
-"- On the web platform, the Compatibility rendering method is always used."
-msgstr ""
-"வழங்குதல் முறையைத் தேர்வுசெய்க. \n"
-"\n"
-"குறிப்புகள்: \n"
-"- மொபைல் தளங்களில், முன்னோக்கி+ இங்கே தேர்ந்தெடுக்கப்பட்டால் மொபைல் வழங்குதல் முறை "
-"பயன்படுத்தப்படுகிறது. \n"
-"- வலை தளத்தில், பொருந்தக்கூடிய வழங்குதல் முறை எப்போதும் பயன்படுத்தப்படுகிறது."
+msgid "Open Script Editor"
+msgstr "திறந்த ச்கிரிப்ட் எடிட்டர்"
 
-msgid "Rendering Method"
-msgstr "வழங்குதல் முறை"
+msgid "Open Game View"
+msgstr "திறந்த விளையாட்டு காட்சி"
 
-msgid "Save & Restart"
-msgstr "சேமித்து மறுதொடக்கம் செய்யுங்கள்"
+msgid "Open Asset Library"
+msgstr "திறந்த சொத்து நூலகம்"
+
+msgid "Open the next Editor"
+msgstr "அடுத்த எடிட்டரைத் திறக்கவும்"
+
+msgid "Open the previous Editor"
+msgstr "முந்தைய எடிட்டரைத் திறக்கவும்"
+
+msgid "Project"
+msgstr "திட்டம்"
 
 msgid "Update Mode"
 msgstr "புதுப்பிப்பு பயன்முறை"
@@ -5302,45 +5211,6 @@ msgstr "மாற்றும்போது புதுப்பிக்க�
 
 msgid "Hide Update Spinner"
 msgstr "புதுப்பிப்பு ச்பின்னரை மறைக்கவும்"
-
-msgid "Open Scene Dock"
-msgstr "திறந்த காட்சி கப்பல்துறை"
-
-msgid "Import"
-msgstr "இறக்குமதி"
-
-msgid "Open Import Dock"
-msgstr "திறந்த இறக்குமதி கப்பல்துறை"
-
-msgid "FileSystem"
-msgstr "கோப்பு முறைமை"
-
-msgid "Open FileSystem Dock"
-msgstr "கோப்பு முறைமை கப்பல்துறை திறக்கவும்"
-
-msgid "Inspector"
-msgstr "இன்ச்பெக்டர்"
-
-msgid "Open Inspector Dock"
-msgstr "திறந்த இன்ச்பெக்டர் கப்பல்துறை"
-
-msgid "Node"
-msgstr "கணு"
-
-msgid "Open Node Dock"
-msgstr "திறந்த முனை கப்பல்துறை"
-
-msgid "History"
-msgstr "வரலாறு"
-
-msgid "Open History Dock"
-msgstr "திறந்த வரலாற்று கப்பல்துறை"
-
-msgid "Output"
-msgstr "வெளியீடு"
-
-msgid "Toggle Output Bottom Panel"
-msgstr "வெளியீட்டு கீழ் பேனலை மாற்றவும்"
 
 msgid "Don't Save"
 msgstr "சேமிக்க வேண்டாம்"
@@ -5367,9 +5237,6 @@ msgstr "வார்ப்புரு தொகுப்பு"
 msgid "Export Library"
 msgstr "ஏற்றுமதி நூலகம்"
 
-msgid "Open & Run a Script"
-msgstr "ஒரு ச்கிரிப்டைத் திறந்து இயக்கவும்"
-
 msgid "Files have been modified outside Godot"
 msgstr "கோடோட்டுக்கு வெளியே கோப்புகள் மாற்றியமைக்கப்பட்டுள்ளன"
 
@@ -5391,12 +5258,6 @@ msgstr "திட்ட தரவு கோப்புறை (.godot) காண
 msgid "Restart"
 msgstr "மறுதொடக்கம்"
 
-msgid "Create/Override Version Control Metadata..."
-msgstr "பதிப்பு கட்டுப்பாட்டு மெட்டாடேட்டாவை உருவாக்க/மேலெழுதவும் ..."
-
-msgid "Version Control Settings..."
-msgstr "பதிப்பு கட்டுப்பாட்டு அமைப்புகள் ..."
-
 msgid "Open Anyway"
 msgstr "எப்படியும் திறக்கவும்"
 
@@ -5411,27 +5272,6 @@ msgstr "மின்னோட்டத்தைத் தேர்ந்தெ�
 
 msgid "Open Project Settings"
 msgstr "திட்ட அமைப்புகளைத் திறக்கவும்"
-
-msgid "Open 2D Editor"
-msgstr "திறந்த 2 டி எடிட்டர்"
-
-msgid "Open 3D Editor"
-msgstr "திறந்த 3D எடிட்டர்"
-
-msgid "Open Script Editor"
-msgstr "திறந்த ச்கிரிப்ட் எடிட்டர்"
-
-msgid "Open Game View"
-msgstr "திறந்த விளையாட்டு காட்சி"
-
-msgid "Open Asset Library"
-msgstr "திறந்த சொத்து நூலகம்"
-
-msgid "Open the next Editor"
-msgstr "அடுத்த எடிட்டரைத் திறக்கவும்"
-
-msgid "Open the previous Editor"
-msgstr "முந்தைய எடிட்டரைத் திறக்கவும்"
 
 msgid "Ok"
 msgstr "சரி"
@@ -6140,9 +5980,6 @@ msgstr ""
 "திட்டத்திலிருந்து கோப்புகள்/கோப்புறைகளை விலக்க வடிப்பான்கள் \n"
 "(கமாவால் பிரிக்கப்பட்ட, எ.கா: *.ச்சன், *.txt, டாக்ச்/ *)"
 
-msgid "Patches"
-msgstr "திட்டுகள்"
-
 msgid "Base Packs:"
 msgstr "அடிப்படை பொதிகள்:"
 
@@ -6259,25 +6096,8 @@ msgstr "ஏற்றுமதி வார்ப்புருக்களை �
 msgid "Baking shaders"
 msgstr "பேக்கிங் சேடர்கள்"
 
-msgid "Search Replacement For:"
-msgstr "இதற்கான மாற்றீட்டைத் தேடுங்கள்:"
-
 msgid "Dependencies For:"
 msgstr "இதற்கான சார்பு:"
-
-msgid ""
-"Scene '%s' is currently being edited.\n"
-"Changes will only take effect when reloaded."
-msgstr ""
-"காட்சி '%s' தற்போது திருத்தப்பட்டு வருகிறது. \n"
-"மீண்டும் ஏற்றும்போது மாற்றங்கள் நடைமுறைக்கு வரும்."
-
-msgid ""
-"Resource '%s' is in use.\n"
-"Changes will only take effect when reloaded."
-msgstr ""
-"வள '%s' பயன்பாட்டில் உள்ளன. \n"
-"மீண்டும் ஏற்றும்போது மாற்றங்கள் நடைமுறைக்கு வரும்."
 
 msgid "Dependencies"
 msgstr "சார்புநிலைகள்"
@@ -6290,9 +6110,6 @@ msgstr "உடைந்ததை சரிசெய்யவும்"
 
 msgid "Dependency Editor"
 msgstr "சார்பு ஆசிரியர்"
-
-msgid "Search Replacement Resource:"
-msgstr "மாற்று வளத்தைத் தேடுங்கள்:"
 
 msgid "Owners of: %s (Total: %d)"
 msgstr "இதன் உரிமையாளர்கள்: %s (மொத்தம்: %d)"
@@ -6333,20 +6150,14 @@ msgstr "நீக்கப்பட வேண்டிய கோப்புக�
 msgid "Dependencies of files to be deleted:"
 msgstr "நீக்கப்பட வேண்டிய கோப்புகளின் சார்பு:"
 
-msgid "Error loading:"
-msgstr "பிழை ஏற்றுதல்:"
+msgid "Fix Dependencies"
+msgstr "சார்புகளை சரிசெய்யவும்"
 
 msgid "Load failed due to missing dependencies:"
 msgstr "காணாமல் போனதால் சுமை தோல்வியடைந்தது:"
 
 msgid "Which action should be taken?"
 msgstr "எந்த நடவடிக்கை எடுக்கப்பட வேண்டும்?"
-
-msgid "Fix Dependencies"
-msgstr "சார்புகளை சரிசெய்யவும்"
-
-msgid "Errors loading!"
-msgstr "பிழைகள் ஏற்றுதல்!"
 
 msgid "Permanently delete %d item(s)? (No undo!)"
 msgstr "%d உருப்படி (களை) நிரந்தரமாக நீக்கவா? (செயல்தவிர் இல்லை!)"
@@ -6448,9 +6259,6 @@ msgstr "மாற்றத்தைக் காட்டு"
 msgid "Replace Mode"
 msgstr "பயன்முறையை மாற்றவும்"
 
-msgid "Find"
-msgstr "கண்டுபிடி"
-
 msgid "Match Case"
 msgstr "போட்டி வழக்கு"
 
@@ -6474,7 +6282,7 @@ msgctxt "Indentation"
 msgid "Tabs"
 msgstr "தாவல்கள்"
 
-msgid "Zoom factor"
+msgid "Zoom Factor"
 msgstr "சூம் காரணி"
 
 msgid "Zoom In"
@@ -6485,9 +6293,6 @@ msgstr "சிறிதாக்கு"
 
 msgid "Reset Zoom"
 msgstr "பெரிதாக்கு மீட்டமைக்கவும்"
-
-msgid "Zoom Factor"
-msgstr "சூம் காரணி"
 
 msgid "Line and column numbers."
 msgstr "வரி மற்றும் நெடுவரிசை எண்கள்."
@@ -6656,30 +6461,6 @@ msgstr "கூறுகள்"
 msgid "Licenses"
 msgstr "உரிமங்கள்"
 
-msgid ""
-"Scroll Left\n"
-"Hold Ctrl to scroll to the begin.\n"
-"Hold Shift to scroll one page."
-msgstr ""
-"உருள் இடது \n"
-"தொடக்கத்திற்கு உருட்ட கட்டுப்பாடு ஐப் பிடித்துக் கொள்ளுங்கள். \n"
-"ஒரு பக்கத்தை உருட்ட மாற்றத்தை நடத்துங்கள்."
-
-msgid "Scroll Left"
-msgstr "உருள் இடது"
-
-msgid ""
-"Scroll Right\n"
-"Hold Ctrl to scroll to the end.\n"
-"Hold Shift to scroll one page."
-msgstr ""
-"வலதுபுறம் உருட்டவும் \n"
-"முடிவுக்கு உருட்ட கட்டுப்பாடு ஐப் பிடித்துக் கொள்ளுங்கள். \n"
-"ஒரு பக்கத்தை உருட்ட மாற்றத்தை நடத்துங்கள்."
-
-msgid "Scroll Right"
-msgstr "வலதுபுறம் உருட்டவும்"
-
 msgid "Pin Bottom Panel Switching"
 msgstr "பின் பேனல் மாறுதல்"
 
@@ -6699,147 +6480,6 @@ msgstr "இலக்கு கோப்பகத்தைத் தேர்வ�
 
 msgid "Move"
 msgstr "நகர்த்தவும்"
-
-msgid "Network"
-msgstr "பிணையம்"
-
-msgid "Select Current Folder"
-msgstr "தற்போதைய கோப்புறையைத் தேர்ந்தெடுக்கவும்"
-
-msgid "Cannot save file with an empty filename."
-msgstr "வெற்று கோப்பு பெயருடன் கோப்பைச் சேமிக்க முடியாது."
-
-msgid "Cannot save file with a name starting with a dot."
-msgstr "புள்ளியுடன் தொடங்கி ஒரு பெயருடன் கோப்பைச் சேமிக்க முடியாது."
-
-msgid ""
-"File \"%s\" already exists.\n"
-"Do you want to overwrite it?"
-msgstr ""
-"\"%s\" கோப்பு ஏற்கனவே உள்ளது. \n"
-"அதை மேலெழுத விரும்புகிறீர்களா?"
-
-msgid "Select This Folder"
-msgstr "இந்த கோப்புறையைத் தேர்ந்தெடுக்கவும்"
-
-msgid "Show Package Contents"
-msgstr "தொகுப்பு உள்ளடக்கங்களைக் காட்டு"
-
-msgid "All Files"
-msgstr "அனைத்து கோப்புகள்"
-
-msgid "Open a File"
-msgstr "ஒரு கோப்பைத் திறக்கவும்"
-
-msgid "Open File(s)"
-msgstr "திறந்த கோப்பு (கள்)"
-
-msgid "Open a Directory"
-msgstr "ஒரு கோப்பகத்தைத் திறக்கவும்"
-
-msgid "Open a File or Directory"
-msgstr "ஒரு கோப்பு அல்லது கோப்பகத்தைத் திறக்கவும்"
-
-msgid "Save a File"
-msgstr "ஒரு கோப்பைச் சேமிக்கவும்"
-
-msgid "The path specified is invalid."
-msgstr "குறிப்பிடப்பட்ட பாதை தவறானது."
-
-msgid "Could not create folder. File with that name already exists."
-msgstr "கோப்புறையை உருவாக்க முடியவில்லை. அந்த பெயருடன் கோப்பு ஏற்கனவே உள்ளது."
-
-msgid "Could not create folder."
-msgstr "கோப்புறையை உருவாக்க முடியவில்லை."
-
-msgid "Favorited folder does not exist anymore and will be removed."
-msgstr "பிடித்த கோப்புறை இனி இல்லை, அது அகற்றப்படும்."
-
-msgid "Go Back"
-msgstr "திரும்பிச் செல்லுங்கள்"
-
-msgid "Go Forward"
-msgstr "முன்னோக்கிச் செல்லுங்கள்"
-
-msgid "Go Up"
-msgstr "மேலே செல்லுங்கள்"
-
-msgid "Toggle Hidden Files"
-msgstr "மறைக்கப்பட்ட கோப்புகளை மாற்றவும்"
-
-msgid "Toggle Favorite"
-msgstr "பிடித்ததை மாற்றவும்"
-
-msgid "Toggle Mode"
-msgstr "முறை மாற்றவும்"
-
-msgid "Focus Path"
-msgstr "கவனம் பாதை"
-
-msgid "Focus Filter"
-msgstr "கவனம் வடிகட்டி"
-
-msgid "Move Favorite Up"
-msgstr "பிடித்ததை நகர்த்தவும்"
-
-msgid "Move Favorite Down"
-msgstr "பிடித்ததை கீழே நகர்த்தவும்"
-
-msgid "Go to previous folder."
-msgstr "முந்தைய கோப்புறைக்குச் செல்லுங்கள்."
-
-msgid "Go to next folder."
-msgstr "அடுத்த கோப்புறைக்குச் செல்லுங்கள்."
-
-msgid "Go to parent folder."
-msgstr "பெற்றோர் கோப்புறைக்குச் செல்லுங்கள்."
-
-msgid "Refresh files."
-msgstr "கோப்புகளைப் புதுப்பிக்கவும்."
-
-msgid "(Un)favorite current folder."
-msgstr "(ஐ.நா) பிடித்த தற்போதைய கோப்புறை."
-
-msgid "Current Drive"
-msgstr "தற்போதைய இயக்கி"
-
-msgid "Create a new folder."
-msgstr "புதிய கோப்புறையை உருவாக்கவும்."
-
-msgid "Directories & Files:"
-msgstr "கோப்பகங்கள் மற்றும் கோப்புகள்:"
-
-msgid "Toggle the visibility of hidden files."
-msgstr "மறைக்கப்பட்ட கோப்புகளின் தெரிவுநிலையை மாற்றவும்."
-
-msgid "Sort files"
-msgstr "கோப்புகளை வரிசைப்படுத்துங்கள்"
-
-msgid "Toggle the visibility of the filter for file names."
-msgstr "கோப்பு பெயர்களுக்கான வடிகட்டியின் தெரிவுநிலையை மாற்றவும்."
-
-msgid "Preview:"
-msgstr "முன்னோட்டம்:"
-
-msgid "Filter:"
-msgstr "வடிகட்டி:"
-
-msgid "File:"
-msgstr "கோப்பு:"
-
-msgid "File Type Filter"
-msgstr "கோப்பு வகை வடிகட்டி"
-
-msgid ""
-"Remove the selected files? For safety only files and empty directories can be "
-"deleted from here. (Cannot be undone.)\n"
-"Depending on your filesystem configuration, the files will either be moved to "
-"the system trash or deleted permanently."
-msgstr ""
-"தேர்ந்தெடுக்கப்பட்ட கோப்புகளை அகற்றவா? பாதுகாப்பிற்காக கோப்புகள் மற்றும் வெற்று கோப்பகங்களை "
-"மட்டுமே இங்கிருந்து நீக்க முடியும். (செயல்தவிர்க்க முடியாது.) \n"
-"உங்கள் கோப்பு முறைமை உள்ளமைவைப் பொறுத்து, கோப்புகள் கணினி குப்பைக்கு நகர்த்தப்படும் அல்லது "
-"நிரந்தரமாக நீக்கப்படும்."
 
 msgid "No sub-resources found."
 msgstr "துணை வளங்கள் எதுவும் கிடைக்கவில்லை."
@@ -6879,13 +6519,6 @@ msgstr "கட்டம் பார்வை"
 
 msgid "List view"
 msgstr "பட்டியல் பார்வை"
-
-msgid ""
-"Hold %s to round to integers.\n"
-"Hold Shift for more precise changes."
-msgstr ""
-"முழு எண்களுக்கு %s ஐ வட்டமிடுங்கள். \n"
-"மேலும் துல்லியமான மாற்றங்களுக்கு மாற்றத்தை வைத்திருங்கள்."
 
 msgid "No notifications."
 msgstr "அறிவிப்புகள் இல்லை."
@@ -6975,12 +6608,6 @@ msgstr ""
 
 msgid "Error opening scene"
 msgstr "பிழை திறக்கும் காட்சி"
-
-msgid "Advanced Import Settings for AnimationLibrary '%s'"
-msgstr "அனிமேசன் லைப்ரரி '%s' க்கான மேம்பட்ட இறக்குமதி அமைப்புகள்"
-
-msgid "Advanced Import Settings for Scene '%s'"
-msgstr "'%s' காட்சிக்கான மேம்பட்ட இறக்குமதி அமைப்புகள்"
 
 msgid "Select folder to extract material resources"
 msgstr "பொருள் வளங்களை பிரித்தெடுக்க கோப்புறையைத் தேர்ந்தெடுக்கவும்"
@@ -7177,6 +6804,9 @@ msgstr ""
 
 msgid "Music Playback:"
 msgstr "இசை பின்னணி:"
+
+msgid "Preview:"
+msgstr "முன்னோட்டம்:"
 
 msgid "New Configuration"
 msgstr "புதிய உள்ளமைவு"
@@ -7841,13 +7471,6 @@ msgstr "சப் ஃபோல்டர் ஏற்கனவே இருக்
 msgid "Script extension must match chosen language extension (.%s)."
 msgstr "ச்கிரிப்ட் நீட்டிப்பு தேர்ந்தெடுக்கப்பட்ட மொழி நீட்டிப்பை (.%s) பொருத்த வேண்டும்."
 
-msgid ""
-"C# doesn't support activating the plugin on creation because the project must "
-"be built first."
-msgstr ""
-"சி# உருவாக்கம் குறித்த சொருகி செயல்படுத்துவதை ஆதரிக்கவில்லை, ஏனெனில் திட்டம் முதலில் "
-"உருவாக்கப்பட வேண்டும்."
-
 msgid "Edit a Plugin"
 msgstr "ஒரு சொருகி திருத்தவும்"
 
@@ -7920,9 +7543,6 @@ msgstr ""
 "விரும்பினால். ச்கிரிப்ட் கோப்பின் பெயர். காலியாக இருந்தால், துணை கோப்புறை பெயருக்கு "
 "இயல்புநிலையாக இருக்கும்."
 
-msgid "Activate now?"
-msgstr "இப்போது செயல்படுத்தவா?"
-
 msgid "Plugin name is valid."
 msgstr "சொருகி பெயர் செல்லுபடியாகும்."
 
@@ -7977,6 +7597,9 @@ msgid ""
 msgstr ""
 "தயவுசெய்து ஒரு \"Project.godot\", ஒன்றைக் கொண்ட ஒரு அடைவு அல்லது \".zip\" கோப்பைத் "
 "தேர்வுசெய்க."
+
+msgid "The path specified is invalid."
+msgstr "குறிப்பிடப்பட்ட பாதை தவறானது."
 
 msgid ""
 "The directory name specified contains invalid characters or trailing "
@@ -8167,8 +7790,8 @@ msgstr "இந்த திட்டம் தற்போதைய கட்ட
 msgid "Error: Project is missing on the filesystem."
 msgstr "பிழை: கோப்பு முறைமையில் திட்டம் இல்லை."
 
-msgid "Add to favorites"
-msgstr "பிடித்தவைகளில் சேர்க்கவும்"
+msgid "Toggle Favorite"
+msgstr "பிடித்ததை மாற்றவும்"
 
 msgid "Open in file manager"
 msgstr "கோப்பு மேலாளரில் திறக்கவும்"
@@ -8187,6 +7810,12 @@ msgstr "திட்டங்களுக்கு ச்கேனிங் ..."
 
 msgid "Missing Project"
 msgstr "காணாமல் போன திட்டம்"
+
+msgid "Run Project"
+msgstr "திட்டத்தை இயக்கவும்"
+
+msgid "Manage Tags"
+msgstr "குறிச்சொற்களை நிர்வகிக்கவும்"
 
 msgid "New Window"
 msgstr "புதிய சாளரம்"
@@ -8454,14 +8083,8 @@ msgstr "'%s' இல் திட்டத்தை ஏற்ற முடிய�
 msgid "Tag name can't be empty."
 msgstr "குறிச்சொல் பெயர் காலியாக இருக்க முடியாது."
 
-msgid "Tag name can't contain spaces."
-msgstr "குறிச்சொல் பெயர் இடைவெளிகளைக் கொண்டிருக்க முடியாது."
-
 msgid "These characters are not allowed in tags: %s."
 msgstr "குறிச்சொற்களில் இந்த எழுத்துக்கள் அனுமதிக்கப்படவில்லை: %s."
-
-msgid "Tag name must be lowercase."
-msgstr "குறிச்சொல் பெயர் சிறியதாக இருக்க வேண்டும்."
 
 msgid "About Godot"
 msgstr "கோடோட் பற்றி"
@@ -8520,12 +8143,6 @@ msgstr "வாய்மொழி பயன்முறையில் திர�
 
 msgid "Edit in recovery mode"
 msgstr "மீட்பு பயன்முறையில் திருத்து"
-
-msgid "Run Project"
-msgstr "திட்டத்தை இயக்கவும்"
-
-msgid "Manage Tags"
-msgstr "குறிச்சொற்களை நிர்வகிக்கவும்"
 
 msgid "Remove Project"
 msgstr "திட்டத்தை அகற்று"
@@ -8624,8 +8241,8 @@ msgstr "விரைவான அமைப்புகள்"
 msgid "Language"
 msgstr "மொழி"
 
-msgid "Interface Theme"
-msgstr "இடைமுக கருப்பொருள்"
+msgid "Style"
+msgstr "சூல் தண்டு"
 
 msgid "Custom preset can be further configured in the editor."
 msgstr "தனிப்பயன் முன்னமைவை எடிட்டரில் மேலும் கட்டமைக்க முடியும்."
@@ -8692,17 +8309,8 @@ msgstr "திட்ட வளங்களை புதுப்பித்த�
 msgid "Re-saving resource:"
 msgstr "மறு சேமிப்பு வள:"
 
-msgid "Play the project."
-msgstr "திட்டத்தை விளையாடுங்கள்."
-
-msgid "Play the edited scene."
-msgstr "திருத்தப்பட்ட காட்சியை விளையாடுங்கள்."
-
 msgid "Play a custom scene."
 msgstr "தனிப்பயன் காட்சியை விளையாடுங்கள்."
-
-msgid "Reload the played scene."
-msgstr "விளையாடிய காட்சியை மீண்டும் ஏற்றவும்."
 
 msgid ""
 "Movie Maker mode is enabled, but no movie file path has been specified.\n"
@@ -8775,9 +8383,6 @@ msgstr "மீட்பு பயன்முறையை முடக்கி,
 msgid "Recovery Mode is enabled. Click for more details."
 msgstr "மீட்பு முறை இயக்கப்பட்டது. மேலும் விவரங்களுக்கு சொடுக்கு செய்க."
 
-msgid "Run the project's default scene."
-msgstr "திட்டத்தின் இயல்புநிலை காட்சியை இயக்கவும்."
-
 msgid "Pause the running project's execution for debugging."
 msgstr "பிழைத்திருத்தத்திற்காக இயங்கும் திட்டத்தின் சாவுஒறுப்பு இடைநிறுத்தவும்."
 
@@ -8790,29 +8395,23 @@ msgstr "தற்போது இயங்கும் திட்டத்த�
 msgid "Stop Running Project"
 msgstr "இயங்கும் திட்டத்தை நிறுத்துங்கள்"
 
+msgid "Run Current Scene"
+msgstr "தற்போதைய காட்சியை இயக்கவும்"
+
 msgid "Run Scene in Regular Mode"
 msgstr "வழக்கமான பயன்முறையில் காட்சியை இயக்கவும்"
 
 msgid "Run Scene in XR Mode"
 msgstr "எக்ச்ஆர் பயன்முறையில் காட்சியை இயக்கவும்"
 
-msgid "Run the currently edited scene."
-msgstr "தற்போது திருத்தப்பட்ட காட்சியை இயக்கவும்."
-
-msgid "Run Current Scene"
-msgstr "தற்போதைய காட்சியை இயக்கவும்"
+msgid "Run Specific Scene"
+msgstr "குறிப்பிட்ட காட்சியை இயக்கவும்"
 
 msgid "Run in Regular Mode"
 msgstr "வழக்கமான பயன்முறையில் இயக்கவும்"
 
 msgid "Run in XR Mode"
 msgstr "எக்ச்ஆர் பயன்முறையில் இயக்கவும்"
-
-msgid "Run a specific scene."
-msgstr "ஒரு குறிப்பிட்ட காட்சியை இயக்கவும்."
-
-msgid "Run Specific Scene"
-msgstr "குறிப்பிட்ட காட்சியை இயக்கவும்"
 
 msgid "Enable Movie Maker Mode"
 msgstr "மூவி மேக்கர் பயன்முறையை இயக்கு"
@@ -8889,15 +8488,6 @@ msgstr "விளையாட்டைத் தொடங்க விளைய�
 msgid "Embedding is disabled."
 msgstr "உட்பொதித்தல் முடக்கப்பட்டுள்ளது."
 
-msgid ""
-"Game embedding not available on Wayland.\n"
-"Wayland can be disabled in the Editor Settings (Run > Platforms > Linux/*BSD "
-"> Prefer Wayland)."
-msgstr ""
-"வேலண்டில் விளையாட்டு உட்பொதித்தல் கிடைக்கவில்லை. \n"
-"எடிட்டர் அமைப்புகளில் வேலாண்டை முடக்கலாம் (ரன்> இயங்குதளங்கள்> லினக்ச்/*பி.எச்.டி> வேலாண்டை "
-"விரும்புங்கள்)."
-
 msgid "Game embedding not available on your OS."
 msgstr "உங்கள் OS இல் விளையாட்டு உட்பொதித்தல் கிடைக்கவில்லை."
 
@@ -8935,9 +8525,6 @@ msgstr "இயக்க விளையாட்டு ஆடியோ."
 msgid "Mute game audio."
 msgstr "முடக்கு விளையாட்டு ஆடியோ."
 
-msgid "Alt+RMB: Show list of all nodes at position clicked."
-msgstr "ALT+RMB: நிலையில் இருக்கும் அனைத்து முனைகளின் பட்டியலையும் காண்பி."
-
 msgid "Suspend"
 msgstr "இடைநீக்கம்"
 
@@ -8959,11 +8546,11 @@ msgid ""
 msgstr ""
 "விளையாட்டு உள்ளீட்டை முடக்கி, Node3DS ஐத் தேர்ந்தெடுத்து 3D கேமராவைக் கையாள அனுமதிக்கவும்."
 
-msgid "Toggle Selection Visibility"
-msgstr "தேர்வு தெரிவுநிலையை மாற்றவும்"
-
 msgid "Show list of selectable nodes at position clicked."
 msgstr "சொடுக்கு செய்யப்பட்ட நிலையில் தேர்ந்தெடுக்கப்பட்ட முனைகளின் பட்டியலைக் காட்டு."
+
+msgid "Toggle Selection Visibility"
+msgstr "தேர்வு தெரிவுநிலையை மாற்றவும்"
 
 msgid "Override the in-game camera."
 msgstr "விளையாட்டு கேமராவை மீறவும்."
@@ -8983,6 +8570,15 @@ msgstr "விளையாட்டில் கையாளவும்"
 msgid "Manipulate From Editors"
 msgstr "ஆசிரியர்களிடமிருந்து கையாளவும்"
 
+msgid "Embedding Options"
+msgstr "உட்பொதித்தல் விருப்பங்கள்"
+
+msgid "Embed Game on Next Play"
+msgstr "அடுத்த நாடகத்தில் விளையாட்டை உட்பொதிக்கவும்"
+
+msgid "Make Game Workspace Floating on Next Play"
+msgstr "அடுத்த நாடகத்தில் விளையாட்டு பணியிடத்தை மிதக்கச் செய்யுங்கள்"
+
 msgid ""
 "Embedded game size is based on project settings.\n"
 "The 'Keep Aspect' mode is used when the Game Workspace is smaller than the "
@@ -8997,15 +8593,6 @@ msgstr "உட்பொதிக்கப்பட்ட விளையாட�
 
 msgid "Embedded game size stretches to fit the Game Workspace."
 msgstr "விளையாட்டு பணியிடத்திற்கு ஏற்றவாறு உட்பொதிக்கப்பட்ட விளையாட்டு அளவு நீண்டுள்ளது."
-
-msgid "Embedding Options"
-msgstr "உட்பொதித்தல் விருப்பங்கள்"
-
-msgid "Embed Game on Next Play"
-msgstr "அடுத்த நாடகத்தில் விளையாட்டை உட்பொதிக்கவும்"
-
-msgid "Make Game Workspace Floating on Next Play"
-msgstr "அடுத்த நாடகத்தில் விளையாட்டு பணியிடத்தை மிதக்கச் செய்யுங்கள்"
 
 msgid "Game Workspace"
 msgstr "விளையாட்டு பணியிடம்"
@@ -9103,17 +8690,8 @@ msgstr "திட படப்புள்ளிகள்"
 msgid "Border Pixels"
 msgstr "எல்லை படப்புள்ளிகள்"
 
-msgid "Directed Border Pixels"
-msgstr "இயக்கிய எல்லை படப்புள்ளிகள்"
-
-msgid "Emission Mask"
-msgstr "உமிழ்வு முகமூடி"
-
 msgid "Centered"
 msgstr "மையப்படுத்தப்பட்ட"
-
-msgid "Capture Colors from Pixel"
-msgstr "பிக்சலில் இருந்து வண்ணங்களைப் பிடிக்கவும்"
 
 msgid "Generating Visibility Rect (Waiting for Particle Simulation)"
 msgstr ""
@@ -9163,9 +8741,6 @@ msgstr "புள்ளிகளைத் தேர்ந்தெடுக்�
 
 msgid "Shift+Drag: Select Control Points"
 msgstr "சிப்ட்+இழுத்தல்: கட்டுப்பாட்டு புள்ளிகளைத் தேர்ந்தெடுக்கவும்"
-
-msgid "Click: Add Point"
-msgstr "சொடுக்கு செய்க: புள்ளி சேர்க்கவும்"
 
 msgid "Left Click: Split Segment (in curve)"
 msgstr "இடது கிளிக்: பிளவு பிரிவு (வளைவில்)"
@@ -9251,6 +8826,9 @@ msgstr "பலகோணத்தை மாற்றவும்"
 
 msgid "Paint Bone Weights"
 msgstr "எலும்பு எடைகளை வரைவதற்கு"
+
+msgid "Polygon"
+msgstr "பலகோணம்"
 
 msgid "Points"
 msgstr "பிரிவகம்"
@@ -9347,12 +8925,6 @@ msgstr "கட்டம் படி y:"
 
 msgid "Sync Bones to Polygon"
 msgstr "எலும்புகளை பலகோணத்துடன் ஒத்திசைக்கவும்"
-
-msgid "Toggle Polygon Bottom Panel"
-msgstr "பலகோணம் கீழ் பேனலை மாற்றவும்"
-
-msgid "Polygon"
-msgstr "பலகோணம்"
 
 msgid "Set Rest Pose to Bones"
 msgstr "எலும்புகளுக்கு ஓய்வு போசை அமைக்கவும்"
@@ -9574,9 +9146,6 @@ msgstr "தேர்ந்தெடு"
 msgid "Drawing Rect:"
 msgstr "வரைதல் செவ்வகம்:"
 
-msgid "Can't transform scene tiles."
-msgstr "காட்சி ஓடுகளை மாற்ற முடியாது."
-
 msgid "Can't rotate patterns when using non-square tile grid."
 msgstr "சதுரமற்ற ஓடு கட்டத்தைப் பயன்படுத்தும் போது வடிவங்களை சுழற்ற முடியாது."
 
@@ -9631,9 +9200,6 @@ msgstr "தேர்வு கருவி"
 
 msgid "Shift: Draw line."
 msgstr "சிப்ட்: டிரா லைன்."
-
-msgid "Shift: Draw rectangle."
-msgstr "சிப்ட்: செவ்வகத்தை வரையவும்."
 
 msgid "Paint Tool"
 msgstr "வண்ணப்பூச்சு கருவி"
@@ -9761,6 +9327,9 @@ msgstr "தேர்ந்தெடுக்கப்பட்ட டில்�
 msgid "The edited layer is disabled or invisible"
 msgstr "திருத்தப்பட்ட அடுக்கு முடக்கப்பட்டுள்ளது அல்லது கண்ணுக்கு தெரியாதது"
 
+msgid "TileMap"
+msgstr "டில்மேப்"
+
 msgid "Select Next Tile Map Layer"
 msgstr "அடுத்த ஓடு வரைபட அடுக்கைத் தேர்ந்தெடுக்கவும்"
 
@@ -9775,9 +9344,6 @@ msgstr "முந்தைய அடுக்கைத் தேர்ந்த�
 
 msgid "Select next layer"
 msgstr "அடுத்த அடுக்கைத் தேர்ந்தெடுக்கவும்"
-
-msgid "Select all layers"
-msgstr "அனைத்து அடுக்குகளையும் தேர்ந்தெடுக்கவும்"
 
 msgid "Toggle grid visibility."
 msgstr "கட்டம் தெரிவுநிலையை மாற்றவும்."
@@ -10221,6 +9787,9 @@ msgstr "மூலத்தை அகற்று"
 msgid "Add atlas source"
 msgstr "அட்லச் மூலத்தைச் சேர்க்கவும்"
 
+msgid "TileSet"
+msgstr "வாங்கியது"
+
 msgid "Tile Sources"
 msgstr "ஓடு ஆதாரங்கள்"
 
@@ -10309,18 +9878,6 @@ msgstr "அழிப்பான் கருவி"
 
 msgid "Picker Tool"
 msgstr "பிக்கர் கருவி"
-
-msgid "TileMap"
-msgstr "டில்மேப்"
-
-msgid "Toggle TileMap Bottom Panel"
-msgstr "டைல்மேப் கீழ் பேனலை மாற்றவும்"
-
-msgid "TileSet"
-msgstr "வாங்கியது"
-
-msgid "Toggle TileSet Bottom Panel"
-msgstr "டைல்செட் கீழ் பேனலை மாற்றவும்"
 
 msgid "Bone Picker:"
 msgstr "எலும்பு எடுப்பவர்:"
@@ -10501,6 +10058,21 @@ msgstr "எளிமைப்படுத்தப்பட்ட மோதல�
 msgid "Couldn't create any collision shapes."
 msgstr "எந்தவொரு மோதல் வடிவங்களையும் உருவாக்க முடியவில்லை."
 
+msgid "Trimesh"
+msgstr "தைரியமான"
+
+msgid "Single Convex"
+msgstr "ஒற்றை குவிந்த"
+
+msgid "Simplified Convex"
+msgstr "எளிமைப்படுத்தப்பட்ட குவிந்த"
+
+msgid "Multiple Convex"
+msgstr "பல குவிந்த"
+
+msgid "Sphere"
+msgstr "கோளம்"
+
 msgid "Can't create a collision shape as sibling for the scene root."
 msgstr "காட்சி வேருக்கு உடன்பிறப்பாக மோதல் வடிவத்தை உருவாக்க முடியாது."
 
@@ -10623,28 +10195,12 @@ msgstr "நிலையான உடல் குழந்தை"
 msgid "Collision Shape Type"
 msgstr "மோதல் வடிவ வகை"
 
-msgid "Trimesh"
-msgstr "தைரியமான"
-
 msgid ""
 "Creates a polygon-based collision shape.\n"
 "This is the most accurate (but slowest) option for collision detection."
 msgstr ""
 "பலகோண அடிப்படையிலான மோதல் வடிவத்தை உருவாக்குகிறது. \n"
 "மோதல் கண்டறிதலுக்கான மிகவும் துல்லியமான (ஆனால் மெதுவான) விருப்பமாகும்."
-
-msgid "Single Convex"
-msgstr "ஒற்றை குவிந்த"
-
-msgid ""
-"Creates a single convex collision shape.\n"
-"This is the fastest (but least accurate) option for collision detection."
-msgstr ""
-"ஒற்றை குவிந்த மோதல் வடிவத்தை உருவாக்குகிறது. \n"
-"மோதல் கண்டறிதலுக்கான வேகமான (ஆனால் குறைந்த துல்லியமான) விருப்பமாகும்."
-
-msgid "Simplified Convex"
-msgstr "எளிமைப்படுத்தப்பட்ட குவிந்த"
 
 msgid ""
 "Creates a simplified convex collision shape.\n"
@@ -10655,17 +10211,14 @@ msgstr ""
 "இது ஒற்றை மோதல் வடிவத்திற்கு ஒத்ததாகும், ஆனால் சில சந்தர்ப்பங்களில், துல்லியமான செலவில் "
 "எளிமையான வடிவவியலை ஏற்படுத்தும்."
 
-msgid "Multiple Convex"
-msgstr "பல குவிந்த"
+msgid "X-Axis"
+msgstr "எக்ச்-அச்சு"
 
-msgid ""
-"Creates a polygon-based collision shape.\n"
-"This is a performance middle-ground between a single convex collision and a "
-"polygon-based collision."
-msgstr ""
-"பலகோண அடிப்படையிலான மோதல் வடிவத்தை உருவாக்குகிறது. \n"
-"ஒற்றை குவிந்த மோதலுக்கும் பலகோணம் அடிப்படையிலான மோதலுக்கும் இடையில் இது ஒரு செயல்திறன் "
-"நடுத்தர மைதானமாகும்."
+msgid "Y-Axis"
+msgstr "Y- அச்சு"
+
+msgid "Z-Axis"
+msgstr "Z- அச்சு"
 
 msgid "UV Channel Debug"
 msgstr "புற ஊதா சேனல் பிழைத்திருத்தம்"
@@ -10770,15 +10323,6 @@ msgstr "மூல மெச்:"
 msgid "Mesh Up Axis:"
 msgstr "மெச் அப் அச்சு:"
 
-msgid "X-Axis"
-msgstr "எக்ச்-அச்சு"
-
-msgid "Y-Axis"
-msgstr "Y- அச்சு"
-
-msgid "Z-Axis"
-msgstr "Z- அச்சு"
-
 msgid "Random Rotation:"
 msgstr "சீரற்ற சுழற்சி:"
 
@@ -10845,9 +10389,6 @@ msgstr "பின்புற முன்னோக்கு"
 msgid "[auto]"
 msgstr "[ஆட்டோ]"
 
-msgid "Locked"
-msgstr "பூட்டப்பட்டுள்ளது"
-
 msgid "Grouped"
 msgstr "குழு"
 
@@ -10875,38 +10416,6 @@ msgid ""
 msgstr ""
 "எந்தவொரு வடிவியல் முனையின் பொருளையும் மேலெழுத இழுத்து விடுங்கள். \n"
 "ஒரு குறிப்பிட்ட மேற்பரப்பை மீறும்போது %s ஐ வைத்திருங்கள்."
-
-msgid ""
-"This debug draw mode is not supported when using the Compatibility rendering "
-"method."
-msgstr ""
-"பொருந்தக்கூடிய வழங்குதல் முறையைப் பயன்படுத்தும் போது இந்த பிழைத்திருத்த டிரா பயன்முறை "
-"ஆதரிக்கப்படவில்லை."
-
-msgid ""
-"This debug draw mode is not supported when using the Mobile or Compatibility "
-"rendering methods."
-msgstr ""
-"மொபைல் அல்லது பொருந்தக்கூடிய வழங்குதல் முறைகளைப் பயன்படுத்தும் போது இந்த பிழைத்திருத்த "
-"டிரா பயன்முறை ஆதரிக்கப்படவில்லை."
-
-msgid "X: %s\n"
-msgstr "எக்ச்: %s\n"
-
-msgid "Y: %s\n"
-msgstr "ஒய்: %s\n"
-
-msgid "Z: %s\n"
-msgstr "Z: %s\n"
-
-msgid "Size: %s (%.1fMP)\n"
-msgstr "அளவு: %s ( %.1fmp)\n"
-
-msgid "Objects: %d\n"
-msgstr "பொருள்கள்: %d\n"
-
-msgid "Primitives: %d\n"
-msgstr "ப்ரிமிட்டிவ்ச்: %d\n"
 
 msgid "Draw Calls: %d"
 msgstr "அழைப்புகளை வரைய: %d"
@@ -11276,11 +10785,6 @@ msgstr "கேமரா முன்னோட்டத்தை மாற்ற�
 msgid "View Rotation Locked"
 msgstr "சுழற்சியைக் காண்க"
 
-msgid ""
-"To zoom further, change the camera's clipping planes (View -> Settings...)"
-msgstr ""
-"மேலும் பெரிதாக்க, கேமராவின் கிளிப்பிங் விமானங்களை மாற்றவும் (பார்வை -> அமைப்புகள் ...)"
-
 msgid "Overriding material..."
 msgstr "மேலோட்டமான பொருள் ..."
 
@@ -11324,9 +10828,6 @@ msgstr "காட்சிக்கு முன்னோட்ட சூரி�
 msgid "Add Preview Environment to Scene"
 msgstr "காட்சிக்கு முன்னோட்ட சூழலைச் சேர்க்கவும்"
 
-msgid "Drag: Rotate selected node around pivot."
-msgstr "இழுத்து: தேர்ந்தெடுக்கப்பட்ட முனையை பிவோட்டைச் சுற்றி சுழற்றுங்கள்."
-
 msgid "Alt+RMB: Show list of all nodes at position clicked, including locked."
 msgstr ""
 "ALT+RMB: பூட்டப்பட்ட உட்பட சொடுக்கு செய்யப்பட்ட நிலையில் உள்ள அனைத்து முனைகளின் "
@@ -11334,9 +10835,6 @@ msgstr ""
 
 msgid "(Available in all modes.)"
 msgstr "(எல்லா முறைகளிலும் கிடைக்கிறது.)"
-
-msgid "Drag: Use snap."
-msgstr "இழுத்தல்: ச்னாப் பயன்படுத்தவும்."
 
 msgid ""
 "Scene contains\n"
@@ -11398,9 +10896,6 @@ msgstr "முன்னோட்ட சுற்றுச்சூழல் ட�
 msgid "Set Preview Environment Global Illumination"
 msgstr "முன்னோட்ட சுற்றுச்சூழல் உலகளாவிய வெளிச்சத்தை அமைக்கவும்"
 
-msgid "Select Mode"
-msgstr "பயன்முறையைத் தேர்ந்தெடுக்கவும்"
-
 msgid "Move Mode"
 msgstr "பயன்முறையை நகர்த்தவும்"
 
@@ -11409,6 +10904,9 @@ msgstr "பயன்முறையை சுழற்றுங்கள்"
 
 msgid "Scale Mode"
 msgstr "அளவிலான பயன்முறை"
+
+msgid "Select Mode"
+msgstr "பயன்முறையைத் தேர்ந்தெடுக்கவும்"
 
 msgid "Lock selected node, preventing selection and movement."
 msgstr "தேர்ந்தெடுக்கப்பட்ட முனையை பூட்டு, தேர்வு மற்றும் இயக்கத்தைத் தடுக்கும்."
@@ -11562,12 +11060,6 @@ msgstr "ச்னாப் அமைப்புகள்"
 
 msgid "Translate Snap:"
 msgstr "ச்னாப்பை மொழிபெயர்க்கவும்:"
-
-msgid "Rotate Snap (deg.):"
-msgstr "ச்னாப் சுழற்றுங்கள் (நீங்கள்.):"
-
-msgid "Scale Snap (%):"
-msgstr "அளவிலான ச்னாப் (%):"
 
 msgid "Viewport Settings"
 msgstr "வியூபோர்ட் அமைப்புகள்"
@@ -11992,6 +11484,18 @@ msgstr "கிடைமட்ட வழிகாட்டியை அகற்�
 msgid "Create Horizontal and Vertical Guides"
 msgstr "கிடைமட்ட மற்றும் செங்குத்து வழிகாட்டிகளை உருவாக்கவும்"
 
+msgid "Add Node Here..."
+msgstr "இங்கே முனை சேர்க்கவும் ..."
+
+msgid "Instantiate Scene Here..."
+msgstr "இங்கே காட்சியை உடனடி ..."
+
+msgid "Paste Node(s) Here"
+msgstr "முனை (களை) இங்கே ஒட்டவும்"
+
+msgid "Move Node(s) Here"
+msgstr "முனை (களை) இங்கே நகர்த்தவும்"
+
 msgid "Set CanvasItem \"%s\" Pivot Offset to (%d, %d)"
 msgstr "கேன்வாசிட்டெம் \"%s\" பிவோட் ஆஃப்செட் (%d,%d) க்கு அமைக்கவும்"
 
@@ -12022,18 +11526,6 @@ msgstr "%d கேன்வாசிடெம்களை நகர்த்த�
 msgid "Move CanvasItem \"%s\" to (%d, %d)"
 msgstr "கேன்வாசிட்டெம் \"%s\" க்கு (%d,%d) நகர்த்தவும்"
 
-msgid "Add Node Here..."
-msgstr "இங்கே முனை சேர்க்கவும் ..."
-
-msgid "Instantiate Scene Here..."
-msgstr "இங்கே காட்சியை உடனடி ..."
-
-msgid "Paste Node(s) Here"
-msgstr "முனை (களை) இங்கே ஒட்டவும்"
-
-msgid "Move Node(s) Here"
-msgstr "முனை (களை) இங்கே நகர்த்தவும்"
-
 msgid "px"
 msgstr "பி.எக்ச்"
 
@@ -12048,9 +11540,6 @@ msgstr "சுழலும்:"
 
 msgid "Alt+Drag: Move selected node."
 msgstr "Alt+இழுத்தல்: தேர்ந்தெடுக்கப்பட்ட முனையை நகர்த்தவும்."
-
-msgid "Alt+Drag: Scale selected node."
-msgstr "Alt+இழுத்தல்: அளவிடப்பட்ட முனை."
 
 msgid "V: Set selected node's pivot position."
 msgstr "வி: தேர்ந்தெடுக்கப்பட்ட முனையின் பிவோட் நிலையை அமைக்கவும்."
@@ -13214,15 +12703,14 @@ msgstr ""
 "உள்ளமைக்கப்பட்ட வகுப்போடு தொடர்புடைய ஒரு வகையை மற்றொரு வகையின் மாறுபாடாகக் குறிக்க "
 "முடியாது."
 
+msgid "Theme"
+msgstr "கருப்பொருள்"
+
 msgid "Theme:"
 msgstr "தீம்:"
 
 msgid "Manage Items..."
 msgstr "உருப்படிகளை நிர்வகிக்கவும் ..."
-
-msgid "Add, remove, organize and import Theme items."
-msgstr ""
-"கருப்பொருள் உருப்படிகளைச் சேர்க்கவும், அகற்றவும், ஒழுங்கமைக்கவும் மற்றும் இறக்குமதி செய்யவும்."
 
 msgid "Add Preview"
 msgstr "முன்னோட்டம் சேர்க்கவும்"
@@ -13232,12 +12720,6 @@ msgstr "இயல்புநிலை முன்னோட்டம்"
 
 msgid "Select UI Scene:"
 msgstr "இடைமுகம் காட்சியைத் தேர்ந்தெடுக்கவும்:"
-
-msgid "Theme"
-msgstr "கருப்பொருள்"
-
-msgid "Toggle Theme Bottom Panel"
-msgstr "கருப்பொருள் கீழ் பேனலை மாற்றவும்"
 
 msgid ""
 "Toggle the control picker, allowing to visually select control types for edit."
@@ -13323,9 +12805,6 @@ msgstr "காட்சியை அதன் உண்மையான நில
 msgid "Preview is not available for this shader mode."
 msgstr "இந்த சேடர் பயன்முறைக்கு முன்னோட்டம் கிடைக்கவில்லை."
 
-msgid "Sphere"
-msgstr "கோளம்"
-
 msgid "Box"
 msgstr "பெட்டி"
 
@@ -13410,9 +12889,6 @@ msgstr ""
 msgid "Post-Process"
 msgstr "பிந்தைய செயல்முறை"
 
-msgid "Style"
-msgstr "சூல் தண்டு"
-
 msgid "PascalCase to snake_case"
 msgstr "பாம்ப்_கேசுக்கு பாச்கால்கேச்"
 
@@ -13466,9 +12942,6 @@ msgstr "வளத்தை ஒட்டவும்"
 
 msgid "Load Resource"
 msgstr "வளத்தை ஏற்றவும்"
-
-msgid "Toggle ResourcePreloader Bottom Panel"
-msgstr "ResourcePreloader கீழ் பேனலை மாற்றவும்"
 
 msgid "Pick Root Node Type"
 msgstr "ரூட் முனை வகையைத் தேர்ந்தெடுங்கள்"
@@ -13677,6 +13150,9 @@ msgstr "சட்டத்தைச் சேர்க்கவும்"
 msgid "Unable to load images"
 msgstr "படங்களை ஏற்ற முடியவில்லை"
 
+msgid "(empty)"
+msgstr "(காலியாக)"
+
 msgid "ERROR: Couldn't load frame resource!"
 msgstr "பிழை: பிரேம் வளத்தை ஏற்ற முடியவில்லை!"
 
@@ -13701,8 +13177,8 @@ msgstr "அனிமேசன் FPS ஐ மாற்றவும்"
 msgid "Set Frame Duration"
 msgstr "பிரேம் காலத்தை அமைக்கவும்"
 
-msgid "(empty)"
-msgstr "(காலியாக)"
+msgid "SpriteFrames"
+msgstr "ச்பிரிட்ஃப்ரேம்கள்"
 
 msgid "Animations:"
 msgstr "அனிமேசன்:"
@@ -13722,21 +13198,6 @@ msgstr "இந்த வளத்தில் எந்த அனிமேசன
 msgid "Animation Frames:"
 msgstr "அனிமேசன் பிரேம்கள்:"
 
-msgid "Play selected animation backwards from current pos. (A)"
-msgstr "தேர்ந்தெடுக்கப்பட்ட அனிமேசனை தற்போதைய POS இலிருந்து பின்னோக்கி விளையாடுங்கள். (அ)"
-
-msgid "Play selected animation backwards from end. (Shift+A)"
-msgstr "தேர்ந்தெடுக்கப்பட்ட அனிமேசனை முடிவில் இருந்து பின்னோக்கி விளையாடுங்கள். (சிப்ட்+ஏ)"
-
-msgid "Pause/stop animation playback. (S)"
-msgstr "இடைநிறுத்தம்/நிறுத்த அனிமேசன் பிளேபேக். (கள்)"
-
-msgid "Play selected animation from start. (Shift+D)"
-msgstr "தொடக்கத்திலிருந்து தேர்ந்தெடுக்கப்பட்ட அனிமேசனை விளையாடுங்கள். (சிப்ட்+டி)"
-
-msgid "Play selected animation from current pos. (D)"
-msgstr "தற்போதைய POS இலிருந்து தேர்ந்தெடுக்கப்பட்ட அனிமேசனை விளையாடுங்கள். (ஈ)"
-
 msgid "Load Sheet"
 msgstr "தாள் சுமை"
 
@@ -13754,12 +13215,6 @@ msgstr "பிரேம் காலம்:"
 
 msgid "Zoom Reset"
 msgstr "பெரிதாக்கு மீட்டமைப்பு"
-
-msgid "Add frame from file"
-msgstr "கோப்பிலிருந்து சட்டத்தைச் சேர்க்கவும்"
-
-msgid "Add frames from sprite sheet"
-msgstr "ச்பிரிட் தாளில் இருந்து பிரேம்களைச் சேர்க்கவும்"
 
 msgid "Copy Frame(s)"
 msgstr "நகல் சட்டகம் (கள்)"
@@ -13851,12 +13306,6 @@ msgstr "ஆட்டோ துண்டு"
 msgid "Create Frames from Sprite Sheet"
 msgstr "ச்பிரிட் தாளில் இருந்து பிரேம்களை உருவாக்கவும்"
 
-msgid "SpriteFrames"
-msgstr "ச்பிரிட்ஃப்ரேம்கள்"
-
-msgid "Toggle SpriteFrames Bottom Panel"
-msgstr "ச்ப்ரைட்ஃப்ரேம்கள் கீழ் பேனலை மாற்றவும்"
-
 msgid "Move GradientTexture2D Fill Point"
 msgstr "GradientTexture2D நிரப்பு புள்ளியை நகர்த்தவும்"
 
@@ -13872,11 +13321,11 @@ msgstr "நினைவகம்: %s"
 msgid "No Mipmaps"
 msgstr "MIPMAPS இல்லை"
 
-msgid "Set Region Rect"
-msgstr "பிராந்திய செவ்வகத்தை அமைக்கவும்"
-
 msgid "Set Margin"
 msgstr "விளிம்பு அமைக்கவும்"
+
+msgid "Set Region Rect"
+msgstr "பிராந்திய செவ்வகத்தை அமைக்கவும்"
 
 msgid "Region Editor"
 msgstr "பிராந்திய ஆசிரியர்"
@@ -13916,9 +13365,6 @@ msgstr "பிராந்தியத்தைத் திருத்து"
 
 msgid "Write your logic in the _run() method."
 msgstr "_RUN () முறையில் உங்கள் தர்க்கத்தை எழுதுங்கள்."
-
-msgid "The current scene already has a root node."
-msgstr "தற்போதைய காட்சியில் ஏற்கனவே ரூட் முனை உள்ளது."
 
 msgid "Find in Files"
 msgstr "கோப்புகளில் காணலாம்"
@@ -13986,6 +13432,9 @@ msgstr "%d கோப்பில் %d பொருந்துகிறது"
 
 msgid "%d matches in %d files"
 msgstr "%d கோப்புகளில் %d பொருந்துகிறது"
+
+msgid "Toggle Search Results Bottom Panel"
+msgstr "தேடல் முடிவுகள் கீழ் பேனலை மாற்றவும்"
 
 msgid "Path is empty."
 msgstr "பாதை காலியாக உள்ளது."
@@ -14247,9 +13696,6 @@ msgstr "அடுத்த திருத்தப்பட்ட ஆவணத�
 msgid "Discard"
 msgstr "நிராகரிக்கவும்"
 
-msgid "Toggle Search Results Bottom Panel"
-msgstr "தேடல் முடிவுகள் கீழ் பேனலை மாற்றவும்"
-
 msgid "Script Editor"
 msgstr "ச்கிரிப்ட் எடிட்டர்"
 
@@ -14264,6 +13710,9 @@ msgstr "மூடிய ச்கிரிப்டை மீண்டும் 
 
 msgid "Clear Recent Scripts"
 msgstr "அண்மைக் கால ச்கிரிப்ட்களை அழிக்கவும்"
+
+msgid "Replace in Files..."
+msgstr "கோப்புகளில் மாற்றவும் ..."
 
 msgid "Uppercase"
 msgstr "பெரிய எழுத்து"
@@ -14406,9 +13855,6 @@ msgstr "உள்தள்ளலை தாவல்களாக மாற்ற�
 msgid "Auto Indent"
 msgstr "தானாக உள்தள்ளல்"
 
-msgid "Replace in Files..."
-msgstr "கோப்புகளில் மாற்றவும் ..."
-
 msgid "Contextual Help"
 msgstr "சூழல் உதவி"
 
@@ -14493,9 +13939,6 @@ msgstr "செயல்"
 
 msgid "Deadzone"
 msgstr "டெட்சோன்"
-
-msgid "Invalid name."
-msgstr "தவறான பெயர்."
 
 msgid "Must be a valid Unicode identifier."
 msgstr "செல்லுபடியாகும் யூனிகோட் அடையாளங்காட்டியாக இருக்க வேண்டும்."
@@ -14843,9 +14286,6 @@ msgstr "ஆசிரியர்"
 msgid "Scene Tree Editing"
 msgstr "காட்சி மரம் திருத்துதல்"
 
-msgid "Node Dock"
-msgstr "முனை கப்பல்துறை"
-
 msgid "FileSystem Dock"
 msgstr "கோப்பு முறைமை கப்பல்துறை"
 
@@ -14977,12 +14417,6 @@ msgstr "இறக்குமதி சுயவிவரம் (கள்)"
 msgid "Manage Editor Feature Profiles"
 msgstr "எடிட்டர் அம்ச சுயவிவரங்களை நிர்வகிக்கவும்"
 
-msgid "Select existing layout:"
-msgstr "இருக்கும் தளவமைப்பைத் தேர்ந்தெடுக்கவும்:"
-
-msgid "Or enter new layout name"
-msgstr "அல்லது புதிய தளவமைப்பு பெயரை உள்ளிடவும்"
-
 msgid "Edit Built-in Action: %s"
 msgstr "உள்ளமைக்கப்பட்ட செயலைத் திருத்து: %s"
 
@@ -15018,9 +14452,6 @@ msgstr "குறுக்குவழிகள்"
 
 msgid "Binding"
 msgstr "பிணைப்பு"
-
-msgid "Overridden in project: %s"
-msgstr "திட்டத்தில் மீறப்பட்டுள்ளது: %s"
 
 msgid "Go to the override in the Project Settings."
 msgstr "திட்ட அமைப்புகளில் மேலெழுதலுக்குச் செல்லுங்கள்."
@@ -15242,9 +14673,6 @@ msgstr "சேடரைத் திறக்கவும் / இருப்�
 msgid "Invalid base path."
 msgstr "தவறான அடிப்படை பாதை."
 
-msgid "Wrong extension chosen."
-msgstr "தவறான நீட்டிப்பு தேர்ந்தெடுக்கப்பட்டது."
-
 msgid "Note: Built-in shaders can't be edited using an external editor."
 msgstr ""
 "குறிப்பு: வெளிப்புற எடிட்டரைப் பயன்படுத்தி உள்ளமைக்கப்பட்ட சேடர்களை திருத்த முடியாது."
@@ -15288,26 +14716,14 @@ msgstr "சேடர் கோப்பை ஏற்றவும் ..."
 msgid "Load Shader Include File..."
 msgstr "சுமை சேடரில் கோப்பு அடங்கும் ..."
 
-msgid "Save File"
-msgstr "கோப்பை சேமி"
-
 msgid "Open File in Inspector"
 msgstr "இன்ச்பெக்டரில் திறந்த கோப்பு"
 
 msgid "Inspect Native Shader Code..."
 msgstr "சொந்த சேடர் குறியீட்டை ஆய்வு செய்யுங்கள் ..."
 
-msgid "Close File"
-msgstr "கோப்பை மூடு"
-
 msgid "Shader Editor"
 msgstr "சேடர் ஆசிரியர்"
-
-msgid "Make the shader editor floating."
-msgstr "சேடர் எடிட்டரை மிதக்கச் செய்யுங்கள்."
-
-msgid "Toggle Shader Editor Bottom Panel"
-msgstr "சேடர் எடிட்டர் பாட்டம் பேனலை மாற்றவும்"
 
 msgid "No valid shader stages found."
 msgstr "செல்லுபடியாகும் சேடர் நிலைகள் எதுவும் காணப்படவில்லை."
@@ -15324,9 +14740,6 @@ msgstr ""
 
 msgid "ShaderFile"
 msgstr "சேடர்ஃபைல்"
-
-msgid "Toggle ShaderFile Bottom Panel"
-msgstr "சேடர்ஃபைல் பாட்டம் பேனலை மாற்றவும்"
 
 msgid "Set Shader Global Variable"
 msgstr "சேடர் உலகளாவிய மாறி அமைக்கவும்"
@@ -15650,9 +15063,6 @@ msgstr "பொருளிலிருந்து அளவுருக்க�
 
 msgid "Paste Parameters To Material"
 msgstr "பொருளுக்கு அளவுருக்களை ஒட்டவும்"
-
-msgid "High-end node"
-msgstr "உயர்நிலை முனை"
 
 msgid "Create Shader Node"
 msgstr "சேடர் முனையை உருவாக்கவும்"
@@ -16725,14 +16135,6 @@ msgstr "வள மறுவடிவத்தை அகற்று"
 msgid "Remove Resource Remap Option"
 msgstr "வள ரீமேப் விருப்பத்தை அகற்று"
 
-msgid "Add %d file for POT generation"
-msgid_plural "Add %d files for POT generation"
-msgstr[0] "பானை தலைமுறைக்கு %d கோப்பைச் சேர்க்கவும்"
-msgstr[1] "பானை உருவாக்குவதற்கு %d கோப்புகளைச் சேர்க்கவும்"
-
-msgid "Remove file from POT generation"
-msgstr "பானை தலைமுறையிலிருந்து கோப்பை அகற்று"
-
 msgid "Removed"
 msgstr "அகற்றப்பட்டது"
 
@@ -16754,17 +16156,8 @@ msgstr "வளங்கள்:"
 msgid "Remaps by Locale:"
 msgstr "லோகேல் மூலம் மறுபிரவேசம்:"
 
-msgid "POT Generation"
-msgstr "பானை விளைவாக்கம்"
-
 msgid "Files with translation strings:"
 msgstr "மொழிபெயர்ப்பு சரங்களைக் கொண்ட கோப்புகள்:"
-
-msgid "Generate POT"
-msgstr "பானை உருவாக்கு"
-
-msgid "Add Built-in Strings to POT"
-msgstr "பானையில் உள்ளமைக்கப்பட்ட சரங்களை சேர்க்கவும்"
 
 msgid "Add strings from built-in components such as certain Control nodes."
 msgstr "சில கட்டுப்பாட்டு முனைகள் போன்ற உள்ளமைக்கப்பட்ட கூறுகளிலிருந்து சரங்களைச் சேர்க்கவும்."
@@ -16806,14 +16199,14 @@ msgstr "தேதி:"
 msgid "Subtitle:"
 msgstr "வசன வரிகள்:"
 
+msgid "File:"
+msgstr "கோப்பு:"
+
 msgid "Do you want to remove the %s branch?"
 msgstr "%s கிளையை அகற்ற விரும்புகிறீர்களா?"
 
 msgid "Do you want to remove the %s remote?"
 msgstr "%s ரிமோட்டை அகற்ற விரும்புகிறீர்களா?"
-
-msgid "Open Version Control Dock"
-msgstr "திறந்த பதிப்பு கட்டுப்பாட்டு கப்பல்துறை"
 
 msgid "Toggle Version Control Bottom Panel"
 msgstr "பதிப்பு கட்டுப்பாட்டு கீழ் பேனலை மாற்றவும்"
@@ -16862,6 +16255,9 @@ msgstr "பாஓடு தனியார் விசை பாதையைத
 
 msgid "SSH Passphrase"
 msgstr "பாஓடு கடவுச்சொல்"
+
+msgid "Open Version Control Dock"
+msgstr "திறந்த பதிப்பு கட்டுப்பாட்டு கப்பல்துறை"
 
 msgid "Detect new changes"
 msgstr "புதிய மாற்றங்களைக் கண்டறியவும்"
@@ -17080,9 +16476,6 @@ msgstr "மதிப்பு உரையாடல் முன்னர் வ
 msgid "Export Scene to glTF 2.0 File"
 msgstr "GLTF 2.0 கோப்பிற்கு காட்சியை ஏற்றுமதி செய்யுங்கள்"
 
-msgid "Export Settings:"
-msgstr "ஏற்றுமதி அமைப்புகள்:"
-
 msgid "glTF 2.0 Scene..."
 msgstr "gltf 2.0 காட்சி ..."
 
@@ -17248,15 +16641,6 @@ msgstr "தானியங்கி"
 msgid "Edit Transitions"
 msgstr "மாற்றங்களைத் திருத்தவும்"
 
-msgid "Using Any Clip -> %s."
-msgstr "எந்த கிளிப்பையும் பயன்படுத்துதல் -> %s."
-
-msgid "Using %s -> Any Clip."
-msgstr "%s -> எந்த கிளிப்பையும் பயன்படுத்துகிறது."
-
-msgid "Using All Clips -> Any Clip."
-msgstr "எல்லா கிளிப்களையும் பயன்படுத்துதல் -> எந்த கிளிப்பும்."
-
 msgid "No transition available."
 msgstr "எந்த மாற்றமும் கிடைக்கவில்லை."
 
@@ -17416,25 +16800,28 @@ msgstr ""
 "தயவுசெய்து .NET SDK 8.0 அல்லது அதற்குப் பிறகு https://get.dot.net இலிருந்து நிறுவி "
 "கோடோட்டை மறுதொடக்கம் செய்யுங்கள்."
 
+msgctxt "Network"
+msgid "Down"
+msgstr "கீழே"
+
+msgctxt "Network"
+msgid "Up"
+msgstr "மேலே"
+
 msgid "%d (%s)"
 msgstr "%d (%s)"
 
 msgid "%s/s"
 msgstr "%s/s"
 
-msgctxt "Network"
-msgid "Down"
-msgstr "கீழே"
-
 msgid "Incoming Bandwidth"
 msgstr "உள்வரும் அலைவரிசை"
 
-msgctxt "Network"
-msgid "Up"
-msgstr "மேலே"
-
 msgid "Outgoing Bandwidth"
 msgstr "வெளிச்செல்லும் அலைவரிசை"
+
+msgid "Node"
+msgstr "கணு"
 
 msgid "Incoming RPC"
 msgstr "உள்வரும் RPC"
@@ -17494,6 +16881,18 @@ msgstr ""
 "மேலே உள்ள விருப்பங்களைப் பயன்படுத்தி பண்புகளைச் சேர்க்கவும், அல்லது \n"
 "இன்ச்பெக்டரிடமிருந்து அவற்றை இழுத்து இங்கே விடுங்கள்."
 
+msgctxt "Replication Mode"
+msgid "Never"
+msgstr "ஒருபோதும்"
+
+msgctxt "Replication Mode"
+msgid "Always"
+msgstr "எப்போதும்"
+
+msgctxt "Replication Mode"
+msgid "On Change"
+msgstr "மாற்றத்தில்"
+
 msgid "Please select a MultiplayerSynchronizer first."
 msgstr "முதலில் ஒரு மல்டிபிளாயர்சின்க்ரோனைசரைத் தேர்ந்தெடுக்கவும்."
 
@@ -17524,18 +16923,6 @@ msgstr "சொத்தை அகற்று"
 
 msgid "Property of this type not supported."
 msgstr "இந்த வகை சொத்து ஆதரிக்கப்படவில்லை."
-
-msgctxt "Replication Mode"
-msgid "Never"
-msgstr "ஒருபோதும்"
-
-msgctxt "Replication Mode"
-msgid "Always"
-msgstr "எப்போதும்"
-
-msgctxt "Replication Mode"
-msgid "On Change"
-msgstr "மாற்றத்தில்"
 
 msgid ""
 "A valid NodePath must be set in the \"Spawn Path\" property in order for "
@@ -17697,6 +17084,9 @@ msgstr "Openxr செயல் வரைபடம்:"
 msgid "Remove interaction profile"
 msgstr "தொடர்பு சுயவிவரத்தை அகற்று"
 
+msgid "OpenXR Action Map"
+msgstr "Openxr செயல் வரைபடம்"
+
 msgid "Add Action Set"
 msgstr "செயல் தொகுப்பைச் சேர்க்கவும்"
 
@@ -17779,12 +17169,6 @@ msgstr ""
 msgid "Binding modifiers for:"
 msgstr "இதற்கான பிணைப்பு மாற்றிகள்:"
 
-msgid "OpenXR Action Map"
-msgstr "Openxr செயல் வரைபடம்"
-
-msgid "Toggle OpenXR Action Map Bottom Panel"
-msgstr "ஓபன்எக்ச்ஆர் அதிரடி வரைபடம் கீழ் பேனலை மாற்றவும்"
-
 msgid "Remove action from interaction profile"
 msgstr "தொடர்பு சுயவிவரத்திலிருந்து செயலை அகற்று"
 
@@ -17861,6 +17245,9 @@ msgstr ""
 msgid "OpenXR visibility mask must have an XRCamera3D node as their parent."
 msgstr ""
 "Openxr தெரிவுநிலை முகமூடியில் அவர்களின் பெற்றோராக XRCAMERA3D முனை இருக்க வேண்டும்."
+
+msgid "Building Android Project (gradle)"
+msgstr "அண்ட்ராய்டு திட்டத்தை உருவாக்குதல் (கிரேடில்)"
 
 msgid "Package name is missing."
 msgstr "தொகுப்பு பெயர் இல்லை."
@@ -17988,9 +17375,6 @@ msgstr ""
 
 msgid "Exporting to Android when using C#/.NET is experimental."
 msgstr "C#/. வலைமம் ஐப் பயன்படுத்தும் போது ஆண்ட்ராய்டு க்கு ஏற்றுமதி செய்வது சோதனை."
-
-msgid "Gradle build is not supported for the Android editor."
-msgstr "ஆண்ட்ராய்டு எடிட்டருக்கு கிரேடில் உருவாக்க ஆதரிக்கப்படவில்லை."
 
 msgid "Custom Android source template not found."
 msgstr "தனிப்பயன் ஆண்ட்ராய்டு மூல வார்ப்புரு கிடைக்கவில்லை."
@@ -18182,9 +17566,6 @@ msgstr "திட்ட கோப்புகளை கிரேடில் த
 msgid "Could not write expansion package file!"
 msgstr "விரிவாக்க தொகுப்பு கோப்பை எழுத முடியவில்லை!"
 
-msgid "Building Android Project (gradle)"
-msgstr "அண்ட்ராய்டு திட்டத்தை உருவாக்குதல் (கிரேடில்)"
-
 msgid "Building of Android project failed, check output for the error:"
 msgstr ""
 "ஆண்ட்ராய்டு திட்டத்தை உருவாக்குவது தோல்வியடைந்தது, பிழைக்கான வெளியீட்டை சரிபார்க்கவும்:"
@@ -18314,6 +17695,9 @@ msgstr "ச்கிரிப்ட்களைப் பதிவேற்ற�
 
 msgid "Starting project..."
 msgstr "தொடக்க திட்டம் ..."
+
+msgid "All Files"
+msgstr "அனைத்து கோப்புகள்"
 
 msgid "Invalid bundle identifier:"
 msgstr "தவறான மூட்டை அடையாளங்காட்டி:"
@@ -18813,12 +18197,6 @@ msgstr ""
 "பதிக்கப்படவில்லை."
 
 msgid ""
-"Particle trails are only available when using the Forward+ or Mobile "
-"renderers."
-msgstr ""
-"முன்னோக்கி+ அல்லது மொபைல் ரெண்டரர்களைப் பயன்படுத்தும் போது மட்டுமே துகள் தடங்கள் கிடைக்கின்றன."
-
-msgid ""
 "Particle sub-emitters are not available when using the Compatibility renderer."
 msgstr "பொருந்தக்கூடிய ரெண்டரரைப் பயன்படுத்தும் போது துகள் துணை உமிழ்ப்புகள் கிடைக்காது."
 
@@ -18986,10 +18364,6 @@ msgstr ""
 "Cpuparticles3d அனிமேசனுக்கு ஒரு ச்டாண்டர்ட் மெட்டீரியல் 3 டி பயன்பாடு தேவைப்படுகிறது, "
 "அதன் விளம்பர பலகை பயன்முறை \"துகள் விளம்பர பலகை\" ஆக அமைக்கப்பட்டுள்ளது."
 
-msgid "Decals are only available when using the Forward+ or Mobile renderers."
-msgstr ""
-"முன்னோக்கி+ அல்லது மொபைல் ரெண்டரர்களைப் பயன்படுத்தும் போது மட்டுமே டெக்கல்கள் கிடைக்கும்."
-
 msgid ""
 "The decal has no textures loaded into any of its texture properties, and will "
 "therefore not be visible."
@@ -19052,13 +18426,6 @@ msgid ""
 msgstr ""
 "தடங்கள் இயக்கப்பட்டன, ஆனால் ஒன்று அல்லது அதற்கு மேற்பட்ட கண்ணி பொருட்கள் காணவில்லை அல்லது "
 "தடங்கள் வழங்குதல் செய்ய அமைக்கப்படவில்லை."
-
-msgid ""
-"Particle sub-emitters are only available when using the Forward+ or Mobile "
-"renderers."
-msgstr ""
-"முன்னோக்கி+ அல்லது மொபைல் ரெண்டரர்களைப் பயன்படுத்தும் போது மட்டுமே துகள் துணை-உமிழ்ப்பவர்கள் "
-"கிடைக்கும்."
 
 msgid ""
 "The Bake Mask has no bits enabled, which means baking will not produce any "
@@ -19258,20 +18625,6 @@ msgid ""
 msgstr ""
 "\"தொலைநிலை பாதை\" சொத்து வேலை செய்ய செல்லுபடியாகும் Node3D அல்லது Node3D- பெறப்பட்ட "
 "முனையை சுட்டிக்காட்ட வேண்டும்."
-
-msgid ""
-"GeometryInstance3D transparency is only available when using the Forward+ "
-"rendering method."
-msgstr ""
-"Fordy+ வழங்குதல் முறையைப் பயன்படுத்தும் போது மட்டுமே geometiminstance3d "
-"வெளிப்படைத்தன்மை கிடைக்கும்."
-
-msgid ""
-"GeometryInstance3D visibility range transparency fade is only available when "
-"using the Forward+ rendering method."
-msgstr ""
-"Geometiminstance3d தெரிவுநிலை வரம்பு வெளிப்படைத்தன்மை மங்கலான ஃபார்வர்ட்+ வழங்குதல் "
-"முறையைப் பயன்படுத்தும் போது மட்டுமே கிடைக்கும்."
 
 msgid "Plotting Meshes"
 msgstr "சூழ்ச்சி மெச்கள்"
@@ -19822,14 +19175,6 @@ msgstr "பொருந்தக்கூடிய செயல்பாடு �
 
 msgid "Varying '%s' cannot be passed for the '%s' parameter in that context."
 msgstr "அந்த சூழலில் '%s' அளவுருவுக்கு மாறுபடும் '%s' அனுப்ப முடியாது."
-
-msgid ""
-"Unable to pass a multiview texture sampler as a parameter to custom function. "
-"Consider to sample it in the main function and then pass the vector result to "
-"it."
-msgstr ""
-"தனிப்பயன் செயல்பாட்டிற்கான அளவுருவாக மல்டிவியூ அமைப்பு மாதிரியை அனுப்ப முடியவில்லை. "
-"முக்கிய செயல்பாட்டில் அதை மாதிரியாகக் கொண்டு, பின்னர் திசையன் முடிவை அனுப்பவும்."
 
 msgid "Unknown identifier in expression: '%s'."
 msgstr "வெளிப்பாட்டில் அறியப்படாத அடையாளங்காட்டி: '%s'."

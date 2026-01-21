@@ -31,16 +31,16 @@
 #pragma once
 
 #include "core/os/thread.h"
-#include "scene/gui/box_container.h"
+#include "editor/docks/editor_dock.h"
 #include "scene/gui/button.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/rich_text_label.h"
-#include "scene/gui/popup_menu.h"
 
+class Timer;
 class UndoRedo;
 
-class EditorLog : public HBoxContainer {
-	GDCLASS(EditorLog, HBoxContainer);
+class EditorLog : public EditorDock {
+	GDCLASS(EditorLog, EditorDock);
 
 public:
 	enum MessageType {
@@ -130,11 +130,9 @@ private:
 	HashMap<MessageType, LogFilter *> type_filter_map;
 
 	RichTextLabel *log = nullptr;
-	PopupMenu *log_menu = nullptr;
 
 	Button *clear_button = nullptr;
 	Button *copy_button = nullptr;
-	Button *attach_button = nullptr;
 
 	Button *collapse_button = nullptr;
 	bool collapse = false;
@@ -144,9 +142,6 @@ private:
 
 	// Reusable RichTextLabel for BBCode parsing during search
 	RichTextLabel *bbcode_parser = nullptr;
-
-	// Reference to the "Output" button on the toolbar so we can update its icon when warnings or errors are encountered.
-	Button *tool_button = nullptr;
 
 	bool is_loading_state = false; // Used to disable saving requests while loading (some signals from buttons will try to trigger a save, which happens during loading).
 	Timer *save_state_timer = nullptr;
@@ -159,9 +154,6 @@ private:
 	void _meta_clicked(const String &p_meta);
 	void _clear_request();
 	void _copy_request();
-	void _attach_selection_to_context();
-	void _on_log_menu_id_pressed(int p_id);
-	void _on_log_menu_about_to_popup();
 	static void _undo_redo_cbk(void *p_self, const String &p_name);
 
 	void _rebuild_log();
@@ -174,6 +166,7 @@ private:
 
 	void _process_message(const String &p_msg, MessageType p_type, bool p_clear);
 	void _reset_message_counts();
+	void _set_dock_tab_icon(Ref<Texture2D> p_icon);
 
 	void _set_collapse(bool p_collapse);
 
@@ -186,11 +179,9 @@ private:
 
 protected:
 	void _notification(int p_what);
-	static void _bind_methods();
 
 public:
 	void add_message(const String &p_msg, MessageType p_type = MSG_TYPE_STD);
-	void set_tool_button(Button *p_tool_button);
 	void register_undo_redo(UndoRedo *p_undo_redo);
 	void deinit();
 

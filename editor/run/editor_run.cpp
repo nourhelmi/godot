@@ -37,7 +37,7 @@
 #include "editor/run/run_instances_dialog.h"
 #include "editor/settings/editor_settings.h"
 #include "main/main.h"
-#include "servers/display_server.h"
+#include "servers/display/display_server.h"
 
 EditorRun::Status EditorRun::get_status() const {
 	return status;
@@ -169,6 +169,7 @@ Error EditorRun::run(const String &p_scene, const String &p_write_movie, const V
 
 		if (OS::get_singleton()->is_stdout_verbose()) {
 			PackedStringArray output;
+			output.reserve_exact(instance_args.size() + 1);
 			output.append(vformat("Running: %s", exec));
 			for (const String &E : instance_args) {
 				output.append(E);

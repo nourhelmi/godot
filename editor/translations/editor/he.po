@@ -60,8 +60,11 @@ msgstr ""
 "% 10 == 0) ? 2 : 3));\n"
 "X-Generator: Weblate 5.14-dev\n"
 
-msgid "Unset"
-msgstr "ביטול הגדרה"
+msgid "OK"
+msgstr "אישור"
+
+msgid "Help"
+msgstr "עזרה"
 
 msgid "Physical"
 msgstr "פיזי"
@@ -408,6 +411,9 @@ msgstr "ריענון"
 
 msgid "Show Hidden"
 msgstr "הצג קבצים מוסתרים"
+
+msgid "Focus Path"
+msgstr "מיקוד נתיב"
 
 msgid "Swap Input Direction"
 msgstr "החלף כיוון קלט"
@@ -771,6 +777,9 @@ msgstr "המיזוג הבא השתנה"
 msgid "Change Blend Time"
 msgstr "שינוי זמן מיזוג"
 
+msgid "Animation"
+msgstr "הנפשה"
+
 msgid "Animation position (in seconds)."
 msgstr "מיקום הנפשה (בשניות)."
 
@@ -779,9 +788,6 @@ msgstr "שינוי קנה מידה לניגון הנפשה באופן גלובל
 
 msgid "Animation Tools"
 msgstr "כלי הנפשה"
-
-msgid "Animation"
-msgstr "הנפשה"
 
 msgid "Duplicate..."
 msgstr "שכפול…"
@@ -1002,9 +1008,6 @@ msgstr "הכנסת מפתח..."
 msgid "Duplicate Key(s)"
 msgstr "שכפול מפתח(ות)"
 
-msgid "Add RESET Value(s)"
-msgstr "הוסף ערכי איפוס"
-
 msgid "Delete Key(s)"
 msgstr "מחיקת מפתח(ות)"
 
@@ -1110,9 +1113,6 @@ msgstr "הדבקת רצועות"
 msgid "Select an AnimationPlayer node to create and edit animations."
 msgstr "יש לבחור במפרק AnimationPlayer כדי ליצור ולערוך הנפשות."
 
-msgid "Imported Scene"
-msgstr "סצנה מיובאת"
-
 msgid "Warning: Editing imported animation"
 msgstr "אזהרה: עריכת הנפשה מיובאת"
 
@@ -1145,9 +1145,6 @@ msgstr "מעבר לצעד הבא"
 
 msgid "Go to Previous Step"
 msgstr "מעבר לצעד הקודם"
-
-msgid "Apply Reset"
-msgstr "החל איפוס"
 
 msgid "Use Bezier Curves"
 msgstr "שימוש בעקומות בזייה"
@@ -1503,9 +1500,6 @@ msgstr "עצירה"
 msgid "Continue"
 msgstr "המשך"
 
-msgid "Debugger"
-msgstr "מנפה שגיאות"
-
 msgid "Deploy with Remote Debug"
 msgstr "הטעמה עם ניפוי שגיאות מרחוק"
 
@@ -1517,6 +1511,9 @@ msgstr "ניווט גלוי"
 
 msgid "Set %s"
 msgstr "קביעת %s"
+
+msgid "Debugger"
+msgstr "מנפה שגיאות"
 
 msgid "Debug"
 msgstr "ניפוי שגיאות"
@@ -1620,9 +1617,6 @@ msgstr "שגיאת העתקה"
 msgid "C++ Source"
 msgstr "מקור C++"
 
-msgid "Video RAM"
-msgstr "זיכרון וידאו"
-
 msgid "Skip Breakpoints"
 msgstr "דילוג על נקודות עצירה"
 
@@ -1640,6 +1634,9 @@ msgstr "סה״כ:"
 
 msgid "Export list to a CSV file"
 msgstr "ייצוא רשימה לקובץ CSV"
+
+msgid "Video RAM"
+msgstr "זיכרון וידאו"
 
 msgid "Resource Path"
 msgstr "נתיב המשאב"
@@ -2028,6 +2025,9 @@ msgstr ""
 msgid "Create Script"
 msgstr "יצירת סקריפט"
 
+msgid "Groups"
+msgstr "קבוצות"
+
 msgid "Add to Group"
 msgstr "הוספה לקבוצה"
 
@@ -2055,6 +2055,9 @@ msgstr "הגדרה כבררת מחדל עבור ‚%s’"
 msgid "Clear Default for '%s'"
 msgstr "מחיקת בררת מחדל עבור ‚%s’"
 
+msgid "Import"
+msgstr "ייבוא"
+
 msgid "Import As:"
 msgstr "ייבוא בתור:"
 
@@ -2066,6 +2069,9 @@ msgstr "טעינת המשאב נכשלה."
 
 msgid "Make Sub-Resources Unique"
 msgstr "הפוך משאבי משנה לייחודיים"
+
+msgid "Inspector"
+msgstr "מפקח"
 
 msgid "Create a new resource in memory and edit it."
 msgstr "יצירת משאב חדש בזיכרון ועריכתו."
@@ -2087,9 +2093,6 @@ msgstr "היסטוריה של הפריטים שנערכו לאחרונה."
 
 msgid "Open Documentation"
 msgstr "פתיחת התיעוד"
-
-msgid "Groups"
-msgstr "קבוצות"
 
 msgid "Error loading scene from %s"
 msgstr "שגיאה בטעינת סצינה מ-%s"
@@ -2130,12 +2133,6 @@ msgstr "מחק מפרק \"%s\"?"
 msgid "Save New Scene As..."
 msgstr "שמירת סצנה חדשה בשם…"
 
-msgid ""
-"Disabling \"editable_instance\" will cause all properties of the node to be "
-"reverted to their default."
-msgstr ""
-"ביטול \"editable_instance\" תחזיר את כל מאפייני המפרק לברירת המחדל שלהם."
-
 msgid "Make Local"
 msgstr "הפיכה למקומי"
 
@@ -2156,9 +2153,6 @@ msgstr "ממשק משתמש"
 
 msgid "Other Node"
 msgstr "מפרק אחר"
-
-msgid "Filters"
-msgstr "מסננים"
 
 msgid "Can't operate on nodes from a foreign scene!"
 msgstr "לא יכול לפעול על מפרקים מסצנה זרה!"
@@ -2292,9 +2286,6 @@ msgstr "מסתובב כאשר חלון העורך מצויר מחדש."
 
 msgid "Imported resources can't be saved."
 msgstr "לא ניתן לשמור משאבים מובאים."
-
-msgid "OK"
-msgstr "אישור"
 
 msgid ""
 "This resource can't be saved because it does not belong to the edited scene. "
@@ -2454,6 +2445,39 @@ msgstr "%d תיקיות נוספות"
 msgid "%d more files"
 msgstr "%d קבצים נוספים"
 
+msgid "Save & Restart"
+msgstr "שמירה והפעלה מחדש"
+
+msgid "Open Recent"
+msgstr "פתיחה מהאחרונים"
+
+msgid "Version Control"
+msgstr "בקרת גירסאות"
+
+msgid "Install Android Build Template..."
+msgstr "התקנת תבנית בנייה לאנדרואיד..."
+
+msgid "Tools"
+msgstr "כלים"
+
+msgid "Editor Layout"
+msgstr "פריסת עורך"
+
+msgid "Open Editor Data/Settings Folder"
+msgstr "פתיחת תיקיית נתוני/הגדרות העורך"
+
+msgid "Open Editor Data Folder"
+msgstr "פתיחת תיקיית נתוני העורך"
+
+msgid "Open Editor Settings Folder"
+msgstr "פתיחת תיקיית הגדרות העורך"
+
+msgid "Manage Editor Features..."
+msgstr "ניהול תכונות העורך..."
+
+msgid "Manage Export Templates..."
+msgstr "ניהול תבניות ייצוא..."
+
 msgid "Distraction Free Mode"
 msgstr "מצב ללא הסחות דעת"
 
@@ -2474,9 +2498,6 @@ msgstr "פתיחת סצנה…"
 
 msgid "Reopen Closed Scene"
 msgstr "פתיחה מחדש של הסצנה שנסגרה"
-
-msgid "Open Recent"
-msgstr "פתיחה מהאחרונים"
 
 msgid "Save Scene"
 msgstr "שמירת סצנה"
@@ -2502,14 +2523,11 @@ msgstr "טעינה מחדש של סצנה שמורה"
 msgid "Close Scene"
 msgstr "סגירת הסצנה"
 
-msgid "Quit"
-msgstr "יציאה"
-
 msgid "Editor Settings..."
 msgstr "הגדרות העורך..."
 
-msgid "Project"
-msgstr "מיזם"
+msgid "Quit"
+msgstr "יציאה"
 
 msgid "Project Settings..."
 msgstr "הגדרות המיזם..."
@@ -2517,17 +2535,8 @@ msgstr "הגדרות המיזם..."
 msgid "Project Settings"
 msgstr "הגדרות המיזם..."
 
-msgid "Version Control"
-msgstr "בקרת גירסאות"
-
 msgid "Export"
 msgstr "ייצוא"
-
-msgid "Install Android Build Template..."
-msgstr "התקנת תבנית בנייה לאנדרואיד..."
-
-msgid "Tools"
-msgstr "כלים"
 
 msgid "Orphan Resource Explorer..."
 msgstr "סייר משאבים יתומים ..."
@@ -2535,32 +2544,11 @@ msgstr "סייר משאבים יתומים ..."
 msgid "Quit to Project List"
 msgstr "יציאה לרשימת מיזמים"
 
-msgid "Editor Layout"
-msgstr "פריסת עורך"
-
 msgid "Take Screenshot"
 msgstr "שמירת צילום מסך"
 
 msgid "Toggle Fullscreen"
 msgstr "הפעלה/ביטול של מסך מלא"
-
-msgid "Open Editor Data/Settings Folder"
-msgstr "פתיחת תיקיית נתוני/הגדרות העורך"
-
-msgid "Open Editor Data Folder"
-msgstr "פתיחת תיקיית נתוני העורך"
-
-msgid "Open Editor Settings Folder"
-msgstr "פתיחת תיקיית הגדרות העורך"
-
-msgid "Manage Editor Features..."
-msgstr "ניהול תכונות העורך..."
-
-msgid "Manage Export Templates..."
-msgstr "ניהול תבניות ייצוא..."
-
-msgid "Help"
-msgstr "עזרה"
 
 msgid "Report a Bug"
 msgstr "דיווח על תקלה (באג)"
@@ -2568,23 +2556,26 @@ msgstr "דיווח על תקלה (באג)"
 msgid "Send Docs Feedback"
 msgstr "שליחת משוב על התיעוד"
 
-msgid "Save & Restart"
-msgstr "שמירה והפעלה מחדש"
+msgid "Open Script Editor"
+msgstr "פתיחת עורך סקריפטים"
+
+msgid "Open Asset Library"
+msgstr "פתיחת ספריית המשאבים"
+
+msgid "Open the next Editor"
+msgstr "פתיחת העורך הבא"
+
+msgid "Open the previous Editor"
+msgstr "פתיחת העורך הקודם"
+
+msgid "Project"
+msgstr "מיזם"
 
 msgid "Update Continuously"
 msgstr "עדכון רציף"
 
 msgid "Hide Update Spinner"
 msgstr "הסתרת מחוון העדכון"
-
-msgid "Import"
-msgstr "ייבוא"
-
-msgid "Inspector"
-msgstr "מפקח"
-
-msgid "Node"
-msgstr "מפרק"
 
 msgid "Don't Save"
 msgstr "לא לשמור"
@@ -2601,9 +2592,6 @@ msgstr "ייבוא תבניות מקובץ ZIP"
 msgid "Export Library"
 msgstr "ייצוא ספריה"
 
-msgid "Open & Run a Script"
-msgstr "פתיחה והרצה של סקריפט"
-
 msgid "Ignore external changes"
 msgstr "התעלם משינויים חיצוניים"
 
@@ -2618,24 +2606,6 @@ msgstr "חדש בירושה"
 
 msgid "Load Errors"
 msgstr "שגיאות טעינה"
-
-msgid "Open 2D Editor"
-msgstr "פתיחת עורך דו־ממד"
-
-msgid "Open 3D Editor"
-msgstr "פתיחת עורך תלת־ממד"
-
-msgid "Open Script Editor"
-msgstr "פתיחת עורך סקריפטים"
-
-msgid "Open Asset Library"
-msgstr "פתיחת ספריית המשאבים"
-
-msgid "Open the next Editor"
-msgstr "פתיחת העורך הבא"
-
-msgid "Open the previous Editor"
-msgstr "פתיחת העורך הקודם"
 
 msgid "Warning!"
 msgstr "אזהרה!"
@@ -2771,25 +2741,8 @@ msgstr "קובץ ZIP"
 msgid "Manage Export Templates"
 msgstr "ניהול תבניות ייצוא"
 
-msgid "Search Replacement For:"
-msgstr "חיפוש חלופה עבור:"
-
 msgid "Dependencies For:"
 msgstr "תלויות עבור:"
-
-msgid ""
-"Scene '%s' is currently being edited.\n"
-"Changes will only take effect when reloaded."
-msgstr ""
-"הסצנה ”%s“ נמצאת כרגע בעריכה.\n"
-"השינויים יחולו בטעינה מחדש."
-
-msgid ""
-"Resource '%s' is in use.\n"
-"Changes will only take effect when reloaded."
-msgstr ""
-"המשאב ”%s“ נמצא בשימוש.\n"
-"השינויים יחולו בטעינה מחדש."
 
 msgid "Dependencies"
 msgstr "תלויות"
@@ -2802,9 +2755,6 @@ msgstr "תיקון פגומים"
 
 msgid "Dependency Editor"
 msgstr "עורך תלויות"
-
-msgid "Search Replacement Resource:"
-msgstr "חיפוש משאב חלופי:"
 
 msgid "Owners of: %s (Total: %d)"
 msgstr "בעלים של: %s (סה״כ: %d)"
@@ -2831,20 +2781,14 @@ msgstr ""
 msgid "Cannot remove:"
 msgstr "לא ניתן להסיר:"
 
-msgid "Error loading:"
-msgstr "שגיאה בטעינה:"
+msgid "Fix Dependencies"
+msgstr "תיקון תלויות"
 
 msgid "Load failed due to missing dependencies:"
 msgstr "הטעינה נכשלה עקב תלויות חסרות:"
 
 msgid "Which action should be taken?"
 msgstr "באיזו פעולה יש לנקוט?"
-
-msgid "Fix Dependencies"
-msgstr "תיקון תלויות"
-
-msgid "Errors loading!"
-msgstr "שגיאה בטעינה!"
 
 msgid "Permanently delete %d item(s)? (No undo!)"
 msgstr "האם למחוק לצמיתות %d פריט(ים)? (בלתי הפיך!)"
@@ -3034,84 +2978,6 @@ msgstr[3] "העברה/שכפול %d פריטים"
 msgid "Move"
 msgstr "העברה"
 
-msgid "Network"
-msgstr "רשת"
-
-msgid "Select Current Folder"
-msgstr "נא לבחור את התיקייה הנוכחית"
-
-msgid "Open a File"
-msgstr "פתיחת קובץ"
-
-msgid "Open File(s)"
-msgstr "פתיחת קבצים"
-
-msgid "Open a Directory"
-msgstr "פתיחת תיקייה"
-
-msgid "Open a File or Directory"
-msgstr "פתיחת קובץ או תיקייה"
-
-msgid "Save a File"
-msgstr "שמירת קובץ"
-
-msgid "Could not create folder."
-msgstr "לא ניתן ליצור תיקייה."
-
-msgid "Go Back"
-msgstr "מעבר אחורה"
-
-msgid "Go Forward"
-msgstr "מעבר קדימה"
-
-msgid "Go Up"
-msgstr "מעבר מעלה"
-
-msgid "Toggle Hidden Files"
-msgstr "החלפת תצוגת קבצים מוסתרים"
-
-msgid "Toggle Favorite"
-msgstr "הוספת/ביטול מועדף"
-
-msgid "Toggle Mode"
-msgstr "שינוי מצב"
-
-msgid "Focus Path"
-msgstr "מיקוד נתיב"
-
-msgid "Move Favorite Up"
-msgstr "העברת המועדף מעלה"
-
-msgid "Move Favorite Down"
-msgstr "העברת המועדף מטה"
-
-msgid "Go to previous folder."
-msgstr "מעבר לתיקיה הקודמת."
-
-msgid "Go to next folder."
-msgstr "מעבר לתיקיה הבאה."
-
-msgid "Go to parent folder."
-msgstr "מעבר לתיקיית העל."
-
-msgid "Refresh files."
-msgstr "ריענון קבצים."
-
-msgid "(Un)favorite current folder."
-msgstr "(בטל) העדפת תיקייה נוכחית."
-
-msgid "Directories & Files:"
-msgstr "תיקיות וקבצים:"
-
-msgid "Toggle the visibility of hidden files."
-msgstr "הצג/הסתר קבצים מוסתרים."
-
-msgid "Preview:"
-msgstr "תצוגה מקדימה:"
-
-msgid "File:"
-msgstr "קובץ:"
-
 msgid "Remove Item"
 msgstr "הסר פריט"
 
@@ -3144,6 +3010,9 @@ msgstr "מצב"
 
 msgid "Enable"
 msgstr "הפעלה"
+
+msgid "Preview:"
+msgstr "תצוגה מקדימה:"
 
 msgid "2D"
 msgstr "2D"
@@ -3263,6 +3132,9 @@ msgstr "יוצר:"
 msgid "Language:"
 msgstr "שפה:"
 
+msgid "Toggle Favorite"
+msgstr "הוספת/ביטול מועדף"
+
 msgid "New Window"
 msgstr "חלון חדש"
 
@@ -3297,12 +3169,6 @@ msgid ""
 "Settings changed! The project manager must be restarted for changes to take "
 "effect."
 msgstr "ההגדרות שונו! כדי שהשינויים יחולו יש להפעיל מחדש את מנהל המיזמים."
-
-msgid "Play the project."
-msgstr "הרצת המיזם."
-
-msgid "Play the edited scene."
-msgstr "הרצת הסצנה שנערכה."
 
 msgid "Play a custom scene."
 msgstr "הרצת סצנה בהתאמה אישית."
@@ -3422,9 +3288,6 @@ msgstr "כמות:"
 msgid "Transform Aborted."
 msgstr "שינוי צורה הופסק."
 
-msgid "Objects: %d\n"
-msgstr "אובייקטים: %d\n"
-
 msgid "Top View."
 msgstr "מבט על."
 
@@ -3470,14 +3333,14 @@ msgstr "חצי רזולוציה"
 msgid "Audio Listener"
 msgstr "מאזין לשמע"
 
-msgid "Select Mode"
-msgstr "בחירת מצב"
-
 msgid "Move Mode"
 msgstr "מצב תנועה"
 
 msgid "Rotate Mode"
 msgstr "מצב סיבוב"
+
+msgid "Select Mode"
+msgstr "בחירת מצב"
 
 msgid "Use Snap"
 msgstr "שימוש בהצמדה"
@@ -3768,18 +3631,6 @@ msgstr "בחר מפרק"
 
 msgid "Delete Animation?"
 msgstr "מחיקת אנימציה?"
-
-msgid "Play selected animation backwards from current pos. (A)"
-msgstr "ניגון לאחור של ההנפשה שנבחרה מהמיקום הנוכחי. (A)"
-
-msgid "Play selected animation backwards from end. (Shift+A)"
-msgstr "ניגון לאחור של ההנפשה שנבחרה מהסוף. (Shift+A)"
-
-msgid "Play selected animation from start. (Shift+D)"
-msgstr "ניגון ההנפשה שנבחרה מההתחלה. (Shift+D)"
-
-msgid "Play selected animation from current pos. (D)"
-msgstr "ניגון ההנפשה שנבחרה מהמיקום הנוכחי. (D)"
 
 msgid "Zoom Reset"
 msgstr "איפוס התקריב"
@@ -4073,9 +3924,6 @@ msgstr "עורך תלת־ממד"
 msgid "Scene Tree Editing"
 msgstr "עריכת עץ הסצנות"
 
-msgid "Node Dock"
-msgstr "חלון איברים"
-
 msgid "FileSystem Dock"
 msgstr "חלון מערכת הקבצים"
 
@@ -4187,12 +4035,6 @@ msgstr "ייבוא פרופיל(ים)"
 msgid "Manage Editor Feature Profiles"
 msgstr "נהל פרופילי תכונות העורך"
 
-msgid "Select existing layout:"
-msgstr "בחירת פריסה קיימת:"
-
-msgid "Or enter new layout name"
-msgstr "או הכנס שם של פריסה חדשה"
-
 msgid "Edit Built-in Action: %s"
 msgstr "עריכת הפעולה המובנית: %s"
 
@@ -4243,9 +4085,6 @@ msgstr "לא זמין"
 
 msgid "Invalid base path."
 msgstr "נתיב בסיס לא חוקי."
-
-msgid "Wrong extension chosen."
-msgstr "נבחרה הרחבה לא נכונה."
 
 msgid "Reload"
 msgstr "רענון"
@@ -4306,6 +4145,9 @@ msgstr "תאריך:"
 
 msgid "Subtitle:"
 msgstr "כותרת משנה:"
+
+msgid "File:"
+msgstr "קובץ:"
 
 msgid "Do you want to remove the %s branch?"
 msgstr "האם להסיר את הענף %s?"
@@ -4400,6 +4242,9 @@ msgstr "אין מספיק בתים לפענוח בתים, או פורמט לא �
 msgid "%s/s"
 msgstr "%s לשנייה"
 
+msgid "Node"
+msgstr "מפרק"
+
 msgid "Incoming RPC"
 msgstr "RPC נכנס"
 
@@ -4414,6 +4259,9 @@ msgstr "יש להגדיר או ליצור משאב NavigationMesh כדי שצו�
 
 msgid "Pose"
 msgstr "פוזה"
+
+msgid "Building Android Project (gradle)"
+msgstr "בניית מיזם אנדרואיד (gradle)"
 
 msgid "Invalid public key for APK expansion."
 msgstr "מפתח ציבורי לא חוקי להרחבת APK."
@@ -4431,9 +4279,6 @@ msgstr "מפתח לניפוי שגיאות לא נקבע בהגדרות העור
 
 msgid "Release keystore incorrectly configured in the export preset."
 msgstr "מפתח גירסת שיחרור נקבע באופן שגוי בהגדרות הייצוא."
-
-msgid "Building Android Project (gradle)"
-msgstr "בניית מיזם אנדרואיד (gradle)"
 
 msgid "Run in Browser"
 msgstr "הפעלה בדפדפן"
