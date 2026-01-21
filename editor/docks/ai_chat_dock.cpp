@@ -2066,9 +2066,8 @@ void AIChatDock::_update_meter() {
 		if (session_tokens > 0) {
 			text += " | Session: " + itos(session_tokens);
 		}
-		if (cache_rate > 0) {
-			text += " | Cache: " + itos(cache_rate) + "%";
-		}
+		// Always show cache rate so user knows if caching is working
+		text += " | Cache: " + itos(cache_rate) + "%";
 		if (tool_call_count > 0) {
 			text += " | Tools: " + itos(tool_call_count);
 		}
@@ -2203,9 +2202,8 @@ void AIChatDock::end_turn() {
 	has_thinking = false;
 	has_response = false;
 
-	// Reset per-turn tracking
+	// Reset per-turn tracking (keep cache_rate - it's session-level info)
 	turn_tokens = 0;
-	cache_rate = 0;
 	tool_call_count = 0;
 	active_tool_cards.clear();
 	active_tool_icons.clear();
@@ -2230,6 +2228,7 @@ void AIChatDock::clear_all() {
 	// Reset all state
 	end_turn();
 	session_tokens = 0;
+	cache_rate = 0;
 	_update_meter();
 	_clear_context_chips();
 	_clear_pinned_chips();
