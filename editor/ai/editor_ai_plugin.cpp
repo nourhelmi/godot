@@ -11,9 +11,11 @@
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/ai/editor_ai_menu_handler.h"
 #include "editor/docks/ai_main_dock.h"
-#include "editor/inspector/editor_context_menu_plugin.h"
+#include "editor/docks/editor_dock.h"
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/editor_node.h"
+#include "editor/file_system/editor_file_system.h"
+#include "editor/inspector/editor_context_menu_plugin.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/rich_text_label.h"
@@ -34,10 +36,19 @@ void EditorAIPlugin::_notification(int p_what) {
 				return;
 			}
 
-			// Create main dock
+			// Create main dock (tab index set via set_default_tab_index in constructor)
 			main_dock = memnew(AIMainDock);
 			add_dock(main_dock);
 			EditorDockManager::get_singleton()->focus_dock(main_dock);
+
+			// Ensure Gameable sits first after layout load completes.
+			callable_mp(this, &EditorAIPlugin::_ensure_gameable_dock_first).call_deferred();
+			if (EditorFileSystem *fs = EditorFileSystem::get_singleton()) {
+				const Callable on_sources_changed = callable_mp(this, &EditorAIPlugin::_on_sources_changed);
+				if (!fs->is_connected("sources_changed", on_sources_changed)) {
+					fs->connect("sources_changed", on_sources_changed);
+				}
+			}
 
 			// Create bottom panel logs
 			bottom_logs = memnew(RichTextLabel);
@@ -68,6 +79,13 @@ void EditorAIPlugin::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_EXIT_TREE: {
+			if (EditorFileSystem *fs = EditorFileSystem::get_singleton()) {
+				const Callable on_sources_changed = callable_mp(this, &EditorAIPlugin::_on_sources_changed);
+				if (fs->is_connected("sources_changed", on_sources_changed)) {
+					fs->disconnect("sources_changed", on_sources_changed);
+				}
+			}
+
 			// Unregister context menu handlers
 			if (EditorContextMenuPluginManager *mgr = EditorContextMenuPluginManager::get_singleton()) {
 				if (filesystem_menu_handler.is_valid()) {
@@ -92,6 +110,57 @@ void EditorAIPlugin::_notification(int p_what) {
 			}
 			bottom_toggle_btn = nullptr;
 		} break;
+	}
+}
+
+void EditorAIPlugin::_ensure_gameable_dock_first() {
+	if (!main_dock || !main_dock->is_inside_tree()) {
+		return;
+	}
+	_move_dock_to_front(main_dock);
+
+	TabContainer *tab_container = Object::cast_to<TabContainer>(main_dock->get_parent());
+	if (!tab_container || tab_container->get_tab_count() == 0) {
+		return;
+	}
+
+	const int target_idx = tab_container->get_tab_idx_from_control(main_dock);
+	if (target_idx >= 0 && tab_container->get_current_tab() != target_idx) {
+		tab_container->set_current_tab(target_idx);
+	}
+}
+
+void EditorAIPlugin::_move_dock_to_front(EditorDock *p_dock) {
+	ERR_FAIL_NULL(p_dock);
+	if (!p_dock->is_inside_tree()) {
+		return;
+	}
+
+	TabContainer *tab_container = Object::cast_to<TabContainer>(p_dock->get_parent());
+	if (!tab_container || tab_container->get_tab_count() == 0) {
+		return;
+	}
+
+	const int current_idx = tab_container->get_tab_idx_from_control(p_dock);
+	if (current_idx <= 0) {
+		return;
+	}
+
+	Control *front_tab = tab_container->get_tab_control(0);
+	if (!front_tab) {
+		return;
+	}
+	tab_container->move_child(p_dock, front_tab->get_index(false));
+}
+
+void EditorAIPlugin::_on_sources_changed(bool p_exist) {
+	(void)p_exist;
+	_ensure_gameable_dock_first();
+	if (EditorFileSystem *fs = EditorFileSystem::get_singleton()) {
+		const Callable on_sources_changed = callable_mp(this, &EditorAIPlugin::_on_sources_changed);
+		if (fs->is_connected("sources_changed", on_sources_changed)) {
+			fs->disconnect("sources_changed", on_sources_changed);
+		}
 	}
 }
 

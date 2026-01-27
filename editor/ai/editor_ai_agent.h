@@ -36,7 +36,6 @@ class EditorAIAgent : public Object {
 	double retry_delay = 0.5;
 	uint64_t next_retry_msec = 0;
 	bool runbar_connected = false;
-	bool log_connected = false;
 	bool debugger_connected = false;
 	uint64_t log_context_seq = 0;
 
@@ -81,7 +80,6 @@ class EditorAIAgent : public Object {
 	void _on_play_pressed();
 	void _on_stop_pressed();
 	void _on_editor_log_message(const String &p_text, int p_type);
-	void _on_debugger_error_logged(const String &p_message, bool p_warning, const String &p_source_file, int p_source_line);
 	void _request_runtime_fix_internal(bool p_manual);
 	String _build_runtime_session_id() const;
 	String _truncate_context_text(const String &p_text, int p_max_chars) const;

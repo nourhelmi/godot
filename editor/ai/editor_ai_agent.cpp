@@ -38,10 +38,10 @@
 #include "scene/resources/material.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/shader.h"
+#include "servers/rendering/rendering_server.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_preprocessor.h"
 #include "servers/rendering/shader_types.h"
-#include "servers/rendering/rendering_server.h"
 
 EditorAIAgent *EditorAIAgent::singleton = nullptr;
 
@@ -272,17 +272,12 @@ void EditorAIAgent::_ensure_runtime_hooks() {
 		}
 	}
 
-	if (!log_connected) {
-		if (EditorLog *log = EditorNode::get_singleton()->get_log()) {
-			log->connect("message_added", callable_mp(this, &EditorAIAgent::_on_editor_log_message));
-			log_connected = true;
-		}
-	}
-
+	// Connect to debugger output signal for runtime logs/errors (4.6+ API)
+	// This replaces both the old EditorLog::message_added and ScriptEditorDebugger::error_logged signals
 	if (!debugger_connected) {
 		if (EditorDebuggerNode *debugger_node = EditorDebuggerNode::get_singleton()) {
 			if (ScriptEditorDebugger *debugger = debugger_node->get_default_debugger()) {
-				debugger->connect("error_logged", callable_mp(this, &EditorAIAgent::_on_debugger_error_logged));
+				debugger->connect("output", callable_mp(this, &EditorAIAgent::_on_editor_log_message));
 				debugger_connected = true;
 			}
 		}
@@ -2365,39 +2360,6 @@ void EditorAIAgent::_on_editor_log_message(const String &p_text, int p_type) {
 
 	runtime_logs.push_back(p_text);
 	emit_signal("runtime_log_added", p_text, level);
-}
-
-void EditorAIAgent::_on_debugger_error_logged(const String &p_message, bool p_warning, const String &p_source_file, int p_source_line) {
-	if (!runtime_capture_active) {
-		return;
-	}
-	if (p_message.is_empty()) {
-		return;
-	}
-
-	String message = p_message;
-	if (!p_source_file.is_empty() && p_source_file.begins_with("res://")) {
-		if (p_source_line >= 0) {
-			message += " (" + p_source_file + ":" + itos(p_source_line) + ")";
-		} else {
-			message += " (" + p_source_file + ")";
-		}
-	}
-
-	Vector<String> &bucket = p_warning ? runtime_warnings : runtime_errors;
-	bool exists = false;
-	for (const String &entry : bucket) {
-		if (entry == message) {
-			exists = true;
-			break;
-		}
-	}
-	if (!exists) {
-		bucket.push_back(message);
-	}
-
-	runtime_logs.push_back(message);
-	emit_signal("runtime_log_added", message, p_warning ? "warning" : "error");
 }
 
 String EditorAIAgent::_build_runtime_session_id() const {

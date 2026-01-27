@@ -138,6 +138,9 @@ public:
 	void set_default_slot(DockSlot p_slot);
 	DockSlot get_default_slot() const { return default_slot; }
 
+	void set_default_tab_index(int p_index) { previous_tab_index = p_index; }
+	int get_default_tab_index() const { return previous_tab_index; }
+
 	void set_available_layouts(BitField<DockLayout> p_layouts) { available_layouts = p_layouts; }
 	BitField<DockLayout> get_available_layouts() const { return available_layouts; }
 

@@ -14,7 +14,6 @@
 #include "core/input/input_event.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
-#include "core/string/translation.h"
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/ai/editor_ai_types.h"
 #include "editor/editor_interface.h"
@@ -298,6 +297,8 @@ void AIChatDock::_notification(int p_what) {
 
 AIChatDock::AIChatDock() {
 	set_name("Chat");
+	set_h_size_flags(SIZE_EXPAND_FILL);
+	set_v_size_flags(SIZE_EXPAND_FILL);
 	set_process(true);
 	_build_ui();
 }

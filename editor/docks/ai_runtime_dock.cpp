@@ -49,6 +49,8 @@ void AIRuntimeDock::_notification(int p_what) {
 
 AIRuntimeDock::AIRuntimeDock() {
 	set_name("Live");
+	set_h_size_flags(SIZE_EXPAND_FILL);
+	set_v_size_flags(SIZE_EXPAND_FILL);
 	_build_ui();
 }
 

@@ -13,6 +13,7 @@
 class AIMainDock;
 class Button;
 class EditorAIMenuHandler;
+class EditorDock;
 class RichTextLabel;
 
 // Editor plugin that registers the AI dock and bottom panel.
@@ -27,6 +28,10 @@ class EditorAIPlugin : public EditorPlugin {
 	// Context menu handlers (must stay alive)
 	Ref<EditorAIMenuHandler> filesystem_menu_handler;
 	Ref<EditorAIMenuHandler> scene_tree_menu_handler;
+
+	void _ensure_gameable_dock_first();
+	void _move_dock_to_front(EditorDock *p_dock);
+	void _on_sources_changed(bool p_exist);
 
 protected:
 	void _notification(int p_what);

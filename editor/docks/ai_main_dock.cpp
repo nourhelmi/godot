@@ -14,7 +14,6 @@
 #include "core/string/print_string.h"
 #include "editor/ai/editor_ai_agent.h"
 #include "editor/editor_node.h"
-#include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
@@ -38,8 +37,8 @@ void AIMainDock::_notification(int p_what) {
 			// Connect to AI agent and start connection
 			if (EditorAIAgent *agent = EditorAIAgent::get_singleton()) {
 				agent->connect("connection_state_changed", callable_mp(this, &AIMainDock::_on_connection_state_changed));
-			agent->connect("runtime_state_changed", callable_mp(this, &AIMainDock::_on_runtime_state_changed));
-			agent->connect_to_server();
+				agent->connect("runtime_state_changed", callable_mp(this, &AIMainDock::_on_runtime_state_changed));
+				agent->connect_to_server();
 			}
 		} break;
 
@@ -54,6 +53,8 @@ AIMainDock::AIMainDock() {
 	set_title("Gameable");
 	set_icon_name("Node");
 	set_default_slot(DOCK_SLOT_RIGHT_UL);
+	set_default_tab_index(0); // First tab in the dock slot
+	set_transient(true); // Don't save/restore in layout - plugin always creates fresh
 	_build_ui();
 }
 
@@ -63,10 +64,14 @@ AIMainDock::~AIMainDock() {
 void AIMainDock::_build_ui() {
 	// Build basic container structure - can be called from constructor
 	root = memnew(VBoxContainer);
+	root->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
+	root->set_h_size_flags(SIZE_EXPAND_FILL);
+	root->set_v_size_flags(SIZE_EXPAND_FILL);
 	add_child(root);
 
 	// Tab container (child docks added later in _build_child_docks)
 	tabs = memnew(TabContainer);
+	tabs->set_h_size_flags(SIZE_EXPAND_FILL);
 	tabs->set_v_size_flags(SIZE_EXPAND_FILL);
 	tabs->set_tab_alignment(TabBar::ALIGNMENT_CENTER);
 	root->add_child(tabs);
