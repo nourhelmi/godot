@@ -118,7 +118,7 @@ class AIRuntimeDock : public VBoxContainer {
 	void _on_runtime_chat_message(const String &p_role, const String &p_text);
 	void _on_runtime_thinking(const String &p_text);
 	void _on_runtime_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input);
-	void _on_runtime_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output);
+	void _on_runtime_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output, bool p_preliminary);
 
 	void _set_status(const String &p_status, const String &p_icon, const Ref<StyleBoxFlat> &p_style);
 	void _clear_results();

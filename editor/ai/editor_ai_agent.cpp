@@ -167,7 +167,7 @@ void EditorAIAgent::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("status", PropertyInfo(Variant::STRING, "level"), PropertyInfo(Variant::STRING, "message")));
 	ADD_SIGNAL(MethodInfo("usage_updated", PropertyInfo(Variant::INT, "turn_tokens"), PropertyInfo(Variant::INT, "session_tokens"), PropertyInfo(Variant::INT, "cache_rate")));
 	ADD_SIGNAL(MethodInfo("tool_call", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::DICTIONARY, "input")));
-	ADD_SIGNAL(MethodInfo("tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output")));
+	ADD_SIGNAL(MethodInfo("tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output"), PropertyInfo(Variant::BOOL, "preliminary")));
 	ADD_SIGNAL(MethodInfo("tool_progress", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "stage"), PropertyInfo(Variant::FLOAT, "progress")));
 	ADD_SIGNAL(MethodInfo("verify_result", PropertyInfo(Variant::DICTIONARY, "result")));
 	ADD_SIGNAL(MethodInfo("context_updated", PropertyInfo(Variant::ARRAY, "items")));
@@ -179,7 +179,7 @@ void EditorAIAgent::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("runtime_chat_message", PropertyInfo(Variant::STRING, "role"), PropertyInfo(Variant::STRING, "text")));
 	ADD_SIGNAL(MethodInfo("runtime_thinking", PropertyInfo(Variant::STRING, "text")));
 	ADD_SIGNAL(MethodInfo("runtime_tool_call", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::DICTIONARY, "input")));
-	ADD_SIGNAL(MethodInfo("runtime_tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output")));
+	ADD_SIGNAL(MethodInfo("runtime_tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output"), PropertyInfo(Variant::BOOL, "preliminary")));
 	ADD_SIGNAL(MethodInfo("runtime_tool_progress", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "stage"), PropertyInfo(Variant::FLOAT, "progress")));
 }
 
@@ -2180,7 +2180,8 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 			bool ok = p_params.has("ok") ? bool(p_params["ok"]) : false;
 			String name = p_params.has("name") ? String(p_params["name"]) : String();
 			Dictionary output = p_params.has("output") ? Dictionary(p_params["output"]) : Dictionary();
-			emit_signal("runtime_tool_result", id, ok, output);
+			bool preliminary = p_params.has("preliminary") ? bool(p_params["preliminary"]) : false;
+			emit_signal("runtime_tool_result", id, ok, output, preliminary);
 
 			if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch" || name == "createScene")) {
 				_handle_file_written(name, output);
@@ -2274,7 +2275,8 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		bool ok = p_params.has("ok") ? bool(p_params["ok"]) : false;
 		String name = p_params.has("name") ? String(p_params["name"]) : String();
 		Dictionary output = p_params.has("output") ? Dictionary(p_params["output"]) : Dictionary();
-		emit_signal("tool_result", id, ok, output);
+		bool preliminary = p_params.has("preliminary") ? bool(p_params["preliminary"]) : false;
+		emit_signal("tool_result", id, ok, output, preliminary);
 
 		// Auto-reload files after successful write operations
 		if (ok && (name == "writeFile" || name == "applySceneEdits" || name == "writePatch" || name == "createScene")) {

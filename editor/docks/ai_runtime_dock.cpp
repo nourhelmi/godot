@@ -498,9 +498,13 @@ void AIRuntimeDock::_on_runtime_tool_call(const String &p_id, const String &p_na
 	_append_agent_line("Tool start: " + p_name);
 }
 
-void AIRuntimeDock::_on_runtime_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output) {
+void AIRuntimeDock::_on_runtime_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output, bool p_preliminary) {
 	(void)p_output;
 	_finalize_runtime_stream_line();
+	if (p_preliminary) {
+		_append_agent_line(String("Tool update: ") + p_id);
+		return;
+	}
 	_append_agent_line(String("Tool ") + (p_ok ? "ok: " : "fail: ") + p_id);
 }
 

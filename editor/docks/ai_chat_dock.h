@@ -176,7 +176,7 @@ class AIChatDock : public VBoxContainer {
 	void _on_status(const String &p_level, const String &p_message);
 	void _on_usage_updated(int64_t p_turn, int64_t p_session, int p_cache_rate);
 	void _on_tool_call(const String &p_id, const String &p_name, const Dictionary &p_input);
-	void _on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output);
+	void _on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output, bool p_preliminary);
 	void _on_tool_progress(const String &p_id, const String &p_stage, float p_progress);
 	void _on_chat_message(const String &p_role, const String &p_text);
 	void _on_context_updated(const Array &p_items);

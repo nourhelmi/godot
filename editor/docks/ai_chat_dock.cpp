@@ -12,6 +12,7 @@
 #include "core/config/project_settings.h"
 #include "core/core_bind.h"
 #include "core/input/input_event.h"
+#include "core/io/json.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "editor/ai/editor_ai_agent.h"
@@ -200,6 +201,94 @@ static String _shorten_path(const String &p_path) {
 		return "res://" + rel;
 	}
 	return p_path;
+}
+
+static String _collapse_whitespace(const String &p_text) {
+	String out;
+	bool in_space = false;
+	for (int i = 0; i < p_text.length(); i++) {
+		const char32_t c = p_text[i];
+		if (c == '\n' || c == '\r' || c == '\t' || c == ' ') {
+			if (!in_space) {
+				out += " ";
+				in_space = true;
+			}
+			continue;
+		}
+		in_space = false;
+		out += c;
+	}
+	return out.strip_edges();
+}
+
+static String _truncate_text(const String &p_text, int p_max_chars) {
+	if (p_max_chars <= 0) {
+		return String();
+	}
+	if (p_text.length() <= p_max_chars) {
+		return p_text;
+	}
+	return p_text.substr(0, p_max_chars - 3) + "...";
+}
+
+static String _format_task_stream(const Dictionary &p_message) {
+	if (!p_message.has("parts")) {
+		return String();
+	}
+	Variant parts_var = p_message["parts"];
+	if (parts_var.get_type() != Variant::ARRAY) {
+		return String();
+	}
+	Array parts = parts_var;
+	if (parts.is_empty()) {
+		return String();
+	}
+
+	String out;
+	for (int i = 0; i < parts.size(); i++) {
+		if (parts[i].get_type() != Variant::DICTIONARY) {
+			continue;
+		}
+		Dictionary part = parts[i];
+		String type = part.has("type") ? String(part["type"]) : String();
+		if (type == "text") {
+			String text = part.has("text") ? String(part["text"]) : String();
+			if (!text.is_empty()) {
+				out += text;
+				if (!text.ends_with("\n")) {
+					out += "\n";
+				}
+			}
+			continue;
+		}
+		if (type.begins_with("tool-")) {
+			const String tool_name = type.substr(5);
+			const String state = part.has("state") ? String(part["state"]) : String();
+			out += "[tool] " + (tool_name.is_empty() ? String("tool") : tool_name);
+			if (!state.is_empty()) {
+				out += " (" + state + ")";
+			}
+			out += "\n";
+			if (part.has("input")) {
+				const String json = JSON::stringify(part["input"]);
+				out += "  input: " + _truncate_text(json, 2000) + "\n";
+			}
+			if (part.has("output")) {
+				const String json = JSON::stringify(part["output"]);
+				out += "  output: " + _truncate_text(json, 2000) + "\n";
+			}
+			continue;
+		}
+		if (!type.is_empty()) {
+			out += "[part] " + type;
+			if (part.has("text")) {
+				out += ": " + String(part["text"]);
+			}
+			out += "\n";
+		}
+	}
+
+	return out.strip_edges();
 }
 
 static void _count_scene_node_types(Node *p_node, Node *p_root, int &r_2d, int &r_3d) {
@@ -900,6 +989,13 @@ String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const D
 		String scene = p_input.has("scenePath") ? String(p_input["scenePath"]) : String();
 		return scene.is_empty() ? "done" : "done (" + _shorten_path(scene) + ")";
 	}
+	if (p_name == "task") {
+		String summary = p_output.has("summary") ? String(p_output["summary"]) : String();
+		if (summary.is_empty()) {
+			return "done";
+		}
+		return _truncate_text(_collapse_whitespace(summary), 80);
+	}
 	if (p_name == "verify" || p_name == "verifyVisually" || p_name == "runHarness") {
 		Array errors = p_output.has("errors") ? Array(p_output["errors"]) : Array();
 		Array warnings = p_output.has("warnings") ? Array(p_output["warnings"]) : Array();
@@ -916,6 +1012,33 @@ String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const D
 
 String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
 	String details;
+
+	if (p_name == "task") {
+		String summary = p_output.has("summary") ? String(p_output["summary"]) : String();
+		if (!summary.is_empty()) {
+			details += "Summary:\n" + summary.strip_edges() + "\n\n";
+		}
+		if (p_output.has("toolsUsed")) {
+			Array tools = p_output["toolsUsed"];
+			if (!tools.is_empty()) {
+				details += "Tools used: ";
+				for (int i = 0; i < tools.size(); i++) {
+					if (i > 0) {
+						details += ", ";
+					}
+					details += String(tools[i]);
+				}
+				details += "\n";
+			}
+		}
+		if (p_output.has("message") && p_output["message"].get_type() == Variant::DICTIONARY) {
+			const String stream = _format_task_stream(Dictionary(p_output["message"]));
+			if (!stream.is_empty()) {
+				details += "\nStream:\n" + stream + "\n";
+			}
+		}
+		return details.strip_edges();
+	}
 
 	// Unified search tool (primary)
 	if (p_name == "search") {
@@ -2012,11 +2135,13 @@ void AIChatDock::_on_tool_call(const String &p_id, const String &p_name, const D
 	_update_meter();
 }
 
-void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output) {
+void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary &p_output, bool p_preliminary) {
 	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
 	const Dictionary input = active_tool_inputs.has(p_id) ? active_tool_inputs[p_id] : Dictionary();
 	const String summary = _format_tool_summary(name, p_ok, p_output, input);
-	update_tool_card(p_id, summary.is_empty() ? (p_ok ? "done" : "failed") : summary, true);
+	const String status =
+			summary.is_empty() ? (p_ok ? (p_preliminary ? "streaming..." : "done") : "failed") : summary;
+	update_tool_card(p_id, status, !p_preliminary);
 
 	const String details = _format_tool_details(name, p_ok, p_output, input);
 	if (!details.is_empty()) {
@@ -2028,13 +2153,20 @@ void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary
 		}
 		if (active_tool_detail_containers.has(p_id)) {
 			if (Control *container = active_tool_detail_containers[p_id]) {
-				container->set_visible(false);
+				bool open = container->is_visible();
+				if (p_preliminary && name == "task") {
+					open = true;
+				}
+				container->set_visible(open);
 			}
 		}
 		if (active_tool_detail_toggles.has(p_id)) {
 			if (Button *toggle = active_tool_detail_toggles[p_id]) {
 				toggle->set_visible(true);
-				toggle->set_text(U"▶ Details");
+				const bool is_open = active_tool_detail_containers.has(p_id) &&
+						active_tool_detail_containers[p_id] &&
+						active_tool_detail_containers[p_id]->is_visible();
+				toggle->set_text(is_open ? U"▼ Details" : U"▶ Details");
 			}
 		}
 	}
