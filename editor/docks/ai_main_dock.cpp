@@ -8,6 +8,7 @@
 
 #include "ai_main_dock.h"
 
+#include "ai_assets_dock.h"
 #include "ai_chat_dock.h"
 #include "ai_context_dock.h"
 #include "ai_runtime_dock.h"
@@ -85,6 +86,9 @@ void AIMainDock::_build_child_docks() {
 	// "parent busy" errors when each dock builds its own UI
 	chat_dock = memnew(AIChatDock);
 	tabs->add_child(chat_dock);
+
+	assets_dock = memnew(AIAssetsDock);
+	tabs->add_child(assets_dock);
 
 	// Context tab removed - context now managed via @ mentions + right-click menus
 	// context_dock kept as member for potential settings/bundle UI later
@@ -174,8 +178,8 @@ void AIMainDock::_on_connection_state_changed(int p_state) {
 }
 
 void AIMainDock::_on_runtime_state_changed(const String &p_state, const String &p_scene) {
-	// Switch to live tab when runtime starts/stops (index 1 after Context removed)
-	tabs->set_current_tab(1);
+	// Switch to live tab when runtime starts/stops (Chat=0, Assets=1, Live=2)
+	tabs->set_current_tab(2);
 }
 
 void AIMainDock::_on_reconnect_pressed() {

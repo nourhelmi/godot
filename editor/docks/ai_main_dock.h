@@ -11,6 +11,7 @@
 #include "editor/docks/editor_dock.h"
 
 class AIChatDock;
+class AIAssetsDock;
 class AIContextDock; // kept for bundle/settings UI later
 class AIRuntimeDock;
 class Button;
@@ -21,7 +22,7 @@ class StyleBoxFlat;
 class TabContainer;
 class VBoxContainer;
 
-// Main AI dock container with TabContainer (Chat/Live),
+// Main AI dock container with TabContainer (Chat/Assets/Live),
 // connection status bar, and integrated bottom logs panel.
 class AIMainDock : public EditorDock {
 	GDCLASS(AIMainDock, EditorDock);
@@ -39,6 +40,7 @@ class AIMainDock : public EditorDock {
 
 	// Child docks
 	AIChatDock *chat_dock = nullptr;
+	AIAssetsDock *assets_dock = nullptr;
 	AIContextDock *context_dock = nullptr;
 	AIRuntimeDock *runtime_dock = nullptr;
 
@@ -72,6 +74,7 @@ public:
 
 	// Access to child docks
 	AIChatDock *get_chat_dock() const { return chat_dock; }
+	AIAssetsDock *get_assets_dock() const { return assets_dock; }
 	AIContextDock *get_context_dock() const { return context_dock; }
 	AIRuntimeDock *get_runtime_dock() const { return runtime_dock; }
 

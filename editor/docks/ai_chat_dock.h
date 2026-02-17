@@ -19,11 +19,13 @@ class Image;
 class InputEvent;
 class Label;
 class PanelContainer;
+class ProgressBar;
 class RichTextLabel;
 class ScrollContainer;
 class StyleBoxFlat;
 class TextEdit;
 class Texture2D;
+class TextureRect;
 
 // Chat panel with inline streaming: reasoning → response → tools flow sequentially
 // like Cursor/Claude. Each assistant turn is a container holding all parts.
@@ -98,6 +100,8 @@ class AIChatDock : public VBoxContainer {
 	HashMap<String, RichTextLabel *> active_tool_details;
 	HashMap<String, Control *> active_tool_detail_containers;
 	HashMap<String, Button *> active_tool_detail_toggles;
+	HashMap<String, ProgressBar *> active_tool_progress_bars;
+	HashMap<String, TextureRect *> active_tool_previews;
 	HashMap<String, Dictionary> active_tool_inputs;
 	HashMap<String, String> active_tool_names;
 	HashMap<String, uint64_t> tool_done_times;
@@ -135,6 +139,9 @@ class AIChatDock : public VBoxContainer {
 	String _format_tool_progress(const String &p_name, const String &p_stage, const Dictionary &p_input) const;
 	String _format_tool_summary(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const;
 	String _format_tool_details(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const;
+	String _extract_generated_image_path(const Dictionary &p_output) const;
+	Ref<Texture2D> _load_generated_image_preview(const String &p_path) const;
+	void _attach_tool_image_preview(const String &p_tool_id, const String &p_image_path);
 	void _on_tool_details_toggle(Control *p_container, Button *p_toggle);
 	void _update_spinner_icons();
 
@@ -198,7 +205,7 @@ public:
 	void append_thinking(const String &p_text);
 	void append_response(const String &p_text);
 	void add_tool_card(const String &p_id, const String &p_name, const Dictionary &p_input, const String &p_status);
-	void update_tool_card(const String &p_id, const String &p_status, bool p_done);
+	void update_tool_card(const String &p_id, const String &p_status, bool p_done, bool p_success = true);
 	void update_usage(int64_t p_turn, int64_t p_session, int p_cache_rate);
 	void cleanup_done_tools();
 	void end_turn(); // Finalizes current turn, clears streaming state

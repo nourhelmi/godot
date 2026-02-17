@@ -28,6 +28,7 @@
 #include "scene/gui/flow_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/panel_container.h"
+#include "scene/gui/progress_bar.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/gui/text_edit.h"
@@ -796,6 +797,16 @@ PanelContainer *AIChatDock::_create_tool_card(const String &p_id, const String &
 	details_toggle->set_visible(false);
 	row->add_child(details_toggle);
 
+	ProgressBar *progress_bar = memnew(ProgressBar);
+	progress_bar->set_h_size_flags(SIZE_EXPAND_FILL);
+	progress_bar->set_show_percentage(false);
+	progress_bar->set_min(0);
+	progress_bar->set_max(100);
+	progress_bar->set_value(0);
+	progress_bar->set_visible(false);
+	progress_bar->set_custom_minimum_size(Size2(0, 6 * EDSCALE));
+	content->add_child(progress_bar);
+
 	VBoxContainer *details_container = memnew(VBoxContainer);
 	details_container->set_visible(false);
 	content->add_child(details_container);
@@ -814,6 +825,7 @@ PanelContainer *AIChatDock::_create_tool_card(const String &p_id, const String &
 	active_tool_details[p_id] = details_text;
 	active_tool_detail_containers[p_id] = details_container;
 	active_tool_detail_toggles[p_id] = details_toggle;
+	active_tool_progress_bars[p_id] = progress_bar;
 
 	return card;
 }
@@ -914,6 +926,9 @@ String AIChatDock::_format_tool_progress(const String &p_name, const String &p_s
 String AIChatDock::_format_tool_summary(const String &p_name, bool p_ok, const Dictionary &p_output, const Dictionary &p_input) const {
 	if (!p_ok) {
 		return "failed";
+	}
+	if (p_name == "generateImage") {
+		return "done (preview)";
 	}
 	if (p_name == "search") {
 		// Unified search: uses "results" array and "totalMatches"
@@ -1037,6 +1052,22 @@ String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const D
 				details += "\nStream:\n" + stream + "\n";
 			}
 		}
+		return details.strip_edges();
+	}
+
+	if (p_name == "generateImage") {
+		Dictionary generated = p_output.has("generateImageResult") ? Dictionary(p_output["generateImageResult"]) : Dictionary();
+		const bool ok = generated.has("ok") ? bool(generated["ok"]) : p_ok;
+		if (!ok) {
+			String error_message = generated.has("error") ? String(generated["error"]) : String("Image generation failed.");
+			details += "Image generation failed.";
+			if (!error_message.is_empty()) {
+				details += "\n" + error_message;
+			}
+			return details.strip_edges();
+		}
+		details += "Preview shown below.";
+		details += "\nImport from the Assets tab to move it into the project.";
 		return details.strip_edges();
 	}
 
@@ -1469,6 +1500,75 @@ String AIChatDock::_format_tool_details(const String &p_name, bool p_ok, const D
 		return "Tool failed.";
 	}
 	return String();
+}
+
+String AIChatDock::_extract_generated_image_path(const Dictionary &p_output) const {
+	if (!p_output.has("generateImageResult")) {
+		return String();
+	}
+	Variant v = p_output["generateImageResult"];
+	if (v.get_type() != Variant::DICTIONARY) {
+		return String();
+	}
+	Dictionary generated = v;
+	if (generated.has("stagePath")) {
+		return String(generated["stagePath"]);
+	}
+	if (generated.has("outputPath")) {
+		return String(generated["outputPath"]);
+	}
+	return String();
+}
+
+Ref<Texture2D> AIChatDock::_load_generated_image_preview(const String &p_path) const {
+	String load_path = p_path;
+	if (load_path.begins_with("res://")) {
+		if (ProjectSettings::get_singleton()) {
+			load_path = ProjectSettings::get_singleton()->globalize_path(load_path);
+		}
+	}
+	Ref<Image> image;
+	image.instantiate();
+	if (image->load(load_path) != OK) {
+		return Ref<Texture2D>();
+	}
+	return ImageTexture::create_from_image(image);
+}
+
+void AIChatDock::_attach_tool_image_preview(const String &p_tool_id, const String &p_image_path) {
+	if (p_tool_id.is_empty() || p_image_path.is_empty()) {
+		return;
+	}
+	if (!active_tool_cards.has(p_tool_id)) {
+		return;
+	}
+	Ref<Texture2D> preview = _load_generated_image_preview(p_image_path);
+	if (!preview.is_valid()) {
+		return;
+	}
+
+	TextureRect *preview_rect = active_tool_previews.has(p_tool_id) ? active_tool_previews[p_tool_id] : nullptr;
+	if (!preview_rect) {
+		PanelContainer *card = active_tool_cards[p_tool_id];
+		if (!card || card->get_child_count() <= 0) {
+			return;
+		}
+		VBoxContainer *content = Object::cast_to<VBoxContainer>(card->get_child(0));
+		if (!content) {
+			return;
+		}
+		preview_rect = memnew(TextureRect);
+		preview_rect->set_expand_mode(TextureRect::EXPAND_IGNORE_SIZE);
+		preview_rect->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
+		preview_rect->set_custom_minimum_size(Size2(220 * EDSCALE, 120 * EDSCALE));
+		content->add_child(preview_rect);
+		const int insert_index = content->get_child_count() > 1 ? 1 : content->get_child_count() - 1;
+		if (insert_index >= 0) {
+			content->move_child(preview_rect, insert_index);
+		}
+		active_tool_previews[p_tool_id] = preview_rect;
+	}
+	preview_rect->set_texture(preview);
 }
 
 void AIChatDock::_on_tool_details_toggle(Control *p_container, Button *p_toggle) {
@@ -2141,7 +2241,7 @@ void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary
 	const String summary = _format_tool_summary(name, p_ok, p_output, input);
 	const String status =
 			summary.is_empty() ? (p_ok ? (p_preliminary ? "streaming..." : "done") : "failed") : summary;
-	update_tool_card(p_id, status, !p_preliminary);
+	update_tool_card(p_id, status, !p_preliminary, p_ok);
 
 	const String details = _format_tool_details(name, p_ok, p_output, input);
 	if (!details.is_empty()) {
@@ -2170,13 +2270,49 @@ void AIChatDock::_on_tool_result(const String &p_id, bool p_ok, const Dictionary
 			}
 		}
 	}
+
+	if (active_tool_progress_bars.has(p_id)) {
+		if (ProgressBar *bar = active_tool_progress_bars[p_id]) {
+			if (!p_preliminary) {
+				bar->set_visible(true);
+				if (p_ok) {
+					bar->set_value(100.0);
+					bar->set_modulate(Color(1, 1, 1, 1));
+				} else {
+					bar->set_modulate(Color(1.0, 0.55, 0.55, 1.0));
+				}
+			}
+		}
+	}
+
+	if (name == "generateImage" && p_ok && !p_preliminary) {
+		const String preview_path = _extract_generated_image_path(p_output);
+		_attach_tool_image_preview(p_id, preview_path);
+	}
 }
 
 void AIChatDock::_on_tool_progress(const String &p_id, const String &p_stage, float p_progress) {
 	const String name = active_tool_names.has(p_id) ? active_tool_names[p_id] : String();
 	const Dictionary input = active_tool_inputs.has(p_id) ? active_tool_inputs[p_id] : Dictionary();
-	const String status = _format_tool_progress(name, p_stage, input);
-	update_tool_card(p_id, status, false);
+	String status = _format_tool_progress(name, p_stage, input);
+	if (p_progress >= 0.0f) {
+		const double normalized =
+				p_progress < 0.0f ? 0.0 : (p_progress > 1.0f ? 1.0 : (double)p_progress);
+		const int percent = int(normalized * 100.0 + 0.5);
+		status += " (" + itos(percent) + "%)";
+	}
+	update_tool_card(p_id, status, false, true);
+	if (active_tool_progress_bars.has(p_id)) {
+		if (ProgressBar *bar = active_tool_progress_bars[p_id]) {
+			if (p_progress >= 0.0f) {
+				const double normalized =
+						p_progress < 0.0f ? 0.0 : (p_progress > 1.0f ? 1.0 : (double)p_progress);
+				bar->set_visible(true);
+				bar->set_modulate(Color(1, 1, 1, 1));
+				bar->set_value(normalized * 100.0);
+			}
+		}
+	}
 }
 
 void AIChatDock::_on_chat_message(const String &p_role, const String &p_text) {
@@ -2281,7 +2417,7 @@ void AIChatDock::add_tool_card(const String &p_id, const String &p_name, const D
 	_scroll_to_bottom();
 }
 
-void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bool p_done) {
+void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bool p_done, bool p_success) {
 	if (!active_tool_cards.has(p_id)) {
 		return;
 	}
@@ -2298,14 +2434,14 @@ void AIChatDock::update_tool_card(const String &p_id, const String &p_status, bo
 
 	if (p_done) {
 		if (icon) {
-			icon->set_text(U"✓");
+			icon->set_text(p_success ? U"✓" : U"✕");
 		}
 		tool_done_times[p_id] = OS::get_singleton()->get_ticks_msec();
 		active_tool_icons.erase(p_id);
 
-		// Change border to green for success
+		// Change border to green/red based on final outcome.
 		Ref<StyleBoxFlat> done_style = theme_cache.tool_card_bg->duplicate();
-		done_style->set_border_color(Color(0.4, 0.8, 0.4));
+		done_style->set_border_color(p_success ? Color(0.4, 0.8, 0.4) : Color(0.95, 0.45, 0.45));
 		card->add_theme_style_override("panel", done_style);
 	}
 }
@@ -2344,6 +2480,8 @@ void AIChatDock::end_turn() {
 	active_tool_details.clear();
 	active_tool_detail_containers.clear();
 	active_tool_detail_toggles.clear();
+	active_tool_progress_bars.clear();
+	active_tool_previews.clear();
 	active_tool_inputs.clear();
 	active_tool_names.clear();
 	tool_done_times.clear();

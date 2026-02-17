@@ -127,6 +127,12 @@ public:
 	// Harness
 	void run_harness(const String &p_scene_path, int p_frames = 60);
 
+	// Staged assets
+	void request_asset_list(bool p_include_imported = true, const String &p_tag = String(), int p_limit = 200);
+	void request_asset_import(const String &p_asset_id);
+	void request_asset_tag(const String &p_asset_id, const String &p_action, const PackedStringArray &p_tags);
+	void request_asset_discard(const String &p_asset_id);
+
 	// Runtime play loop
 	void set_runtime_auto_fix_enabled(bool p_enabled) { runtime_auto_fix_enabled = p_enabled; }
 	bool is_runtime_auto_fix_enabled() const { return runtime_auto_fix_enabled; }

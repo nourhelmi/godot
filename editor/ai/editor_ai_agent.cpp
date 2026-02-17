@@ -181,6 +181,11 @@ void EditorAIAgent::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("runtime_tool_call", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::DICTIONARY, "input")));
 	ADD_SIGNAL(MethodInfo("runtime_tool_result", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::BOOL, "ok"), PropertyInfo(Variant::DICTIONARY, "output"), PropertyInfo(Variant::BOOL, "preliminary")));
 	ADD_SIGNAL(MethodInfo("runtime_tool_progress", PropertyInfo(Variant::STRING, "id"), PropertyInfo(Variant::STRING, "stage"), PropertyInfo(Variant::FLOAT, "progress")));
+	ADD_SIGNAL(MethodInfo("asset_generation", PropertyInfo(Variant::DICTIONARY, "payload")));
+	ADD_SIGNAL(MethodInfo("asset_ready", PropertyInfo(Variant::DICTIONARY, "payload")));
+	ADD_SIGNAL(MethodInfo("asset_updated", PropertyInfo(Variant::DICTIONARY, "payload")));
+	ADD_SIGNAL(MethodInfo("assets_listed", PropertyInfo(Variant::ARRAY, "assets")));
+	ADD_SIGNAL(MethodInfo("asset_imported", PropertyInfo(Variant::DICTIONARY, "asset")));
 }
 
 void EditorAIAgent::create_singleton() {
@@ -2123,6 +2128,14 @@ void EditorAIAgent::_handle_response(const Dictionary &p_response) {
 		}
 		emit_signal("context_updated", items);
 	}
+
+	if (result.has("assets")) {
+		emit_signal("assets_listed", result["assets"]);
+	}
+
+	if (result.has("asset") && result.has("reimported")) {
+		emit_signal("asset_imported", Dictionary(result["asset"]));
+	}
 }
 
 void EditorAIAgent::_send_jsonrpc_response(int p_id, const Dictionary &p_result) {
@@ -2201,6 +2214,19 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 			String role = p_params.has("role") ? String(p_params["role"]) : String();
 			String text = p_params.has("text") ? String(p_params["text"]) : String();
 			emit_signal("runtime_chat_message", role, text);
+			return;
+		}
+
+		if (p_method == "asset-generation") {
+			emit_signal("asset_generation", p_params);
+			return;
+		}
+		if (p_method == "asset-ready") {
+			emit_signal("asset_ready", p_params);
+			return;
+		}
+		if (p_method == "asset-updated") {
+			emit_signal("asset_updated", p_params);
 			return;
 		}
 
@@ -2302,6 +2328,19 @@ void EditorAIAgent::_handle_notification(const String &p_method, const Dictionar
 		String role = p_params.has("role") ? String(p_params["role"]) : String();
 		String text = p_params.has("text") ? String(p_params["text"]) : String();
 		emit_signal("chat_message", role, text);
+		return;
+	}
+
+	if (p_method == "asset-generation") {
+		emit_signal("asset_generation", p_params);
+		return;
+	}
+	if (p_method == "asset-ready") {
+		emit_signal("asset_ready", p_params);
+		return;
+	}
+	if (p_method == "asset-updated") {
+		emit_signal("asset_updated", p_params);
 		return;
 	}
 }
@@ -2741,4 +2780,49 @@ void EditorAIAgent::run_harness(const String &p_scene_path, int p_frames) {
 	params["scenePath"] = p_scene_path;
 	params["frames"] = p_frames;
 	send_jsonrpc("runHarness", params);
+}
+
+void EditorAIAgent::request_asset_list(bool p_include_imported, const String &p_tag, int p_limit) {
+	Dictionary params;
+	params["includeImported"] = p_include_imported;
+	if (!p_tag.is_empty()) {
+		params["tag"] = p_tag;
+	}
+	if (p_limit > 0) {
+		params["limit"] = p_limit;
+	}
+	send_jsonrpc("asset.list", params);
+}
+
+void EditorAIAgent::request_asset_import(const String &p_asset_id) {
+	if (p_asset_id.is_empty()) {
+		return;
+	}
+	Dictionary params;
+	params["assetId"] = p_asset_id;
+	send_jsonrpc("asset.import", params);
+}
+
+void EditorAIAgent::request_asset_tag(const String &p_asset_id, const String &p_action, const PackedStringArray &p_tags) {
+	if (p_asset_id.is_empty() || p_tags.is_empty()) {
+		return;
+	}
+	Dictionary params;
+	params["assetId"] = p_asset_id;
+	params["action"] = p_action.is_empty() ? String("add") : p_action;
+	Array tags;
+	for (int i = 0; i < p_tags.size(); i++) {
+		tags.push_back(p_tags[i]);
+	}
+	params["tags"] = tags;
+	send_jsonrpc("asset.tag", params);
+}
+
+void EditorAIAgent::request_asset_discard(const String &p_asset_id) {
+	if (p_asset_id.is_empty()) {
+		return;
+	}
+	Dictionary params;
+	params["assetId"] = p_asset_id;
+	send_jsonrpc("asset.discard", params);
 }
