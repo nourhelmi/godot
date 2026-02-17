@@ -106,6 +106,16 @@ inline AIContextItemKind ai_context_kind_from_path(const String &p_path) {
 	return AI_CONTEXT_ASSET;
 }
 
+// Chat interaction mode (mirrors backend ChatMode union).
+enum AIChatMode {
+	AI_CHAT_MODE_AGENT,
+	AI_CHAT_MODE_PLAN,
+};
+
+inline String ai_chat_mode_to_string(AIChatMode p_mode) {
+	return p_mode == AI_CHAT_MODE_PLAN ? String("plan") : String("agent");
+}
+
 // Pinned context item struct
 struct AIContextItem {
 	String id;

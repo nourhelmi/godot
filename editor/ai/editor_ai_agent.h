@@ -104,7 +104,7 @@ public:
 	int send_jsonrpc_with_callback(const String &p_method, const Dictionary &p_params, const Callable &p_callback);
 
 	// High-level requests (fire and emit signals)
-	void request_chat(const String &p_prompt, const Array &p_images = Array());
+	void request_chat(const String &p_prompt, const Array &p_images = Array(), AIChatMode p_mode = AI_CHAT_MODE_AGENT);
 	void abort_chat();
 	void clear_session();
 

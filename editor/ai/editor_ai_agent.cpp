@@ -2660,9 +2660,10 @@ int EditorAIAgent::send_jsonrpc_with_callback(const String &p_method, const Dict
 	return id;
 }
 
-void EditorAIAgent::request_chat(const String &p_prompt, const Array &p_images) {
+void EditorAIAgent::request_chat(const String &p_prompt, const Array &p_images, AIChatMode p_mode) {
 	Dictionary params;
 	params["prompt"] = p_prompt;
+	params["mode"] = ai_chat_mode_to_string(p_mode);
 	if (!p_images.is_empty()) {
 		params["images"] = p_images;
 	}

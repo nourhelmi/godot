@@ -50,6 +50,7 @@ class AIChatDock : public VBoxContainer {
 	HBoxContainer *header = nullptr;
 	PanelContainer *meter_container = nullptr;
 	Label *token_meter = nullptr;
+	Button *mode_btn = nullptr;
 	Button *new_btn = nullptr;
 
 	// Main chat scroll area
@@ -92,6 +93,7 @@ class AIChatDock : public VBoxContainer {
 	int cache_rate = 0; // 0-100 percentage of prompt tokens from cache
 	int tool_call_count = 0;
 	bool stick_to_bottom = true; // Only auto-scroll when the user is already at the bottom.
+	bool plan_mode_enabled = false;
 
 	// Active tool cards within current turn
 	HashMap<String, PanelContainer *> active_tool_cards;
@@ -150,9 +152,11 @@ class AIChatDock : public VBoxContainer {
 	void _on_stop_pressed();
 	void _on_input_gui_input(const Ref<InputEvent> &p_event);
 	void _on_input_text_changed();
+	void _on_mode_toggled();
 	void _on_new_conversation();
 	void _on_meta_clicked(const Variant &p_meta);
 	void _on_processing_state_changed(bool p_is_processing);
+	void _refresh_mode_button();
 
 	// @ mention handler
 	void _on_mention_selected(const String &p_path, const String &p_label, int p_start_col);

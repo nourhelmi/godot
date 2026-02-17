@@ -501,6 +501,12 @@ void AIChatDock::_build_header() {
 
 	header->add_spacer();
 
+	mode_btn = memnew(Button);
+	mode_btn->set_flat(true);
+	header->add_child(mode_btn);
+	mode_btn->connect("pressed", callable_mp(this, &AIChatDock::_on_mode_toggled));
+	_refresh_mode_button();
+
 	// New conversation button
 	new_btn = memnew(Button);
 	new_btn->set_text("New");
@@ -1601,6 +1607,21 @@ void AIChatDock::_update_spinner_icons() {
 
 // === Event handlers ===
 
+void AIChatDock::_refresh_mode_button() {
+	if (!mode_btn) {
+		return;
+	}
+	mode_btn->set_text(plan_mode_enabled ? "Plan" : "Agent");
+	mode_btn->set_tooltip_text(plan_mode_enabled
+			? "Plan mode (read-only reasoning)"
+			: "Agent mode (edits enabled)");
+}
+
+void AIChatDock::_on_mode_toggled() {
+	plan_mode_enabled = !plan_mode_enabled;
+	_refresh_mode_button();
+}
+
 void AIChatDock::_on_send_pressed() {
 	String text = input->get_text().strip_edges();
 	if (text.is_empty() && pending_images.is_empty()) {
@@ -1642,7 +1663,10 @@ void AIChatDock::_on_send_pressed() {
 			}
 			images.push_back(payload);
 		}
-		agent->request_chat(text, images);
+		agent->request_chat(
+				text,
+				images,
+				plan_mode_enabled ? AI_CHAT_MODE_PLAN : AI_CHAT_MODE_AGENT);
 		agent->clear_context();
 	}
 
